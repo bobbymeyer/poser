@@ -126,6 +126,10 @@ How it behaves:
 
 Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), and pass mute lasts for the session.
 
+## Deploy
+
+`.github/workflows/pages.yml` tests, builds and publishes `dist` to GitHub Pages on every push to `main`, and can be run by hand. bobbymeyer.com proxies `/poser/` to that deploy. Pages has to be switched on once under Settings -> Pages -> Source: GitHub Actions.
+
 ## Phase 0 spike (`spike/index.html`)
 
 One HTML page that answers the three risk questions from the handoff:

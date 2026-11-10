@@ -97,7 +97,7 @@
 
 <script type="module">
 import example from "../docs/example.song.json";
-import { validateSong, resolveSong, resolveChords, exportMidi, METERS } from "../src/core/index.js";
+import { loadSong, resolveSong, resolveChords, exportMidi, METERS } from "../src/core/index.js";
 import { createSynth, fetchDefaultSoundFont, loadSoundFont } from "../src/audio/synth.js";
 import { createPlayer } from "../src/audio/player.js";
 
@@ -114,7 +114,7 @@ function refreshButtons() {
 
 function openSong(doc, label) {
   player?.stop();
-  const result = validateSong(doc);
+  const result = loadSong(doc); // migrates older formats, then validates
   $("errors").hidden = result.ok;
   $("errors").innerHTML = result.errors.map((e) => `<li>${esc(e.path)}: ${esc(e.message)}</li>`).join("");
   if (!result.ok) {
@@ -123,9 +123,9 @@ function openSong(doc, label) {
     $("sections").innerHTML = $("lanes").innerHTML = $("strip").innerHTML = "";
     return refreshButtons();
   }
-  song = structuredClone(doc);
+  song = structuredClone(result.song);
   resolved = player ? player.load(song) : resolveSong(song);
-  setStatus("valid", `${label}: valid${result.readOnly ? " · uses options from a newer version, read-only" : ""} · ` +
+  setStatus("valid", `${label}: valid${result.migratedFrom ? ` · migrated from format ${result.migratedFrom}` : ""}${result.readOnly ? " · uses options from a newer version, read-only" : ""} · ` +
     `${resolved.notes.length} notes · ${resolved.totalTicks / 480} beats · ${fmt(resolved.totalSec)}`, "ok");
   renderSong();
   refreshButtons();

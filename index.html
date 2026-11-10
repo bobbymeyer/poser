@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Layered</title>
+<meta name="description" content="A layered composer for the browser. Type chords as scale degrees, pick patterns for kit, bass and pad, record a lead, and arrange sections into a song.">
+<script>
+  // Every path in this page is relative to its own address, which must end in
+  // a slash. Opened without one (/poser behind a proxy, say) they would all
+  // miss, so add it before anything else loads.
+  if (!/\/$|\.[a-z0-9]+$/i.test(location.pathname)) {
+    location.replace(location.pathname + "/" + location.search + location.hash);
+  }
+</script>
 </head>
 <body>
 <div id="root"></div>

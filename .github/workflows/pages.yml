@@ -1,0 +1,61 @@
+# Publish the app to GitHub Pages.
+#
+# bobbymeyer.com serves this deploy under /poser/ rather than keeping a copy of
+# its own, the same way it serves gridi. Web MIDI and the File System Access API
+# also need a secure context, which Pages provides.
+#
+# Unlike gridi there is a build step: the app is bundled with Vite, so what goes
+# up is `dist`, not the repository. Paths in the bundle are relative, so it runs
+# at /poser/ here and at /poser/ behind the site's proxy without being told.
+#
+# One thing here cannot do itself: Pages has to be switched on once, by hand,
+# under Settings -> Pages -> Build and deployment -> Source: GitHub Actions. The
+# workflow's own token may publish to a Pages site but not create one. Until
+# that toggle is set, every run dies on the configure step.
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  # So a deploy can be run by hand, or re-run without an empty commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and a running one is left to finish: an interrupted
+# publish leaves the site as it was, which is worse than a late one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  # Only what passes the tests and builds goes up.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
