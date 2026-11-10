@@ -158,3 +158,49 @@ button.link { border: 0; background: none; text-decoration: underline; padding: 
   .card, .row2, .problem { margin-left: 12px; margin-right: 12px; }
   .top, .section-head { padding-left: 12px; padding-right: 12px; }
 }
+
+/* ---- arrangement strip and overview */
+.top button.on, .pill.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.top .seg button { padding: 6px 12px; }
+.arr { padding: 14px 24px 0; }
+.arr-head { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.arr-head > b { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #4A4944; }
+.arr-head h2 { margin: 0; font-size: 20px; }
+.arr-tools { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.arr-tools button, .arr-tools select { padding: 4px 9px; font-size: 13px; border: 1px solid #CFCBC0; border-radius: 6px; background: var(--card); }
+.arr-row { display: flex; gap: 4px; overflow-x: auto; padding: 3px; margin: -3px; touch-action: pan-x; }
+.acard { min-width: 150px; text-align: left; padding: 8px 10px; border-radius: 5px; display: flex; flex-direction: column; gap: 10px; background: var(--card);
+  position: relative; font-weight: 400; user-select: none; }
+.aname { font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.aname i { font-style: normal; font: 600 10px var(--mono); border-radius: 4px; padding: 1px 5px; }
+.badge { background: var(--ink); color: #fff; margin-left: auto; }
+.lift { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-line); }
+.ameta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.amber { color: #8A5F08; font-weight: 600; }
+.acard.linked, .ocard.linked { background: var(--chords-bg); border-color: var(--chords-line); }
+.acard.linked .ameta { color: var(--chords); }
+.acard.active, .ocard.active { background: var(--chords-bg); border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.acard.playing::after, .ocard.playing::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: 3px; height: 2px; background: var(--bad); border-radius: 1px; }
+.drop-before::before, .drop-after::before { content: ""; position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--chords); border-radius: 2px; }
+.drop-before::before { left: -4px; } .drop-after::before { right: -4px; }
+.affects { background: var(--chords-bg); border: 1px solid var(--chords-line); color: var(--chords); border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+.section-head .spacer { flex: 1; }
+.bake { border: 1.5px solid var(--ink); font-weight: 600; }
+
+.overview { padding: 18px 24px; }
+.ov-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px; margin: 6px -4px 0; align-items: stretch; }
+.ocard { flex: none; background: var(--card); border: 1px solid #CFCBC0; border-radius: 8px; padding: 12px; position: relative; cursor: pointer; user-select: none;
+  display: flex; flex-direction: column; gap: 5px; }
+.chips { display: flex; gap: 5px; flex-wrap: wrap; margin: 2px 0; }
+.kchip { font: 11px var(--mono); background: var(--ground); border: 1px solid #D9D6CE; border-radius: 4px; padding: 2px 6px; white-space: nowrap; }
+.kchip.amber { background: #F8E7BE; border-color: #D9A93A; color: var(--amber); }
+.nums { font: 600 13px var(--mono); color: var(--chords); }
+.names { min-height: 16px; }
+.meters { display: grid; gap: 4px; margin-top: 4px; }
+.meter { display: grid; grid-template-columns: 38px 1fr; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.meter div { height: 5px; background: #EDEAE2; border-radius: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--c); }
+.foot { margin-top: auto; padding-top: 6px; }
+.ov-notes { list-style: none; padding: 0; margin: 18px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; font-size: 13px; color: var(--muted); }
+.ov-notes b { color: var(--ink); }
+@media (max-width: 760px) { .arr, .overview { padding-left: 12px; padding-right: 12px; } }

@@ -6,7 +6,7 @@ import { resolveSong, audibleLanes, assignChannels } from "../core/index.js";
 const TICK_MS = 25, HORIZON = 0.12, START_DELAY = 0.1;
 const FALLBACK_PROGRAM = 80; // for MIDI-out lanes auditioned on the soundfont
 
-export function createPlayer({ ctx, synth, master }) {
+export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
   const timer = new Worker(URL.createObjectURL(new Blob([`
     let id = null;
     onmessage = (e) => { clearInterval(id); id = null; if (e.data > 0) id = setInterval(() => postMessage(0), e.data); };`],
@@ -102,7 +102,7 @@ export function createPlayer({ ctx, synth, master }) {
     for (;;) {
       if (state.next >= events.length) {
         const end = state.startTime + (state.pass + 1) * resolved.totalSec;
-        if (!state.loop) { if (ctx.currentTime >= end) stop(); return; }
+        if (!state.loop) { if (ctx.currentTime >= end) { stop(); onEnd?.(); } return; }
         if (end >= until) return;
         state.next = 0; state.pass++;
         continue;

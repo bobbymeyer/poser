@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
-import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, validateSong } from "../core/index.js";
+import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, validateSong, exportMidi } from "../core/index.js";
 import { enter, remove, split, moveBoundary, climb, invert, setOptions, defaultLength, sectionLength, visibleCount } from "../editor/chordOps.js";
 import { newProject } from "../editor/template.js";
 import { setBars, setLane, applyEntry } from "../editor/patternOps.js";
+import { addSection, copyLinked, moveInstance, bake, removeInstance, describeArrangement, bakeName } from "../editor/arrangeOps.js";
 import { saveProject, loadLastProject } from "../storage/db.js";
 import { saveSongFile, openSongFile } from "../storage/files.js";
 import { engine } from "../audio/engine.js";
-import { reducer, sectionId, sectionOf, withSection, loopSong } from "./project.js";
+import { reducer, sectionId, sectionOf, withSection, loopSong, songFrom } from "./project.js";
 import ChordLane from "./ChordLane.jsx";
 import LaneRow from "./LaneRow.jsx";
 import { DrumEditor, StepEditor } from "./PatternEditors.jsx";
+import { ArrangementStrip, Overview } from "./Arrangement.jsx";
 
 const MODE_ROW = ["lydian", "ionian", "mixolydian", "dorian", "aeolian", "phrygian"]; // bright to dark
 const ALL_MODES = [...MODE_ROW, "locrian"];
@@ -20,6 +22,8 @@ const isTyping = (el) => el?.matches?.("input, select, textarea");
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, null);
+  const [view, setView] = useState("section");      // "section" | "overview"
+  const [transport, setTransport] = useState({ mode: "loop", start: 0 }); // what the play buttons last asked for
   const [audition, setAudition] = useState(null);   // mode being auditioned by a drag, not yet committed
   const [preview, setPreview] = useState(null);     // { chords, sticky } while an edge is dragged
   const [saved, setSaved] = useState("saved");      // "saving" | "saved" | "error"
@@ -39,7 +43,7 @@ export default function App() {
   }, []);
 
   // Autosave to IndexedDB shortly after every change, and at once when the page is hidden.
-  const song = state?.song;
+  const song = state?.song, inst = state?.inst ?? 0;
   const pending = useRef(null);
   useEffect(() => {
     if (!song) return;
@@ -55,32 +59,56 @@ export default function App() {
     return () => { clearTimeout(t); removeEventListener("pagehide", flush); };
   }, [song]);
 
-  // Keep the engine on the edited section, in the auditioned mode if there is one.
-  const playSong = useMemo(() => {
+  // The song with whatever is being previewed (an edge drag, a hovered pattern) applied.
+  const base = useMemo(() => {
     if (!song) return null;
-    let base = preview ? withSection(song, { chords: preview.chords }) : song;
-    const lane = patPreview && base.lanes.find((l) => l.id === patPreview.laneId);
-    if (lane) base = applyEntry(base, sectionId(base), lane, patPreview.entry, patPreview.slot);
-    return loopSong(base, audition);
-  }, [song, audition, preview, patPreview]);
-  const resolved = useMemo(() => (playSong ? resolveSong(playSong) : null), [playSong]);
-  useEffect(() => { if (playSong) engine.setSong(playSong); }, [playSong]);
+    let b = preview ? withSection(song, inst, { chords: preview.chords }) : song;
+    const lane = patPreview && b.lanes.find((l) => l.id === patPreview.laneId);
+    if (lane) b = applyEntry(b, sectionId(b, inst), lane, patPreview.entry, patPreview.slot);
+    return b;
+  }, [song, inst, preview, patPreview]);
+  // What is on screen: the selected instance alone.
+  const viewSong = useMemo(() => (base ? loopSong(base, inst, audition) : null), [base, inst, audition]);
+  const resolved = useMemo(() => (viewSong ? resolveSong(viewSong) : null), [viewSong]);
+  const full = useMemo(() => (song && view === "overview" ? resolveSong(song) : null), [song, view]);
+  // What the engine plays: that loop, or the song from where "Play song" was pressed.
+  const songMode = transport.mode === "song" && engine.playing;
+  const engineSong = useMemo(
+    () => (base ? (songMode ? songFrom(base, transport.start, inst, audition) : viewSong) : null),
+    [base, viewSong, songMode, transport.start, inst, audition]);
+  useEffect(() => { if (engineSong) engine.setSong(engineSong); }, [engineSong]);
 
   const latest = useRef(null);
-  latest.current = { state };
+  latest.current = { state, view, transport, songMode };
+
+  // In song mode the screen follows the instance that is playing.
+  useEffect(() => {
+    if (!songMode) return;
+    const t = setInterval(() => {
+      const { state, transport } = latest.current;
+      let tick = engine.positionTicks();
+      if (tick < 0) return;
+      for (let i = transport.start; i < state.song.arrangement.length; i++) {
+        const len = sectionLength(sectionOf(state.song, i));
+        if (tick < len) { if (i !== state.inst) dispatch({ type: "select", inst: i }); return; }
+        tick -= len;
+      }
+    }, 100);
+    return () => clearInterval(t);
+  }, [songMode]);
 
   // ---- editing helpers (read the latest state so key handlers never go stale)
   const api = useMemo(() => {
     const cur = () => {
-      const { song, caret, sticky } = latest.current.state;
-      const section = sectionOf(song), len = sectionLength(section);
+      const { song, inst, caret, sticky } = latest.current.state;
+      const section = sectionOf(song, inst), len = sectionLength(section);
       const context = { tonic: section.tonic, mode: section.mode, minorDominant: !!song.settings.minor_dominant };
-      return { song, caret, section, len, context, sticky: sticky ?? defaultLength(section) };
+      return { song, inst, caret, section, len, context, sticky: sticky ?? defaultLength(section) };
     };
     const commit = (chords, extra = {}) => {
-      const { song, section } = cur();
+      const { song, inst, section } = cur();
       if (chords === section.chords && extra.caret === undefined) return;
-      dispatch({ type: "edit", song: chords === section.chords ? song : withSection(song, { chords }), ...extra });
+      dispatch({ type: "edit", song: chords === section.chords ? song : withSection(song, inst, { chords }), ...extra });
     };
     return {
       cur,
@@ -99,12 +127,39 @@ export default function App() {
         commit(chords);
         if (chords !== section.chords) engine.audition(chords[caret - 1], section, !!song.settings.minor_dominant);
       },
-      section(patch) { dispatch({ type: "edit", song: withSection(cur().song, patch) }); },
+      section(patch) { const { song, inst } = cur(); dispatch({ type: "edit", song: withSection(song, inst, patch) }); },
       song(patch) { dispatch({ type: "edit", song: { ...cur().song, ...patch, updated_at: new Date().toISOString() } }); },
-      replace(song) { dispatch({ type: "edit", song }); },
-      bars(n) { const { song } = cur(); dispatch({ type: "edit", song: setBars(song, sectionId(song), n) }); },
+      replace(song, inst) { dispatch({ type: "edit", song, inst }); },
+      bars(n) { const { song, inst } = cur(); dispatch({ type: "edit", song: setBars(song, sectionId(song, inst), n) }); },
     };
   }, []);
+
+  // ---- arrangement
+  const ops = useMemo(() => ({
+    select: (i) => dispatch({ type: "select", inst: i }),
+    move: (from, to) => api.replace(moveInstance(api.cur().song, from, to), to),
+    copy: (from, at) => api.replace(copyLinked(api.cur().song, from, at), at),
+    duplicate: () => { const { song, inst } = api.cur(); api.replace(copyLinked(song, inst), inst + 1); },
+    add: (template) => { const { song, inst } = api.cur(); api.replace(addSection(song, inst, template), inst + 1); },
+    bake: () => { const { song, inst } = api.cur(); api.replace(bake(song, inst), inst); },
+    remove: () => { const { song, inst } = api.cur(); api.replace(removeInstance(song, inst), Math.min(inst, song.arrangement.length - 2)); },
+  }), [api]);
+
+  // ---- transport
+  const act = useRef(null);
+  act.current = {
+    loop() {
+      if (engine.playing) return engine.stop();
+      setTransport({ mode: "loop", start: 0 });
+      engine.setSong(viewSong);
+      engine.play({ loop: true });
+    },
+    song() {
+      setTransport({ mode: "song", start: inst });
+      engine.setSong(songFrom(base, inst, inst, audition));
+      engine.play({ loop: false });
+    },
+  };
 
   // ---- keyboard
   useEffect(() => {
@@ -116,6 +171,8 @@ export default function App() {
       if (e.code === "Escape") { auditionRef.current = null; setAudition(null); setMoreOpen(false); return; }
       if (mod || isTyping(e.target)) return;
       engine.start();
+      if (e.code === "Space") { e.preventDefault(); act.current.loop(); return; }
+      if (latest.current.view !== "section") return;
       const digit = /^Digit(\d)$/.exec(e.code)?.[1];
       const { caret } = latest.current.state;
       let handled = true;
@@ -132,7 +189,6 @@ export default function App() {
       else if (e.shiftKey && e.code === "ArrowDown") api.active((c, i, ctx) => climb(c, i, -1, ctx));
       else if (e.altKey && e.code === "ArrowUp") api.active((c, i) => invert(c, i, 1));
       else if (e.altKey && e.code === "ArrowDown") api.active((c, i) => invert(c, i, -1));
-      else if (e.code === "Space") engine.toggle();
       else handled = false;
       if (handled) e.preventDefault();
     };
@@ -192,11 +248,23 @@ export default function App() {
     setFileNote("");
     dispatch({ type: "load", song: newProject() });
   }
+  function exportMid() {
+    const s = latest.current.state.song;
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(new Blob([exportMidi(s)], { type: "audio/midi" })),
+      download: `${(s.title || "song").replace(/[\\/:*?"<>|]+/g, " ").trim() || "song"}.mid`,
+    });
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
 
   if (!state) return <div className="boot">Loading…</div>;
 
   // ---- derived view
-  const stored = sectionOf(song);
+  const infos = describeArrangement(song);
+  const info = infos[inst];
+  const sid = info.sectionId;
+  const stored = song.sections[sid];
   const len = sectionLength(stored);
   const chords = preview ? preview.chords : stored.chords;
   const sticky = preview?.sticky ?? state.sticky ?? defaultLength(stored);
@@ -210,24 +278,33 @@ export default function App() {
     const before = audition && audition !== stored.mode ? resolveChord(c, committed) : null;
     return { start: c.start, end: Math.min(c.start + c.len, len), stored: c, chord, was: before && chord && before.numeral !== chord.numeral ? before.numeral : null };
   });
-  const full = chords.length > 0 && chords.at(-1).start + chords.at(-1).len >= len;
-  const activeIndex = state.caret - 1;
-  const active = blocks[activeIndex];
+  const isFull = chords.length > 0 && chords.at(-1).start + chords.at(-1).len >= len;
+  const active = blocks[state.caret - 1];
   const bar = METERS[stored.meter].barTicks;
-  const sid = sectionId(song);
-  const shown = playSong.sections[sid]; // what is sounding, including a hovered pattern
+  const shown = viewSong.sections[sid]; // includes a hovered pattern
   const picked = song.lanes.find((l) => l.id === selected);
-  const multi = song.arrangement.length > 1 || Object.keys(song.sections).length > 1;
+
+  // Where the playhead is, relative to the instance on screen.
+  let playing = -1;
+  if (!engine.playing) engine.setView(0, Infinity);
+  else if (!songMode) { engine.setView(0, Infinity); playing = inst; }
+  else {
+    let offset = 0;
+    for (let i = transport.start; i < inst; i++) offset += sectionLength(sectionOf(song, i));
+    engine.setView(inst >= transport.start ? offset : Infinity, len);
+    playing = inst;
+  }
 
   return (
     <div className="app" onPointerDown={() => engine.start()}>
       <header className="top">
         <strong className="brand">Layered</strong>
         <input className="title" aria-label="Song title" value={song.title} onChange={(e) => api.song({ title: e.target.value })} />
-        <button className="play" onClick={() => engine.toggle()} aria-label={engine.playing ? "Stop" : "Play"} data-testid="play">
+        <button className="play" onClick={() => act.current.loop()} aria-label={engine.playing ? "Stop" : "Loop section"} data-testid="play">
           {engine.playing ? "■" : "▶"}
         </button>
-        <span className="pill">Loop section</span>
+        <span className={`pill${engine.playing && !songMode ? " on" : ""}`}>Loop section</span>
+        <button className={songMode ? "on" : ""} onClick={() => act.current.song()} data-testid="play-song">Play song</button>
         <span className={`chip ${engine.status === "error" || saved === "error" ? "bad" : ""}`} data-testid="save-chip">
           {saved === "error" ? "Could not save in this browser" : saved === "saving" ? "Saving…" : "Saved locally"}
           {fileNote ? ` · ${fileNote}` : ""}
@@ -236,7 +313,12 @@ export default function App() {
         <span className="spacer" />
         <button onClick={saveFile}>Save file</button>
         <button onClick={openFile}>Open file</button>
+        <button onClick={exportMid}>Export .mid</button>
         <button onClick={newSong}>New</button>
+        <div className="seg" role="group" aria-label="View">
+          <button className={view === "section" ? "on" : ""} onClick={() => setView("section")}>Section</button>
+          <button className={view === "overview" ? "on" : ""} onClick={() => setView("overview")}>Overview</button>
+        </div>
       </header>
 
       {problem && (
@@ -248,8 +330,15 @@ export default function App() {
         </div>
       )}
 
+      {view === "overview" ? (
+        <Overview song={song} resolved={full ?? resolveSong(song)} infos={infos} active={inst} playing={playing} ops={ops}
+          onOpen={(i) => { ops.select(i); setView("section"); }} />
+      ) : <>
+      <ArrangementStrip infos={infos} active={inst} playing={playing} ops={ops} />
+
       <div className="section-head">
         <input className="name" aria-label="Section name" value={stored.name} onChange={(e) => api.section({ name: e.target.value })} />
+        <span className="hint" data-testid="instance">instance {info.ordinal} of {info.count}</span>
         <label className="field">
           <small>Rhythm</small>
           <span>
@@ -275,12 +364,18 @@ export default function App() {
             <button aria-label="More bars" disabled={stored.bars >= 64} onClick={() => api.bars(stored.bars + 1)}>+</button>
           </span>
         </label>
-        <label className="check" title="In minor modes, play the chord on degree 5 as major">
+        {info.count > 1 && <span className="affects">Edits affect {info.count} instances</span>}
+        <label className="check" title="In minor modes, play the chord on degree 5 as major. Applies to the whole song.">
           <input type="checkbox" checked={minorDominant}
             onChange={(e) => api.song({ settings: { ...song.settings, minor_dominant: e.target.checked } })} />
           Major V in minor modes
         </label>
-        {multi && <span className="hint">This file has more sections. Only the first is shown until the arrangement is built.</span>}
+        <span className="spacer" />
+        {info.count > 1 && (
+          <button className="bake" onClick={ops.bake} title="Copy this section into a new one, for this instance only" data-testid="bake">
+            Bake → {bakeName(song, sid)}
+          </button>
+        )}
       </div>
 
       <div className="card modes">
@@ -309,32 +404,32 @@ export default function App() {
       </div>
 
       <div className="card lanes">
-       <div className={`lane-row role-chords${selected === "chords" ? " selected" : ""}`} onClick={() => setSelected("chords")}>
-        <div className="lane-head">
-          <div className="lane-name"><i />Chords</div>
-          <div className="hint">Typing cursor · length {sticky / bar} bar{sticky === bar ? "" : "s"}</div>
-          <div className="hint"><kbd>1–7</kbd> enter degree</div>
+        <div className={`lane-row role-chords${selected === "chords" ? " selected" : ""}`} onClick={() => setSelected("chords")}>
+          <div className="lane-head">
+            <div className="lane-name"><i />Chords</div>
+            <div className="hint">Typing cursor · length {sticky / bar} bar{sticky === bar ? "" : "s"}</div>
+            <div className="hint"><kbd>1–7</kbd> enter degree</div>
+          </div>
+          <ChordLane
+            section={stored} len={len} blocks={blocks} caret={state.caret} sticky={sticky} full={isFull}
+            onCaret={(caret) => dispatch({ type: "caret", caret })}
+            onDrag={(i, tick) => setPreview(moveBoundary(stored.chords, len, i, tick))}
+            onDragEnd={() => {
+              if (preview && preview.chords !== stored.chords)
+                dispatch({ type: "edit", song: withSection(song, inst, { chords: preview.chords }), sticky: preview.sticky });
+              setPreview(null);
+            }}
+          />
         </div>
-        <ChordLane
-          section={stored} len={len} blocks={blocks} caret={state.caret} sticky={sticky} full={full}
-          onCaret={(caret) => dispatch({ type: "caret", caret })}
-          onDrag={(i, tick) => setPreview(moveBoundary(stored.chords, len, i, tick))}
-          onDragEnd={() => {
-            if (preview && preview.chords !== stored.chords)
-              dispatch({ type: "edit", song: withSection(song, { chords: preview.chords }), sticky: preview.sticky });
-            setPreview(null);
-          }}
-        />
-       </div>
-       {song.lanes.map((lane) => (
-         <LaneRow key={lane.id} lane={playSong.lanes.find((l) => l.id === lane.id)} section={shown} len={len} patterns={playSong.patterns}
-           notes={resolved.notes.filter((n) => n.lane === lane.id)} selected={selected === lane.id}
-           onSelect={() => setSelected(lane.id)} onPatch={(patch) => api.replace(setLane(song, lane.id, patch))} />
-       ))}
+        {song.lanes.map((lane) => (
+          <LaneRow key={lane.id} lane={viewSong.lanes.find((l) => l.id === lane.id)} section={shown} len={len} patterns={viewSong.patterns}
+            notes={resolved.notes.filter((n) => n.lane === lane.id)} selected={selected === lane.id}
+            onSelect={() => setSelected(lane.id)} onPatch={(patch) => api.replace(setLane(song, lane.id, patch))} />
+        ))}
       </div>
 
-      {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={api.replace} onPreview={setPatPreview} />}
-      {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={api.replace} onPreview={setPatPreview} />}
+      {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
+      {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
       {picked && picked.role === "lead" && <div className="card"><p className="hint">Lead lanes are played and recorded live. That arrives in a later phase.</p></div>}
 
       {!picked && <div className="row2">
@@ -381,12 +476,13 @@ export default function App() {
             <li><kbd>← →</kbd> move cursor</li>
             <li><kbd>⌫</kbd> delete before cursor</li>
             <li><kbd>S</kbd> split in half</li>
-            <li><kbd>Space</kbd> play / stop</li>
+            <li><kbd>Space</kbd> loop section / stop</li>
             <li><kbd>⌘Z</kbd> undo</li>
             <li><kbd>⌘S</kbd> save file</li>
           </ul>
         </div>
       </div>}
+      </>}
     </div>
   );
 }

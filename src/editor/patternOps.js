@@ -39,7 +39,7 @@ function withClips(song, sectionId, laneId, main, fill) {
 }
 
 /** Drop untouched factory copies that no clip uses any more. Edited patterns are kept. */
-function prune(song) {
+export function prune(song) {
   const patterns = { ...song.patterns };
   for (const id of Object.keys(patterns)) if (FACTORY_BY_ID[id] && !linkCount(song, id)) delete patterns[id];
   return { ...song, patterns };

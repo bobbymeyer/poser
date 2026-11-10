@@ -6,7 +6,8 @@ import { createPlayer } from "./player.js";
 import { resolveChord, bassVoicing, nearestVoicing } from "../core/index.js";
 
 const listeners = new Set();
-let audio = null, player = null, starting = null, song = null, wantPlay = false;
+let audio = null, player = null, starting = null, song = null, wantPlay = false, wantLoop = true;
+let viewOffset = 0, viewLen = Infinity;
 
 export const engine = {
   /** "off" | "loading" | "ready" | "error" */
@@ -23,10 +24,10 @@ export const engine = {
         const buf = await fetchDefaultSoundFont(new URL("soundfonts/default.sf3", document.baseURI));
         if (!buf) throw new Error("the factory SoundFont is missing");
         await loadSoundFont(audio.synth, buf);
-        player = createPlayer(audio);
+        player = createPlayer(audio, { onEnd: () => { wantPlay = false; notify(); } });
         if (song) player.load(song);
         setStatus("ready");
-        if (wantPlay) engine.play();
+        if (wantPlay) engine.play({ loop: wantLoop });
       } catch (err) {
         console.error(err);
         engine.error = err.message;
@@ -44,9 +45,11 @@ export const engine = {
   },
 
   get playing() { return wantPlay; },
-  play() {
+  /** Loop the song given to `setSong`, or play it once to the end. */
+  play({ loop = true } = {}) {
     wantPlay = true;
-    if (player) player.play({ loop: true }); else engine.start();
+    wantLoop = loop;
+    if (player) { player.stop(); player.play({ loop }); } else engine.start();
     notify();
   },
   stop() {
@@ -58,6 +61,14 @@ export const engine = {
 
   /** Ticks into the loop, or -1 when stopped. */
   positionTicks() { return player ? player.positionTicks() : -1; },
+
+  /** Tell the engine which stretch of the playing song the screen is showing. */
+  setView(offset, len) { viewOffset = offset; viewLen = len; },
+  /** Ticks into the stretch on screen, or -1 when stopped or playing elsewhere. */
+  localTicks() {
+    const t = engine.positionTicks() - viewOffset;
+    return t >= 0 && t < viewLen ? t : -1;
+  },
 
   /** Sound one chord right away on every pitched lane (used when typing while stopped). */
   audition(stored, section, minorDominant) {

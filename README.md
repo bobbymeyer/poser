@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-3 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, and pattern lanes. Phases 4-8 are not started.
+Phases 0-4 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, and sections with an arrangement. Phases 5-8 are not started.
 
 ## Run
 
@@ -49,7 +49,24 @@ A new project has kit, bass and pad lanes already playing factory patterns, so t
 
 Editing a factory pattern first moves it to a new ID inside the song, so a song never holds an altered pattern under a factory ID, and the library always offers the original. Every clip that used the pattern follows the edit.
 
-Limits so far: one section per project (the first, when a file has more), meter fixed at 4/4, fixed instruments per role, and no song list, so "New" replaces the open song.
+## Phase 4 sections and arrangement
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Arrangement logic | `src/editor/arrangeOps.js` | Pure functions: add a section from a template, copy a linked instance, move, bake, remove, and a per-instance description (counts, key lift, tempo change) |
+| Strip and overview | `src/app/Arrangement.jsx` | Click selects, drag moves, Alt-drag copies a linked instance. The overview shows one card per instance with chords, lane activity, and amber chips where key or tempo changes |
+| Selected instance | `src/app/project.js` | Editor state now carries the selected instance; undo restores it |
+| Transport | `src/app/App.jsx`, `src/audio/engine.js` | "Loop section" loops the selected instance. "Play song" plays from it to the end, and the screen follows the instance that is playing |
+
+Rules as built:
+
+- Instances of one section are linked and share everything except leads. The header shows "Edits affect N instances".
+- **Bake** deep-copies the section for the selected instance only, under the next free name ("Chorus 2", then "Chorus 3"). A key change is a bake followed by a tonic change.
+- A new section takes its key, tempo and lane patterns from the selected one and starts with no chords. Templates: Intro (4 bars), Verse, Chorus, Bridge (8), Outro (4).
+- Patterns stay linked across sections and bakes until edited apart with "Make unique".
+- Deleting the last instance of a section deletes the section. Undo brings it back.
+
+Limits so far: meter fixed at 4/4, one pattern per lane per section (plus the kit fill), fixed instruments per role, and no song list, so "New" replaces the open song.
 
 ## Phase 0 spike (`spike/index.html`)
 

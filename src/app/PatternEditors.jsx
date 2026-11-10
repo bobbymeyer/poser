@@ -26,7 +26,7 @@ function useStepCursor(ref, pattern, from, to) {
     const step = GRIDS[pattern.grid], patLen = pattern.bars * METERS[pattern.meter].barTicks;
     let raf, last = null;
     const tick = () => {
-      const t = engine.positionTicks();
+      const t = engine.localTicks();
       const now = t >= from && t < to ? Math.floor((t % patLen) / step) : -1;
       if (now !== last && ref.current) {
         ref.current.querySelector(".now")?.classList.remove("now");

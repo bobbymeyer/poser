@@ -21,7 +21,7 @@ export default function ChordLane({ section, len, blocks, caret, sticky, full, o
   useEffect(() => {
     let raf;
     const tick = () => {
-      const t = engine.positionTicks();
+      const t = engine.localTicks();
       if (playhead.current) {
         playhead.current.style.display = t < 0 ? "none" : "block";
         playhead.current.style.left = pct(Math.min(t, len));
