@@ -163,7 +163,7 @@ async function startAudio() {
     if (buf) await useSoundFont(buf, "default.sf3");
     else {
       $("sfPick").hidden = false;
-      setStatus("audioStatus", "No default SoundFont (npm run fetch-soundfont). Choose a .sf2 or .sf3 file.", "bad");
+      setStatus("audioStatus", "No default SoundFont found. Choose a .sf2 or .sf3 file.", "bad");
     }
   } catch (err) {
     console.error(err);

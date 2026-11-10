@@ -52,15 +52,48 @@ export function createPlayer({ ctx, synth, master }) {
     master.gain.value = (song.settings?.master_volume ?? 100) / 127;
   }
 
+  const toEvents = (r) => r.notes.map((n) => {
+    const sec = r.secAt(n.tick);
+    return { lane: n.lane, pitch: n.pitch, vel: n.vel, sec, dur: r.secAt(n.tick + n.len) - sec };
+  });
+
   function load(nextSong) {
     stop();
     song = nextSong;
     resolved = resolveSong(song);
-    events = resolved.notes.map((n) => {
-      const sec = resolved.secAt(n.tick);
-      return { lane: n.lane, pitch: n.pitch, vel: n.vel, sec, dur: resolved.secAt(n.tick + n.len) - sec };
-    });
+    events = toEvents(resolved);
     route();
+    return resolved;
+  }
+
+  /**
+   * Swap in an edited song. While playing, the playhead keeps its musical position and
+   * pitched notes that should be sounding right now are re-struck with the new pitches.
+   */
+  function update(nextSong) {
+    if (!state.playing) return load(nextSong);
+    const now = ctx.currentTime, until = now + HORIZON;
+    const before = JSON.stringify(events) + resolved.totalSec;
+    const posSec = now - state.startTime - state.pass * resolved.totalSec;
+    const posTick = posSec > 0 ? resolved.tickAt(posSec) : 0;
+    song = nextSong;
+    resolved = resolveSong(song);
+    events = toEvents(resolved);
+    audible = audibleLanes(song);
+    master.gain.value = (song.settings?.master_volume ?? 100) / 127;
+    if (posSec > 0) { state.startTime = now - resolved.secAt(posTick % resolved.totalTicks); state.pass = 0; }
+    const at = (e) => state.startTime + state.pass * resolved.totalSec + e.sec;
+    state.next = events.findIndex((e) => at(e) >= until);
+    if (state.next < 0) state.next = events.length;
+    if (JSON.stringify(events) + resolved.totalSec === before) return resolved;
+    for (const r of routes.values())
+      if (r.out === "synth" && r.ch !== 9) synth.controllerChange(r.ch, 123, 0, { time: until });
+    for (const e of events) {
+      const t = at(e), r = routes.get(e.lane);
+      if (t >= until || t + e.dur <= until + 0.05 || !r || r.out !== "synth" || r.ch === 9 || !audible.has(e.lane)) continue;
+      synth.noteOn(r.ch, e.pitch, e.vel, { time: until + 0.005 });
+      synth.noteOff(r.ch, e.pitch, { time: t + e.dur });
+    }
     return resolved;
   }
 
@@ -69,16 +102,17 @@ export function createPlayer({ ctx, synth, master }) {
     for (;;) {
       if (state.next >= events.length) {
         const end = state.startTime + (state.pass + 1) * resolved.totalSec;
-        if (!state.loop || !events.length) { if (ctx.currentTime >= end) stop(); return; }
+        if (!state.loop) { if (ctx.currentTime >= end) stop(); return; }
         if (end >= until) return;
         state.next = 0; state.pass++;
+        continue;
       }
       const e = events[state.next];
       const t = state.startTime + state.pass * resolved.totalSec + e.sec;
       if (t >= until) return;
       state.next++;
       const r = routes.get(e.lane);
-      if (!audible.has(e.lane) || r.out === "none") continue;
+      if (!r || !audible.has(e.lane) || r.out === "none") continue;
       const at = t + r.latency;
       if (at < ctx.currentTime) state.late++;
       state.scheduled++;
@@ -90,6 +124,19 @@ export function createPlayer({ ctx, synth, master }) {
         r.port.send([0x90 | r.ch, e.pitch, e.vel], ms);
         r.port.send([0x80 | r.ch, e.pitch, 0], ms + e.dur * 1000);
       }
+    }
+  }
+
+  /** Play one note right away, outside the timeline (for auditioning). */
+  function playNow(laneId, pitch, vel, dur) {
+    const r = routes.get(laneId);
+    if (!r) return;
+    if (r.out === "synth") {
+      synth.noteOn(r.ch, pitch, vel);
+      synth.noteOff(r.ch, pitch, { time: ctx.currentTime + dur });
+    } else if (r.out === "midi") {
+      r.port.send([0x90 | r.ch, pitch, vel]);
+      r.port.send([0x80 | r.ch, pitch, 0], performance.now() + dur * 1000);
     }
   }
 
@@ -111,7 +158,7 @@ export function createPlayer({ ctx, synth, master }) {
   }
 
   return {
-    load, play, stop, state,
+    load, update, play, stop, playNow, state,
     get resolved() { return resolved; },
     get routes() { return routes; },
     /** Seconds into the song, or -1 when stopped. */
@@ -120,6 +167,8 @@ export function createPlayer({ ctx, synth, master }) {
       const t = ctx.currentTime - state.startTime;
       return t < 0 ? 0 : state.loop ? t % resolved.totalSec : Math.min(t, resolved.totalSec);
     },
+    /** Ticks into the song, or -1 when stopped. */
+    positionTicks() { const p = this.position(); return p < 0 ? -1 : resolved.tickAt(p); },
     setMute(laneId, mute) { song.lanes.find((l) => l.id === laneId).mute = mute; audible = audibleLanes(song); },
     setMidi(access, fallback) { midiAccess = access; midiFallback = fallback; if (song) { stop(); route(); } },
   };

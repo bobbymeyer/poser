@@ -8,17 +8,34 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phase 0 (spike) and phase 1 (core, no UI) are built. Phases 2-8 are not started.
+Phases 0-2 are built: the timing spike, the core (theory, resolver, MIDI export, validation), and the chord lane app. Phases 3-8 are not started.
 
 ## Run
 
 ```bash
 npm install
-npm run fetch-soundfont   # optional: downloads a free GM soundfont to public/soundfonts/ (gitignored)
 npm run dev
 ```
 
-Open the printed URL and follow the links to `/player/` (phase 1) or `/spike/` (phase 0). Run the unit tests with `npm test`. Without `fetch-soundfont`, pick or drop any `.sf2` / `.sf3` file on the page.
+Open the printed URL for the app. `/player/` (phase 1 test page) and `/spike/` (phase 0) are still there. Run the unit tests with `npm test`.
+
+The factory SoundFont, GeneralUser GS, ships in `public/soundfonts/` with its license.
+
+## Phase 2 app (`src/app/`, `src/editor/`, `src/storage/`)
+
+A section view with the chord lane only. Type degrees, hear them, change key and mode, and it is saved in the browser.
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Chord editing | `src/editor/chordOps.js` | Pure functions: typing at the caret, delete, split, shared-edge drag, extension ladder, inversion. Blocks always tile with no gaps |
+| New project | `src/editor/template.js` | One 8-bar section plus bass and pad lanes holding "audition" patterns, so typed chords sound as block chords through the normal resolver |
+| UI | `src/app/` | React. `project.js` holds the song, caret, sticky length and undo history |
+| Live playback | `src/audio/engine.js`, `player.js` | The section loops; edits swap in without moving the playhead, and sounding chords are re-struck |
+| Storage | `src/storage/` | Dexie autosave to IndexedDB after every change; `.song.json` save and open through the File System Access API, with download and upload as the fallback |
+
+Mode audition: press a mode in the row and drag. The loop keeps playing in the mode under the pointer, changed blocks turn amber and show what they were, and releasing commits.
+
+Phase 2 limits: one section per project (the first, when a file has more), meter fixed at 4/4, and no song list, so "New" replaces the open song.
 
 ## Phase 0 spike (`spike/index.html`)
 

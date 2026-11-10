@@ -40,7 +40,7 @@ export function scaleNames(tonic, mode) {
  * @param chord   `{ chord, quality?, ext?, sus?, add9?, inv? }` as stored in a section
  * @param context `{ tonic, mode, minorDominant }`
  * @returns null for a rest, otherwise
- *   `{ rootPc, intervals, tones, quality, ext, maxExt, name, numeral }` where `intervals` are
+ *   `{ rootPc, intervals, tones, toneNames, quality, ext, maxExt, name, numeral }` where `intervals` are
  *   semitones above the root in root position and `tones` is the same list rotated by the
  *   inversion, so `tones[0]` is the bass note.
  */
@@ -92,12 +92,18 @@ export function resolveChord(chord, { tonic, mode, minorDominant = false }) {
   if (ext >= 9) intervals.push(ninth);
   const add9 = !!chord.add9 && ext < 9 && sus !== 2;
   if (add9) intervals.push(14);
+  // Letter steps above the root, parallel to `intervals`, for spelling the chord tones.
+  const steps = [0, sus === 2 ? 1 : sus === 5 ? 3 : 2, 4];
+  if (ext >= 7) steps.push(6);
+  if (ext >= 9) steps.push(8);
+  if (add9) steps.push(8);
   const inv = Math.min(chord.inv || 0, 2);
   const tones = [...intervals.slice(inv), ...intervals.slice(0, inv)];
 
   // 4. Names.
   const rootPc = mod(tonicPc + rootIv, 12);
   const rootName = spell(rootLetter, rootPc);
+  const toneNames = intervals.map((iv, i) => spell(rootLetter + steps[i], rootPc + iv));
   const namedExt = add9 && ext === 7 ? 9 : ext;
   let suffix;
   if (namedExt === 5) suffix = sus ? "" : { maj: "", min: "m", dim: "°", aug: "+" }[quality];
@@ -125,7 +131,7 @@ export function resolveChord(chord, { tonic, mode, minorDominant = false }) {
   else if (id in SECONDARY) { const [a, b] = id.split("/"); numeral = `${a}${tail}/${b}`; }
   else numeral = BORROWED_NUMERAL[id] + tail;
 
-  return { rootPc, intervals, tones, quality, ext, maxExt, name, numeral, raisedDominant };
+  return { rootPc, intervals, tones, toneNames, quality, ext, maxExt, name, numeral, raisedDominant };
 }
 
 /** Lowest pitch at or above `floor` with pitch class `pc`. */

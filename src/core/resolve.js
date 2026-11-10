@@ -7,9 +7,9 @@ import { resolveChord, bassVoicing, nearestVoicing, tonePitch, leadPitch, swingT
 const LEGATO_OVERLAP = 10; // ticks a cut note is held past the next note-on, for MIDI-out legato
 
 /**
- * @returns `{ ppq, totalTicks, totalSec, instances, tempo, meters, notes, secAt }`.
+ * @returns `{ ppq, totalTicks, totalSec, instances, tempo, meters, notes, secAt, tickAt }`.
  * `notes` are `{ lane, tick, len, pitch, vel, instance }` with absolute ticks, sorted by tick.
- * `secAt(tick)` converts through the stepped tempo map.
+ * `secAt(tick)` and `tickAt(sec)` convert through the stepped tempo map.
  */
 export function resolveSong(song) {
   const lanes = new Map(song.lanes.map((l) => [l.id, l]));
@@ -45,7 +45,12 @@ export function resolveSong(song) {
     for (const k of marks) { if (k.tick <= t) m = k; else break; }
     return m ? m.sec + ((t - m.tick) * 60) / (m.bpm * PPQ) : 0;
   };
-  return { ppq: PPQ, totalTicks: tick, totalSec: secAt(tick), instances, tempo: marks, meters, notes: out, secAt };
+  const tickAt = (s) => {
+    let m = marks[0];
+    for (const k of marks) { if (k.sec <= s) m = k; else break; }
+    return m ? m.tick + ((s - m.sec) * m.bpm * PPQ) / 60 : 0;
+  };
+  return { ppq: PPQ, totalTicks: tick, totalSec: secAt(tick), instances, tempo: marks, meters, notes: out, secAt, tickAt };
 }
 
 /** Chords of a section with names and absolute-in-section spans, dropping inactive ones. */

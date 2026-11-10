@@ -15,7 +15,7 @@ export async function createSynth() {
   return { ctx, synth, master };
 }
 
-/** The development soundfont from `npm run fetch-soundfont`, or null when it is not installed. */
+/** Fetch a soundfont file, or null when it is not there. */
 export async function fetchDefaultSoundFont(url) {
   try {
     const res = await fetch(url);
