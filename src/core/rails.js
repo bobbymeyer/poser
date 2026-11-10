@@ -1,7 +1,7 @@
 // The closed rails: every ID a song file may use. Files store these IDs, never raw values.
 // Growing a list means bumping RAILS_VERSION; old files stay valid.
 
-export const FORMAT_VERSION = 1;
+export const FORMAT_VERSION = 2;
 export const RAILS_VERSION = 1;
 export const PPQ = 480;
 

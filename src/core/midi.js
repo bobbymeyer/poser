@@ -44,7 +44,8 @@ export function exportMidi(song, resolved = resolveSong(song), { bankOf = null }
     if (!notes.length) continue;
     const ch = channels.get(lane.id);
     const ev = [{ tick: 0, order: 0, bytes: meta(0x03, text(lane.name)) }];
-    if (bankOf) ev.push({ tick: 0, order: 1, bytes: [0xb0 | ch, 0, bankOf(lane)] });
+    const bank = Math.min(127, (bankOf ? bankOf(lane) : 0) + (lane.instrument.bank || 0));
+    if (bankOf || bank) ev.push({ tick: 0, order: 1, bytes: [0xb0 | ch, 0, bank] });
     if (lane.instrument.program != null) ev.push({ tick: 0, order: 1, bytes: [0xc0 | ch, lane.instrument.program] });
     ev.push({ tick: 0, order: 1, bytes: [0xb0 | ch, 7, lane.volume] }, { tick: 0, order: 1, bytes: [0xb0 | ch, 10, lane.pan] });
     for (const n of notes) {

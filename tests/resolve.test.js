@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { BasicMIDI } from "spessasynth_core";
 import { resolveSong, resolveSection, applyMono, assignChannels, audibleLanes } from "../src/core/resolve.js";
 import { exportMidi } from "../src/core/midi.js";
-import { validateSong } from "../src/core/validate.js";
+import { validateSong, loadSong } from "../src/core/validate.js";
 
 const load = () => JSON.parse(readFileSync(new URL("../docs/example.song.json", import.meta.url)));
 const of = (r, lane, instance) => r.notes.filter((n) => n.lane === lane && (instance === undefined || n.instance === instance));
@@ -156,10 +156,11 @@ describe(".mid export", () => {
 });
 
 describe("validation", () => {
+  const current = () => loadSong(load()).song;
   const paths = (s) => validateSong(s).errors.map((e) => e.path);
-  it("accepts the example", () => expect(validateSong(load())).toEqual({ ok: true, readOnly: false, errors: [] }));
+  it("accepts the migrated example", () => expect(validateSong(current())).toEqual({ ok: true, readOnly: false, errors: [] }));
   it("rejects unknown IDs and names the field", () => {
-    const s = load();
+    const s = current();
     s.sections.s_verse.mode = "superlocrian";
     s.sections.s_chorus.chords[0].chord = "bII";
     s.lanes[0].swing = "drunk";
@@ -169,7 +170,7 @@ describe("validation", () => {
     expect(res.errors.find((e) => e.path === "/sections/s_verse/mode").message).toMatch(/superlocrian.*allowed:.*dorian/);
   });
   it("rejects broken references", () => {
-    const s = load();
+    const s = current();
     s.arrangement[0].section = "s_bridge";
     s.sections.s_verse.clips.l_bass[0].pattern = "pt_rock16";
     s.sections.s_chorus.clips.l_ghost = [];
@@ -179,22 +180,70 @@ describe("validation", () => {
     ]));
   });
   it("rejects wrong types, unknown fields and non-songs", () => {
-    const s = load();
+    const s = current();
     s.sections.s_verse.bars = 2.5;
     s.lanes[1].instrument.port = "x";
     expect(paths(s)).toEqual(expect.arrayContaining(["/sections/s_verse/bars", "/lanes/1/instrument"]));
     expect(validateSong({ format: "nope" }).ok).toBe(false);
     expect(validateSong(null).ok).toBe(false);
   });
-  it("handles newer versions", () => {
-    const s = load();
+  it("handles newer rails versions", () => {
+    const s = current();
     s.rails_version = 2;
     expect(validateSong(s)).toMatchObject({ ok: true, readOnly: true });
     s.sections.s_verse.meter = "7/8-2-2-3";
     const res = validateSong(s);
     expect(res).toMatchObject({ ok: false, readOnly: true });
     expect(res.errors[0].message).toBe("uses options from a newer version");
-    s.format_version = 2;
-    expect(validateSong(s).errors[0].path).toBe("/format_version");
+  });
+});
+
+describe("migration", () => {
+  it("opens the version-1 example and migrates it", () => {
+    const v1 = load();
+    expect(v1.format_version).toBe(1);
+    const res = loadSong(v1);
+    expect(res).toMatchObject({ ok: true, migratedFrom: 1, readOnly: false, errors: [] });
+    expect(res.song.format_version).toBe(2);
+    expect(res.song.sections.s_verse.chords.map((c) => c.chord)).toEqual(["VI", "IV", "I", "V"]);
+    expect(res.song.sections.s_chorus.chords[3]).toEqual({ start: 11520, len: 3840, chord: "IV", ext: 7 });
+    expect(v1.sections.s_verse.chords[0].chord).toBe("vi"); // the input is not touched
+  });
+  it("sounds exactly the same after migrating", () => {
+    const strip = (r) => r.notes.map((n) => [n.lane, n.tick, n.len, n.pitch, n.vel]);
+    expect(strip(resolveSong(loadSong(load()).song))).toEqual(strip(resolveSong(load())));
+  });
+  it("keeps the borrowed minor iv, and leaves current files alone", () => {
+    const v1 = load();
+    v1.sections.s_verse.chords[1].chord = "iv";
+    v1.sections.s_verse.chords[2].chord = "bVII";
+    const res = loadSong(v1);
+    expect(res.song.sections.s_verse.chords.map((c) => c.chord)).toEqual(["VI", "iv", "bVII", "V"]);
+    const again = loadSong(res.song);
+    expect(again).toMatchObject({ ok: true, migratedFrom: null });
+    expect(again.song).toBe(res.song);
+  });
+  it("a version-1 file is not valid until migrated, and bad files still fail after it", () => {
+    expect(validateSong(load()).errors[0]).toMatchObject({ path: "/format_version" });
+    const bad = load();
+    bad.sections.s_verse.mode = "nope";
+    expect(loadSong(bad)).toMatchObject({ ok: false, song: null });
+    expect(loadSong(bad).errors[0].path).toBe("/sections/s_verse/mode");
+  });
+  it("refuses files from a newer build and things that are not songs", () => {
+    const s = load();
+    s.format_version = 3;
+    expect(loadSong(s).errors[0]).toMatchObject({ path: "/format_version", message: "file format 3 is newer than this app (2)" });
+    expect(loadSong({ format: "song" }).ok).toBe(false);
+    expect(loadSong("nope").ok).toBe(false);
+  });
+  it("accepts the optional bank on a SoundFont instrument and writes it to MIDI", () => {
+    const s = loadSong(load()).song;
+    s.lanes[2].instrument.bank = 8;
+    expect(validateSong(s).ok).toBe(true);
+    const pad = BasicMIDI.fromArrayBuffer(exportMidi(s).buffer).tracks[3].events.filter((e) => e.statusByte === 0xb1 && e.data[0] === 0);
+    expect(pad.map((e) => e.data[1])).toEqual([8]);
+    s.lanes[2].instrument.bank = 200;
+    expect(validateSong(s).ok).toBe(false);
   });
 });

@@ -15,6 +15,12 @@ let viewOffset = 0, viewLen = Infinity, wantCountIn = null, midiAccess = null;
 // SoundFonts loaded into the synth: hash -> bank offset. A user font's presets sit at its offset.
 const banks = new Map([[FACTORY_SOUNDFONT.hash, 0]]);
 const loading = new Set(), missing = new Set();
+// Presets of each loaded SoundFont: hash -> [{ bank, program, name, drums }], bank counted inside the file.
+const fonts = new Map();
+const presetKey = (p) => `${p.bankMSB}|${p.bankLSB}|${p.program}|${!!p.isGMGSDrum}`;
+const describe = (list, offset) => list.filter((p) => !p.bankLSB && p.bankMSB >= offset)
+  .map((p) => ({ bank: p.bankMSB - offset, program: p.program, name: p.name, drums: !!p.isGMGSDrum }))
+  .sort((a, b) => a.bank - b.bank || a.program - b.program);
 const bankOf = (lane) => banks.get(lane.instrument.sf) ?? 0;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -32,9 +38,11 @@ async function loadBank(hash) {
     const stored = await getSoundFont(hash);
     if (!stored) { missing.add(hash); return; }
     const offset = freeOffset();
+    const before = new Set(audio.synth.presetList.map(presetKey));
     banks.set(hash, -1); // reserve while loading
     await audio.synth.soundBankManager.addSoundBank(await stored.blob.arrayBuffer(), hash, offset);
     for (let i = 0; i < 50 && !audio.synth.presetList.some((p) => p.bankMSB === offset); i++) await sleep(100);
+    fonts.set(hash, describe(audio.synth.presetList.filter((p) => !before.has(presetKey(p))), offset));
     banks.set(hash, offset);
     missing.delete(hash);
     player?.reroute();
@@ -74,6 +82,8 @@ export const engine = {
         const buf = await fetchDefaultSoundFont(FACTORY_URL());
         if (!buf) throw new Error("the factory SoundFont is missing");
         await loadSoundFont(audio.synth, buf);
+        for (let i = 0; i < 50 && !audio.synth.presetList.length; i++) await sleep(100);
+        fonts.set(FACTORY_SOUNDFONT.hash, describe(audio.synth.presetList, 0));
         player = createPlayer(audio, { onEnd: () => { wantPlay = false; notify(); }, bankOf });
         player.setMidi(midiAccess, false);
         if (song) player.load(song);
@@ -169,16 +179,12 @@ export const engine = {
     if (engine.fontState(font.hash) === "missing") throw new Error(`${file.name} could not be read as a SoundFont`);
     return font;
   },
-  /** Presets of a loaded SoundFont as `{ program, name }`: its melodic bank 0, or its drum kits. */
+  /** Presets of a loaded SoundFont as `{ bank, program, name }`: its melodic presets, or its drum kits. */
   presets(hash, drums = false) {
-    const offset = banks.get(hash);
-    if (!audio || offset === undefined || offset < 0) return [];
-    const seen = new Set();
-    return audio.synth.presetList
-      .filter((p) => p.bankMSB === offset && !p.bankLSB && !!p.isGMGSDrum === drums && !seen.has(p.program) && seen.add(p.program))
-      .map((p) => ({ program: p.program, name: p.name }))
-      .sort((a, b) => a.program - b.program);
+    return (fonts.get(hash) || []).filter((p) => p.drums === drums);
   },
+  /** Forget a SoundFont that was removed from this browser (it stays loaded until the page reloads). */
+  forgetFont(hash) { if (hash !== FACTORY_SOUNDFONT.hash && !banks.has(hash)) missing.add(hash); },
   /** For an offline render: the SoundFont files the song's audible lanes use, with their bank offsets. */
   async bankFiles(lanes) {
     const out = [{ bankOffset: 0, soundBankBuffer: await fetchDefaultSoundFont(FACTORY_URL()) }];

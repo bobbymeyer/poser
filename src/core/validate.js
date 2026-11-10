@@ -3,11 +3,29 @@
 import Ajv from "ajv";
 import { songSchema } from "./schema.js";
 import { FORMAT_VERSION, RAILS_VERSION } from "./rails.js";
+import { migrate } from "./migrate.js";
 
 const ajv = new Ajv({ allErrors: true, allowUnionTypes: true });
 const check = ajv.compile(songSchema);
 
 /**
+ * Open a song from a file or from storage: migrate it to the current format, then validate it.
+ * @returns `{ ok, song, migratedFrom, readOnly, errors }`. `song` is the migrated document when ok;
+ * `migratedFrom` is the old format version, or null if it was already current.
+ */
+export function loadSong(doc) {
+  const fail = (path, message) => ({ ok: false, song: null, migratedFrom: null, readOnly: false, errors: [{ path, message }] });
+  if (!doc || typeof doc !== "object" || doc.format !== "song") return fail("/format", "not a song file");
+  if (!Number.isInteger(doc.format_version) || doc.format_version < 1) return fail("/format_version", "missing or invalid format version");
+  if (doc.format_version > FORMAT_VERSION) return fail("/format_version", `file format ${doc.format_version} is newer than this app (${FORMAT_VERSION})`);
+  let moved;
+  try { moved = migrate(doc); } catch (err) { return fail("/format_version", err.message); }
+  const result = validateSong(moved.song);
+  return { ...result, song: result.ok ? moved.song : null, migratedFrom: moved.from < FORMAT_VERSION ? moved.from : null };
+}
+
+/**
+ * Validate a song in the current format.
  * @returns `{ ok, readOnly, errors }` where each error is `{ path, message }` and `path`
  * points at the field that failed, e.g. `/sections/s_verse/mode`.
  */
@@ -16,8 +34,9 @@ export function validateSong(song) {
   const add = (path, message) => errors.push({ path, message });
   if (!song || typeof song !== "object" || song.format !== "song")
     return { ok: false, readOnly: false, errors: [{ path: "/format", message: "not a song file" }] };
-  if (song.format_version > FORMAT_VERSION)
-    return { ok: false, readOnly: false, errors: [{ path: "/format_version", message: `file format ${song.format_version} is newer than this app (${FORMAT_VERSION})` }] };
+  if (song.format_version !== FORMAT_VERSION)
+    return { ok: false, readOnly: false, errors: [{ path: "/format_version", message: song.format_version > FORMAT_VERSION
+      ? `file format ${song.format_version} is newer than this app (${FORMAT_VERSION})` : `file format ${song.format_version} must be migrated first` }] };
   const newerRails = song.rails_version > RAILS_VERSION;
 
   if (!check(song)) {

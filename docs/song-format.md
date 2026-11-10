@@ -1,6 +1,6 @@
-# Song file format, v1
+# Song file format, v2
 
-Companion to `example.song.json`. One JSON document per project, stored in IndexedDB and exported as `.song.json`.
+One JSON document per project, stored in IndexedDB and exported as `.song.json`. `example.song.json` is a version 1 file, kept as the migration fixture; opening it migrates it to version 2.
 
 ## Principles
 
@@ -29,7 +29,7 @@ Companion to `example.song.json`. One JSON document per project, stored in Index
 | Field | Notes |
 | --- | --- |
 | `role` | `kit`, `bass`, `pad`, `arp`, `comp`, `lead`. Sets defaults when the lane is created |
-| `instrument` | Soundfont: `{ backend, sf, program, drums? }`. MIDI out: `{ backend, port, channel, program }` |
+| `instrument` | Soundfont: `{ backend, sf, program, bank?, drums? }`, where `bank` (0-127, default 0) picks a variation bank inside the file. MIDI out: `{ backend, port, channel, program }` |
 | `zones` | Keyboard zones claimed, such as `"asd"`. A lead claims two |
 | `volume`, `pan` | 0-127, sent as CC 7 and CC 10 |
 | `latency_ms` | Per-lane offset |
@@ -87,6 +87,11 @@ Stored on the arrangement instance, never on the section. A note is `{ start, le
 ## Versioning and validation
 
 - `format_version` increments when the layout changes. Each change ships a migration function that runs on load.
+
+| Version | Change | Migration |
+| --- | --- | --- |
+| 1 | First format | |
+| 2 | Degree chord IDs are always upper case (`VI`, not `vi`). Optional `bank` on SoundFont instruments | Lower-case degree IDs are upper-cased. Lower-case `iv`, the borrowed minor iv, is left alone |
 - `rails_version` increments when allowed-ID lists grow. A file with a higher version than the app reports "uses options from a newer version" and opens read-only.
 - Validate on import against a JSON Schema ([json-schema.org](https://json-schema.org/)) with a validator such as [Ajv](https://ajv.js.org/). Reject unknown IDs and report which field failed.
 

@@ -1,4 +1,4 @@
-// JSON Schema for song files, format_version 1. Enumerations come straight from the rails.
+// JSON Schema for song files, format_version 2 (older files are migrated before they are checked). Enumerations come straight from the rails.
 
 import { TONICS, MODES, METERS, GRIDS, SWINGS, DEGREES, BORROWED, ROLES, MONO_PRIORITIES, SUS } from "./rails.js";
 
@@ -8,8 +8,8 @@ const obj = (properties, required = Object.keys(properties)) =>
   ({ type: "object", properties, required, additionalProperties: false });
 const mapOf = (schema) => ({ type: "object", additionalProperties: schema });
 
-// Numeral case is output, not input, so degrees are accepted in either case.
-const CHORD_IDS = [...new Set([...DEGREES, ...DEGREES.map((d) => d.toLowerCase()), ...BORROWED, "rest"])];
+// Numeral case is output, not input: degrees are stored in upper case.
+const CHORD_IDS = [...DEGREES, ...BORROWED, "rest"];
 const midi7 = int(0, 127);
 
 const instrument = {
@@ -18,7 +18,7 @@ const instrument = {
   properties: { backend: { enum: ["soundfont", "midi"] } },
   if: { properties: { backend: { const: "midi" } } },
   then: obj({ backend: {}, port: str, channel: int(1, 16), program: { anyOf: [midi7, { type: "null" }] } }),
-  else: obj({ backend: {}, sf: str, program: midi7, drums: { type: "boolean" } }, ["backend", "sf", "program"]),
+  else: obj({ backend: {}, sf: str, program: midi7, bank: midi7, drums: { type: "boolean" } }, ["backend", "sf", "program"]),
 };
 
 const lane = obj({

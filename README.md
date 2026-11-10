@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-6 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, live play with recording, and sound sources with a mixer and WAV bounce. Phases 7-8 are not started.
+Phases 0-7 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, live play with recording, sound sources with a mixer and WAV bounce, and storage hardening with migrations. Phase 8 (starter content) is not started.
 
 ## Run
 
@@ -99,14 +99,32 @@ Recorded patterns follow the same rule as edited ones: a factory pattern becomes
 
 How it works:
 
-- **Several SoundFonts at once.** Each user SoundFont is loaded into the synth at its own bank offset, and a lane on it sends that bank before its program. The format has no bank field, so the picker offers each file's melodic bank 0 and its drum kits.
+- **Several SoundFonts at once.** Each user SoundFont is loaded into the synth at its own bank offset, and a lane on it sends that bank before its program. The picker lists every bank of the file; a lane stores the bank only when it is not 0 (format version 2).
 - **A SoundFont this browser does not have.** The lane plays on the factory SoundFont and is flagged "SoundFont not found", with the file name the song recorded. Loading a file puts the lane on it.
 - **A MIDI port this machine does not have.** The lane is flagged "device not found" and is silent, as the spec says.
 - **Mixer.** Master in the top bar; volume on each lane header; pan and latency offset in the sound panel. Dragging a slider is one undo step.
 - **Bounce.** The dialog lists the audible MIDI-out lanes it will skip, renders the whole song with a 2.5 s tail, honours mute and solo, and applies the master volume.
 - **Lanes.** One kit, up to two leads, any number of bass, pad, arp and comp. Arp and comp lanes use the pad patterns for now.
 
-Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), pass mute lasts for the session, no song list (so "New" replaces the open song), and stored SoundFonts cannot be removed from the browser yet.
+## Phase 7 hardening
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Migrations | `src/core/migrate.js`, `loadSong` in `validate.js` | One function per format version, run in order on every open: files, stored songs and snapshots. The format is now version 2 (see `docs/song-format.md`) |
+| Song list, snapshots, backups | `src/storage/db.js` | List, duplicate and delete songs; keep the last 20 snapshots per song; remember when each song was last saved to a file; ask for persistent storage |
+| One tab per song | `src/storage/tabs.js` | A `BroadcastChannel` handshake. The tab that arrives second is read-only until "Use here" takes the song over |
+| Songs dialog | `src/app/Songs.jsx` | Songs in this browser, snapshots of the open one, stored SoundFonts with sizes, and whether storage is persistent |
+
+How it behaves:
+
+- **Opening an older file.** It is migrated, then validated; the chip says which format it came from. Saving writes the current format. The original file is not touched.
+- **Newer files.** A file with a newer `format_version` is refused. A file with a newer `rails_version` opens read-only.
+- **Snapshots.** One every ten minutes while a song is being edited, one before a file replaces a song already in the browser, and one before a snapshot is restored.
+- **Backup chip.** "Saved locally · last backed up N days ago". It turns amber once an edited song has never been saved to a file, or not for seven days. Clicking it saves a file. Opening a song from a file counts as a backup.
+- **Persistent storage** is requested after the first edit. The Songs dialog shows the answer.
+- **Read-only** means edits and undo are ignored and nothing is autosaved; playback and selection still work.
+
+Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), and pass mute lasts for the session.
 
 ## Phase 0 spike (`spike/index.html`)
 
@@ -137,7 +155,7 @@ Rules the handoff left open, as implemented (each is one small place in the code
 | Topic | Rule |
 | --- | --- |
 | Minor dominant | With the project toggle on, a minor triad on degree 5 becomes major (V in Aeolian, Dorian). `quality` overrides it per chord |
-| Chord ID case | Degrees are read in either case (`vi` and `VI` are the same chord), since the example file uses lower case. Borrowed `iv` is always the minor iv |
+| Chord ID case | Version 1 files may hold lower-case degrees (`vi`); the migration upper-cases them. Lower-case `iv` is always the borrowed minor iv |
 | Borrowed chords | `bIII`, `bVI`, `bVII`, `iv` come from the parallel Aeolian. `V/V` and `V/vi` are dominants a fifth above the mode's degree 5 and 6 |
 | Pattern tone indices | Count up the voiced chord from the bottom and wrap an octave past its top, so index 4 is the octave on a triad and the seventh on a seventh chord |
 | Voicing | Bass lanes put the chord's bass tone at the bottom of the register. Other lanes take the close-position inversion nearest the previous chord. Voice leading restarts each section so linked instances sound identical |

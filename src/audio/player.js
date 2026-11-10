@@ -38,7 +38,7 @@ export function createPlayer({ ctx, synth, master }, { onEnd, bankOf = () => 0 }
         else { r.out = "none"; r.note = `device not found: ${ins.port} (muted)`; }
       } else r.note = `SoundFont · program ${ins.program}${ins.drums ? " · drums" : ""}`;
       if (r.out === "synth") {
-        synth.controllerChange(ch, 0, ins.backend === "midi" ? 0 : bankOf(lane));
+        synth.controllerChange(ch, 0, ins.backend === "midi" ? 0 : Math.min(127, bankOf(lane) + (ins.bank || 0)));
         synth.programChange(ch, ins.program ?? (ch === 9 ? 0 : FALLBACK_PROGRAM));
         synth.controllerChange(ch, 7, lane.volume);
         synth.controllerChange(ch, 10, lane.pan);

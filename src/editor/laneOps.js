@@ -48,13 +48,13 @@ export function removeLane(song, laneId) {
 
 const patchLane = (song, laneId, fn) => touch({ ...song, lanes: song.lanes.map((l) => (l.id === laneId ? fn(l) : l)) });
 
-/** Play the lane from a SoundFont `{ hash, name }`. It joins the song's manifest if new. */
-export function useSoundFont(song, laneId, font, program) {
+/** Play the lane from a SoundFont `{ hash, name }`, optionally a variation `bank`. The font joins the song's manifest if new. */
+export function useSoundFont(song, laneId, font, program, bank = 0) {
   const soundfonts = song.soundfonts.some((s) => s.hash === font.hash) ? song.soundfonts : [...song.soundfonts, { hash: font.hash, name: font.name }];
   return patchLane({ ...song, soundfonts }, laneId, (l) => {
     const drums = l.role === "kit";
     const keep = l.instrument.backend === "soundfont" ? l.instrument.program : ROLE_DEFAULTS[l.role].instrument.program;
-    return { ...l, instrument: { backend: "soundfont", sf: font.hash, program: program ?? keep, ...(drums ? { drums: true } : {}) } };
+    return { ...l, instrument: { backend: "soundfont", sf: font.hash, program: program ?? keep, ...(bank ? { bank } : {}), ...(drums ? { drums: true } : {}) } };
   });
 }
 

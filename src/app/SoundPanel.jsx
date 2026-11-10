@@ -15,7 +15,7 @@ export function soundLabel(lane) {
   }
   const state = engine.fontState(ins.sf);
   const kit = lane.role === "kit";
-  const name = engine.presets(state === "ready" ? ins.sf : FACTORY_SOUNDFONT.hash, kit).find((p) => p.program === ins.program)?.name;
+  const name = engine.presets(state === "ready" ? ins.sf : FACTORY_SOUNDFONT.hash, kit).find((p) => p.program === ins.program && p.bank === (ins.bank || 0))?.name;
   const d = ROLE_DEFAULTS[lane.role];
   const fallback = d && d.instrument.program === ins.program ? d.label : kit ? "Drum kit" : `Program ${ins.program}`;
   return { text: `SF · ${name ?? fallback}${state === "missing" ? " · SoundFont not found" : ""}`, bad: state === "missing" };
@@ -102,9 +102,10 @@ export function SoundPanel({ song, lane, onSong }) {
           <button onClick={() => file.current.click()}>Load a file…</button>
           <input ref={file} type="file" accept=".sf2,.sf3,.sfogg,.dls" hidden onChange={loadFile} data-testid="sf-file" />
           <label>{kit ? "Kit" : "Instrument"}
-            <select aria-label="Instrument" value={ins.program} onChange={(e) => onSong(useSoundFont(song, lane.id, { hash: ins.sf, name: fontName(ins.sf) }, +e.target.value))}>
-              {!presets.some((p) => p.program === ins.program) && <option value={ins.program}>Program {ins.program}</option>}
-              {presets.map((p) => <option key={p.program} value={p.program}>{p.program} · {p.name}</option>)}
+            <select aria-label="Instrument" value={`${ins.bank || 0}:${ins.program}`}
+              onChange={(e) => { const [bank, program] = e.target.value.split(":").map(Number); onSong(useSoundFont(song, lane.id, { hash: ins.sf, name: fontName(ins.sf) }, program, bank)); }}>
+              {!presets.some((p) => p.program === ins.program && p.bank === (ins.bank || 0)) && <option value={`${ins.bank || 0}:${ins.program}`}>Program {ins.program}{ins.bank ? ` · bank ${ins.bank}` : ""}</option>}
+              {presets.map((p) => <option key={`${p.bank}:${p.program}`} value={`${p.bank}:${p.program}`}>{p.bank ? `${p.bank}/` : ""}{p.program} · {p.name}</option>)}
             </select>
           </label>
           {state === "missing" && <span className="warn">SoundFont not found: {fontName(ins.sf)}. Playing on the factory SoundFont until you load it.</span>}

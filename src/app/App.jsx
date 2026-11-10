@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
-import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, validateSong, exportMidi } from "../core/index.js";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
+import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, loadSong, exportMidi } from "../core/index.js";
 import { enter, remove, split, moveBoundary, climb, invert, setOptions, defaultLength, sectionLength, visibleCount } from "../editor/chordOps.js";
 import { newProject } from "../editor/template.js";
 import { setBars, setLane, applyEntry } from "../editor/patternOps.js";
 import { addSection, copyLinked, moveInstance, bake, removeInstance, describeArrangement, bakeName } from "../editor/arrangeOps.js";
-import { saveProject, loadLastProject } from "../storage/db.js";
+import { saveProject, loadLastProject, getProject, takeSnapshot, getSnapshot, markBackup, backupStatus, requestPersistence } from "../storage/db.js";
+import { watchTabs } from "../storage/tabs.js";
+import { SongsDialog } from "./Songs.jsx";
 import { saveSongFile, openSongFile } from "../storage/files.js";
 import { engine } from "../audio/engine.js";
 import { reducer, sectionId, sectionOf, withSection, loopSong, songFrom } from "./project.js";
@@ -34,7 +36,16 @@ const BORROWED_LABEL = { bIII: "♭III", bVI: "♭VI", bVII: "♭VII", iv: "iv",
 const isTyping = (el) => el?.matches?.("input, select, textarea");
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, null);
+  const [state, rawDispatch] = useReducer(reducer, null);
+  const [tabLock, setTabLock] = useState(false);     // another tab is editing this song
+  const [newer, setNewer] = useState(false);         // the file uses options from a newer version
+  const [songsOpen, setSongsOpen] = useState(false);
+  const [persisted, setPersisted] = useState(null);
+  const locked = tabLock || newer;
+  const lockRef = useRef(false);
+  lockRef.current = locked;
+  // A read-only song takes no edits. Selection and the caret still move.
+  const dispatch = useCallback((a) => { if (lockRef.current && ["edit", "undo", "redo"].includes(a.type)) return; rawDispatch(a); }, []);
   const [view, setView] = useState("section");      // "section" | "overview"
   const [transport, setTransport] = useState({ mode: "loop", start: 0 }); // what the play buttons last asked for
   const [audition, setAudition] = useState(null);   // mode being auditioned by a drag, not yet committed
@@ -61,18 +72,18 @@ export default function App() {
   });
   useSyncExternalStore(engine.subscribe, () => engine.version);
 
-  // Open the last project, or start a new one.
+  // Open the last project, or start a new one. Stored songs from older builds are migrated here.
   useEffect(() => {
     loadLastProject()
-      .then((p) => dispatch({ type: "load", song: p && validateSong(p).ok ? p : newProject() }))
-      .catch(() => dispatch({ type: "load", song: newProject() }));
+      .then((p) => { const r = p && loadSong(p); rawDispatch({ type: "load", song: r?.ok ? r.song : newProject() }); })
+      .catch(() => rawDispatch({ type: "load", song: newProject() }));
   }, []);
 
   // Autosave to IndexedDB shortly after every change, and at once when the page is hidden.
   const song = state?.song, inst = state?.inst ?? 0;
   const pending = useRef(null);
   useEffect(() => {
-    if (!song) return;
+    if (!song || locked) return;
     setSaved("saving");
     pending.current = song;
     const flush = () => {
@@ -83,7 +94,37 @@ export default function App() {
     const t = setTimeout(flush, 250);
     addEventListener("pagehide", flush);
     return () => { clearTimeout(t); removeEventListener("pagehide", flush); };
-  }, [song]);
+  }, [song, locked]);
+
+  // One tab edits a song at a time.
+  const tabs = useMemo(() => watchTabs(() => setTabLock(true)), []);
+  useEffect(() => () => tabs.close(), [tabs]);
+  const songId = song?.id;
+  useEffect(() => {
+    if (!songId) return;
+    let live = true;
+    tabs.claim(songId).then((mine) => { if (live) setTabLock(!mine); });
+    return () => { live = false; };
+  }, [songId, tabs]);
+
+  // A snapshot every ten minutes while the song is being edited.
+  const snap = useRef({ song: null, at: 0 });
+  useEffect(() => {
+    const t = setInterval(() => {
+      const cur = latest.current?.state?.song;
+      if (!cur || lockRef.current) return;
+      if (snap.current.song?.id !== cur.id) { snap.current = { song: cur, at: Date.now() }; return; }
+      if (cur !== snap.current.song && Date.now() - snap.current.at >= 600000) {
+        snap.current = { song: cur, at: Date.now() };
+        takeSnapshot(cur, "automatic").catch(() => {});
+      }
+    }, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Ask the browser to keep our storage once there is something worth keeping.
+  const edited = (state?.past.length ?? 0) > 0;
+  useEffect(() => { if (edited) requestPersistence().then(setPersisted); }, [edited]);
 
   // The song with whatever is being previewed (an edge drag, a hovered pattern) applied.
   const base = useMemo(() => {
@@ -332,12 +373,33 @@ export default function App() {
     addEventListener("pointerup", up);
   };
 
-  // ---- files
+  // ---- files and songs
+  /** Put a song on screen. `doc` may be from an older build; it is migrated and checked first. */
+  function show(doc, { label, fromFile = false, handle = null } = {}) {
+    const r = loadSong(doc);
+    if (!r.ok) { setProblem({ title: `${label} was rejected`, errors: r.errors }); return false; }
+    engine.stop();
+    fileHandle.current = handle;
+    setProblem(null);
+    setNewer(r.readOnly);
+    setTabLock(false);
+    setFileNote(fromFile ? `Opened ${label}${r.migratedFrom ? ` · migrated from format ${r.migratedFrom}` : ""}` : "");
+    if (fromFile) markBackup(r.song.id);
+    rawDispatch({ type: "load", song: r.song });
+    return true;
+  }
+  /** Make sure the open song is stored before another one replaces it on screen. */
+  async function flush() {
+    const cur = latest.current.state?.song;
+    if (cur && !lockRef.current) await saveProject(cur).catch(() => {});
+  }
   async function saveFile() {
     try {
-      const handle = await saveSongFile(latest.current.state.song, fileHandle.current);
+      const cur = latest.current.state.song;
+      const handle = await saveSongFile(cur, fileHandle.current);
       if (handle === undefined) return;
       fileHandle.current = handle;
+      markBackup(cur.id);
       setFileNote(`File saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
     } catch (err) { setProblem({ title: "Could not save the file", errors: [{ path: "", message: err.message }] }); }
   }
@@ -347,20 +409,35 @@ export default function App() {
     if (!picked) return;
     let doc;
     try { doc = JSON.parse(picked.text); } catch { return setProblem({ title: `${picked.name} is not a song file`, errors: [{ path: "", message: "It is not valid JSON." }] }); }
-    const result = validateSong(doc);
-    if (!result.ok) return setProblem({ title: `${picked.name} was rejected`, errors: result.errors });
-    engine.stop();
-    fileHandle.current = picked.handle;
-    setProblem(null);
-    setFileNote(`Opened ${picked.name}`);
-    dispatch({ type: "load", song: doc });
+    await flush();
+    // If this song is already in the browser, the file replaces it; keep a copy of what was there.
+    const existing = doc?.id && (await getProject(doc.id).catch(() => null));
+    if (show(doc, { label: picked.name, fromFile: true, handle: picked.handle }) && existing) takeSnapshot(existing, "before opening a file").catch(() => {});
   }
-  function newSong() {
-    if (!confirm("Start a new song? There is no song list yet, so save a file first if you want this one back.")) return;
-    engine.stop();
-    fileHandle.current = null;
-    setFileNote("");
-    dispatch({ type: "load", song: newProject() });
+  async function newSong() {
+    await flush();
+    setSongsOpen(false);
+    show(newProject(), { label: "New song" });
+  }
+  async function openStored(id) {
+    await flush();
+    const doc = await getProject(id);
+    if (doc && show(doc, { label: doc.title || "Song" })) setSongsOpen(false);
+  }
+  async function restoreSnapshot(n) {
+    const cur = latest.current.state.song;
+    const doc = await getSnapshot(cur.id, n);
+    if (!doc) return;
+    await takeSnapshot(cur, "before restoring a snapshot").catch(() => {});
+    if (show(doc, { label: "Snapshot" })) setSongsOpen(false);
+  }
+  async function useHere() {
+    const id = latest.current.state.song.id;
+    tabs.take(id);
+    const doc = await getProject(id).catch(() => null); // the other tab's latest save
+    const r = doc && loadSong(doc);
+    if (r?.ok) rawDispatch({ type: "load", song: r.song });
+    setTabLock(false);
   }
   function exportMid() {
     const s = latest.current.state.song;
@@ -376,6 +453,8 @@ export default function App() {
 
   // ---- derived view
   const infos = describeArrangement(song);
+  const backup = backupStatus(song.id);
+  const touched = edited || song.updated_at !== song.created_at;
   const info = infos[inst];
   const sid = info.sectionId;
   const stored = song.sections[sid];
@@ -423,11 +502,13 @@ export default function App() {
         <span className={`pill${engine.playing && !songMode ? " on" : ""}`}>Loop section</span>
         <button className={songMode ? "on" : ""} onClick={() => act.current.song()} data-testid="play-song">Play song</button>
         <button className={`rec${recording ? " on" : ""}`} onClick={() => act.current.record()} aria-pressed={recording} data-testid="record" title="Record over the loop (⇧ Space)">● {recording ? "Recording" : "Record"}</button>
-        <span className={`chip ${engine.status === "error" || saved === "error" ? "bad" : ""}`} data-testid="save-chip">
-          {saved === "error" ? "Could not save in this browser" : saved === "saving" ? "Saving…" : "Saved locally"}
+        <button className={`chip ${engine.status === "error" || saved === "error" ? "bad" : backup.stale && touched ? "stale" : ""}`} data-testid="save-chip"
+          onClick={saveFile} title="Save a file backup">
+          {locked ? "Read-only" : saved === "error" ? "Could not save in this browser" : saved === "saving" ? "Saving…" : "Saved locally"}
+          {` · ${backup.text}`}
           {fileNote ? ` · ${fileNote}` : ""}
           {engine.status === "loading" ? " · Loading sounds…" : engine.status === "error" ? ` · No sound: ${engine.error}` : ""}
-        </span>
+        </button>
         <span className="spacer" />
         <button onClick={saveFile}>Save file</button>
         <button onClick={openFile}>Open file</button>
@@ -437,13 +518,20 @@ export default function App() {
         </label>
         <button onClick={exportMid}>Export .mid</button>
         <button onClick={() => { engine.start(); setBouncing(true); }} data-testid="bounce-open">Bounce .wav</button>
-        <button onClick={newSong}>New</button>
+        <button onClick={() => setSongsOpen(true)} data-testid="songs-open">Songs</button>
         <div className="seg" role="group" aria-label="View">
           <button className={view === "section" ? "on" : ""} onClick={() => setView("section")}>Section</button>
           <button className={view === "overview" ? "on" : ""} onClick={() => setView("overview")}>Overview</button>
         </div>
       </header>
 
+      {locked && (
+        <div className="lock" role="status" data-testid="lock">
+          {tabLock
+            ? <>This song is open in another tab, so this tab is read-only. <button onClick={useHere}>Use here</button></>
+            : "This file uses options from a newer version of the app, so it is read-only here."}
+        </div>
+      )}
       {problem && (
         <div className="problem" role="alert">
           <b>{problem.title}</b>
@@ -626,6 +714,11 @@ export default function App() {
         </div>
       </div>}
       </>}
+      {songsOpen && (
+        <SongsDialog current={song} persisted={persisted} locked={locked} onOpen={openStored} onNew={newSong} onRestore={restoreSnapshot}
+          onDeletedCurrent={async () => { const next = await loadLastProject().catch(() => null); const r = next && loadSong(next); setSongsOpen(false); setTabLock(false); setNewer(false); rawDispatch({ type: "load", song: r?.ok ? r.song : newProject() }); }}
+          onClose={() => setSongsOpen(false)} />
+      )}
       {bouncing && <BounceDialog song={song} seconds={(full ?? resolveSong(song)).totalSec} onClose={() => setBouncing(false)} />}
       <BottomBar live={live} set={setLive} pinnedLabel={pinned ? `${pinned.numeral} (${pinned.name})` : "no chord"}
         onUndo={() => dispatch({ type: "undo" })} canUndo={state.past.length > 0} onMidi={connectMidi} midiNote={midiNote} />
