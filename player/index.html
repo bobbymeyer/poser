@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 test page · Layered Composer</title>
+<style>
+  :root {
+    --ground: #F3F1EC; --card: #FBFAF7; --ink: #1d1c1a; --muted: #6b675f; --line: #dcd8cf;
+    --kit: #B5472B; --bass: #2E6B55; --pad: #7A5BA6; --lead: #B07B12; --chords: #2F4B8A; --arp: #7A5BA6; --comp: #7A5BA6;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 14px/1.45 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  .row + .row { margin-top: 10px; }
+  button { font: inherit; padding: 7px 14px; border-radius: 7px; border: 1px solid var(--ink); background: var(--ink); color: var(--ground); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button:disabled { opacity: .4; cursor: default; }
+  label { display: inline-flex; gap: 6px; align-items: center; }
+  .status { font: 12px var(--mono); color: var(--muted); }
+  .status.ok { color: var(--bass); } .status.bad { color: var(--kit); }
+  .hint { font-size: 12px; color: var(--muted); }
+  code { font: 12px var(--mono); background: #ebe8e1; padding: 1px 5px; border-radius: 4px; }
+  ul.errors { margin: 8px 0 0; padding-left: 18px; font: 12px var(--mono); color: var(--kit); }
+  .strip { display: flex; gap: 4px; margin-top: 12px; position: relative; }
+  .inst { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: #fff; min-width: 0; overflow: hidden; }
+  .inst.on { border-color: var(--ink); background: #f0ede5; }
+  .inst b { display: block; white-space: nowrap; } .inst span { font: 11px var(--mono); color: var(--muted); white-space: nowrap; }
+  .bar { height: 4px; background: var(--line); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--ink); }
+  .chords { display: flex; gap: 3px; margin: 6px 0 14px; }
+  .chord { border-radius: 6px; padding: 5px 8px; background: color-mix(in srgb, var(--chords) 12%, #fff); border: 1px solid color-mix(in srgb, var(--chords) 35%, #fff); min-width: 0; }
+  .chord b { display: block; font: 600 13px var(--mono); color: var(--chords); } .chord span { font-size: 12px; }
+  .chord.rest { background: #fff; border-style: dashed; }
+  h3 { font-size: 14px; margin: 0; } h3 small { font-weight: 400; color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  th, td { padding: 6px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td.num { font-family: var(--mono); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Phase 1 test page</h1>
+  <p class="sub">Loads a song file, validates it, resolves it to timed notes, plays it, and exports a <code>.mid</code>. No editing yet.</p>
+
+  <section>
+    <h2>Song</h2>
+    <div class="row">
+      <label>Open a <code>.song.json</code> <input type="file" id="file" accept=".json,application/json"></label>
+      <button id="btnExample" class="ghost">Reload example</button>
+    </div>
+    <div class="row"><span id="valid" class="status"></span></div>
+    <ul class="errors" id="errors" hidden></ul>
+  </section>
+
+  <section>
+    <h2>Play</h2>
+    <div class="row">
+      <button id="btnAudio">Start audio</button>
+      <button id="btnPlay" disabled>Play song</button>
+      <button id="btnStop" class="ghost" disabled>Stop</button>
+      <label><input type="checkbox" id="loop"> Loop</label>
+      <button id="btnExport" class="ghost" disabled>Export .mid</button>
+    </div>
+    <div class="row">
+      <span id="audioStatus" class="status">Audio is off.</span>
+      <label id="sfPick" hidden>SoundFont <input type="file" id="sfFile" accept=".sf2,.sf3,.sfogg,.dls"></label>
+    </div>
+    <div class="row">
+      <button id="btnMidi" class="ghost">Enable MIDI out</button>
+      <label><input type="checkbox" id="fallback" checked> Play MIDI-out lanes on the SoundFont when their port is missing</label>
+    </div>
+    <div class="strip" id="strip"></div>
+    <div class="bar"><i id="progress"></i></div>
+    <div class="row"><span class="status" id="pos"></span></div>
+  </section>
+
+  <section>
+    <h2>Sections</h2>
+    <div id="sections"></div>
+  </section>
+
+  <section>
+    <h2>Lanes</h2>
+    <div class="scroll"><table id="lanes"></table></div>
+  </section>
+</main>
+
+<script type="module">
+import example from "../docs/example.song.json";
+import { validateSong, resolveSong, resolveChords, exportMidi, METERS } from "../src/core/index.js";
+import { createSynth, fetchDefaultSoundFont, loadSoundFont } from "../src/audio/synth.js";
+import { createPlayer } from "../src/audio/player.js";
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let song = null, resolved = null, audio = null, player = null, soundReady = false, midiAccess = null;
+
+function setStatus(id, text, cls = "") { $(id).textContent = text; $(id).className = "status " + cls; }
+function refreshButtons() {
+  $("btnPlay").disabled = !(song && soundReady) || !!player?.state.playing;
+  $("btnStop").disabled = !player?.state.playing;
+  $("btnExport").disabled = !song;
+}
+
+function openSong(doc, label) {
+  player?.stop();
+  const result = validateSong(doc);
+  $("errors").hidden = result.ok;
+  $("errors").innerHTML = result.errors.map((e) => `<li>${esc(e.path)}: ${esc(e.message)}</li>`).join("");
+  if (!result.ok) {
+    song = resolved = null;
+    setStatus("valid", `${label}: rejected, ${result.errors.length} problem${result.errors.length > 1 ? "s" : ""}`, "bad");
+    $("sections").innerHTML = $("lanes").innerHTML = $("strip").innerHTML = "";
+    return refreshButtons();
+  }
+  song = structuredClone(doc);
+  resolved = player ? player.load(song) : resolveSong(song);
+  setStatus("valid", `${label}: valid${result.readOnly ? " · uses options from a newer version, read-only" : ""} · ` +
+    `${resolved.notes.length} notes · ${resolved.totalTicks / 480} beats · ${fmt(resolved.totalSec)}`, "ok");
+  renderSong();
+  refreshButtons();
+}
+
+const fmt = (s) => `${Math.floor(s / 60)}:${(s % 60).toFixed(1).padStart(4, "0")}`;
+
+function renderSong() {
+  $("strip").innerHTML = resolved.instances.map((i) =>
+    `<div class="inst" style="flex:${i.len} 1 0"><b>${esc(i.name)}</b><span>${i.len / METERS[i.meter].barTicks} bars · ${i.bpm}</span></div>`).join("");
+  $("sections").innerHTML = Object.entries(song.sections).map(([id, s]) => {
+    const count = song.arrangement.filter((a) => a.section === id).length;
+    const chords = resolveChords(song, s).map((c) =>
+      `<div class="chord${c.chord ? "" : " rest"}" style="flex:${c.end - c.start} 1 0"><b>${c.chord ? esc(c.chord.numeral) : "–"}</b><span>${c.chord ? esc(c.chord.name) : "rest"}</span></div>`).join("");
+    return `<h3>${esc(s.name)} <small>${s.bars} bars · ${s.meter} · ${esc(s.tonic)} ${s.mode} · ${s.bpm} bpm · ×${count}</small></h3><div class="chords">${chords}</div>`;
+  }).join("");
+  $("lanes").innerHTML = `<tr><th>Lane</th><th>Role</th><th>Output</th><th>Ch</th><th>Notes</th><th>Mute</th></tr>` + song.lanes.map((l) => {
+    const r = player?.routes.get(l.id);
+    const mono = l.mono?.on ? `mono · ${l.mono.priority}` : l.role === "kit" ? "" : "poly";
+    return `<tr><td><span class="dot" style="background:var(--${l.role})"></span>${esc(l.name)}</td><td>${l.role} ${mono}</td>` +
+      `<td>${esc(r ? r.note : l.instrument.backend === "midi" ? `MIDI · ${l.instrument.port}` : "SoundFont")}</td>` +
+      `<td class="num">${r ? r.ch + 1 : ""}</td><td class="num">${resolved.notes.filter((n) => n.lane === l.id).length}</td>` +
+      `<td><input type="checkbox" data-mute="${esc(l.id)}" ${l.mute ? "checked" : ""}></td></tr>`;
+  }).join("");
+}
+
+async function startAudio() {
+  $("btnAudio").disabled = true;
+  try {
+    audio = await createSynth();
+    player = createPlayer(audio);
+    player.setMidi(midiAccess, $("fallback").checked);
+    setStatus("audioStatus", "Audio running. Looking for a SoundFont…");
+    const buf = await fetchDefaultSoundFont(new URL("../soundfonts/default.sf3", location.href));
+    if (buf) await useSoundFont(buf, "default.sf3");
+    else {
+      $("sfPick").hidden = false;
+      setStatus("audioStatus", "No default SoundFont (npm run fetch-soundfont). Choose a .sf2 or .sf3 file.", "bad");
+    }
+  } catch (err) {
+    console.error(err);
+    setStatus("audioStatus", "Audio failed: " + err.message, "bad");
+    $("btnAudio").disabled = false;
+  }
+}
+async function useSoundFont(buf, name) {
+  setStatus("audioStatus", `Loading ${name}…`);
+  await loadSoundFont(audio.synth, buf);
+  soundReady = true;
+  setStatus("audioStatus", `SoundFont ready: ${name}`, "ok");
+  if (song) { resolved = player.load(song); renderSong(); }
+  refreshButtons();
+}
+
+$("btnAudio").onclick = startAudio;
+$("sfFile").onchange = async (e) => { const f = e.target.files[0]; if (f) useSoundFont(await f.arrayBuffer(), f.name); };
+$("btnPlay").onclick = () => { player.play({ loop: $("loop").checked }); refreshButtons(); };
+$("btnStop").onclick = () => { player.stop(); refreshButtons(); };
+$("loop").onchange = () => { if (player) player.state.loop = $("loop").checked; };
+$("btnExample").onclick = () => openSong(example, "example.song.json");
+$("file").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try { openSong(JSON.parse(await f.text()), f.name); }
+  catch (err) { openSong(null, f.name); $("errors").innerHTML = `<li>${esc(err.message)}</li>`; }
+};
+$("btnExport").onclick = () => {
+  const blob = new Blob([exportMidi(song, resolveSong(song))], { type: "audio/midi" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `${song.title || "song"}.mid` });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$("btnMidi").onclick = async () => {
+  if (!navigator.requestMIDIAccess) return alert("This browser has no Web MIDI.");
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    $("btnMidi").disabled = true;
+    $("btnMidi").textContent = `MIDI out enabled · ${midiAccess.outputs.size} port${midiAccess.outputs.size === 1 ? "" : "s"}`;
+    applyMidi();
+  } catch (err) { alert("MIDI access denied: " + err.message); }
+};
+function applyMidi() { if (player) { player.setMidi(midiAccess, $("fallback").checked); if (song) renderSong(); refreshButtons(); } }
+$("fallback").onchange = applyMidi;
+$("lanes").onchange = (e) => {
+  const id = e.target.dataset.mute;
+  if (!id) return;
+  song.lanes.find((l) => l.id === id).mute = e.target.checked;
+  player?.setMute(id, e.target.checked);
+};
+
+function frame() {
+  const pos = player ? player.position() : -1;
+  if (resolved) {
+    $("progress").style.width = pos < 0 ? "0" : `${(pos / resolved.totalSec) * 100}%`;
+    let current = -1;
+    if (pos >= 0) resolved.instances.forEach((i, k) => { if (resolved.secAt(i.tick) <= pos) current = k; });
+    [...$("strip").children].forEach((el, k) => el.classList.toggle("on", k === current));
+    $("pos").textContent = pos < 0 ? "" : `${fmt(pos)} / ${fmt(resolved.totalSec)} · ${resolved.instances[current]?.name ?? ""} · late events ${player.state.late}`;
+  }
+  if (player && $("btnStop").disabled === player.state.playing) refreshButtons();
+  requestAnimationFrame(frame);
+}
+
+window.__player = { get player() { return player; }, get audio() { return audio; }, get resolved() { return resolved; } };
+openSong(example, "example.song.json");
+frame();
+</script>
+</body>
+</html>
