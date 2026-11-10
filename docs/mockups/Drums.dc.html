@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Drum pattern editor</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1160px;height:720px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:28px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+
+  <div style="display:flex;align-items:baseline;gap:12px">
+    <span style="font-size:20px;font-weight:700">Drum pattern</span>
+    <span style="font-size:12px;color:#6B6A65">Kit · Rock 16 · Chorus · rows are pads, keys play and record them</span>
+  </div>
+
+  <div style="display:flex;gap:20px">
+
+    <!-- Grid card -->
+    <div style="width:846px;flex:none;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="display:flex;border:1px solid #B8B4A9;border-radius:6px;overflow:hidden">
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">1/8</button>
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#1C1C1A;color:#FFFFFF;font-size:12px;font-weight:600">1/16</button>
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">1/16 triplet</button>
+          <button style="padding:6px 12px;border:none;background:#FFFFFF;font-size:12px">1/32</button>
+        </div>
+        <span style="font-size:12px;color:#6B6A65">Swing</span>
+        <div style="display:flex;border:1px solid #B8B4A9;border-radius:6px;overflow:hidden">
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#1C1C1A;color:#FFFFFF;font-size:12px;font-weight:600">Straight</button>
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Light</button>
+          <button style="padding:6px 12px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Medium</button>
+          <button style="padding:6px 12px;border:none;background:#FFFFFF;font-size:12px">Shuffle</button>
+        </div>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;background:#E4EAF6;color:#1F3768;border:1px solid #9FB2D8;border-radius:999px;padding:3px 10px">Linked ×6</span>
+        <button style="padding:5px 10px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF;font-size:12px">Make unique</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;height:22px;align-items:center">
+          <div style="width:170px;flex:none"></div>
+          <sc-for list="{{hdr}}" as="h" hint-placeholder-count="16">
+            <div style="width:40px;flex:none;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65;font-weight:{{h.w}}">{{h.t}}</div>
+          </sc-for>
+        </div>
+        <div style="position:relative">
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+            <div style="display:flex;height:34px;border-top:1px solid #E6E3DB;align-items:stretch">
+              <div style="width:170px;flex:none;box-sizing:border-box;padding:0 8px 0 0;display:flex;align-items:center;gap:8px">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:18px;text-align:center;padding:0 5px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">{{r.key}}</span>
+                <span style="font-size:12px;font-weight:500">{{r.name}}</span>
+                <span style="margin-left:auto;font-size:10px;color:#6B6A65">{{r.note}}</span>
+              </div>
+              <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="16">
+                <div style="width:40px;flex:none;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:{{c.bg}};border-left:1px solid {{c.bd}}">
+                  <sc-if value="{{c.g}}" hint-placeholder-val="{{false}}"><span style="width:8px;height:8px;border-radius:50%;background:#B5472B;opacity:0.45"></span></sc-if>
+                  <sc-if value="{{c.n}}" hint-placeholder-val="{{false}}"><span style="width:14px;height:14px;border-radius:50%;background:#B5472B"></span></sc-if>
+                  <sc-if value="{{c.a}}" hint-placeholder-val="{{false}}"><span style="width:22px;height:22px;border-radius:50%;background:#B5472B"></span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+          <div style="position:absolute;left:410px;top:0;width:40px;height:100%;background:rgba(28,28,26,0.07);border-left:2px solid #1C1C1A;box-sizing:border-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px">
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">VELOCITY</span>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px"><span style="width:22px;display:flex;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:#B5472B;opacity:0.45"></span></span>Ghost · ⌥ + key</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px"><span style="width:22px;display:flex;justify-content:center"><span style="width:14px;height:14px;border-radius:50%;background:#B5472B"></span></span>Normal · key</div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px"><span style="width:22px;display:flex;justify-content:center"><span style="width:22px;height:22px;border-radius:50%;background:#B5472B"></span></span>Accent · ⇧ + key</div>
+        <div style="font-size:12px;color:#6B6A65">Click a cell to cycle: off, normal, accent, ghost.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">RECORDING</span>
+        <div style="font-size:12px;color:#4A4944">Overdub per pad. A hit replaces that pad on that step and leaves the others alone.</div>
+        <div style="font-size:12px;color:#4A4944"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">⌫</span> + pad key erases that pad. <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">⌫</span> alone erases all.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">KIT</span>
+        <button style="text-align:left;font-size:12px;padding:5px 8px;border:1px solid #D9D6CE;border-radius:4px;background:#FFFFFF">SF · Standard Kit ▾</button>
+        <div style="font-size:12px;color:#4A4944">Hats choke each other. Fill plays on the last bar of each section.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Library -->
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">GROOVES FOR 4/4</span><span style="font-size:12px;color:#6B6A65">Hover to audition against the current loop. Right-click a clip to save to the library.</span></div>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1;box-sizing:border-box;background:#F6E6DF;border:2px solid #1C1C1A;border-radius:6px;padding:8px 12px"><div style="font-weight:600;font-size:13px">Rock 16</div><div style="font-size:11px;color:#6E2A14">straight · rock</div></div>
+      <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:8px 12px"><div style="font-weight:600;font-size:13px">Four on the floor</div><div style="font-size:11px;color:#6B6A65">straight · house</div></div>
+      <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:8px 12px"><div style="font-weight:600;font-size:13px">Boom-bap</div><div style="font-size:11px;color:#6B6A65">light swing · hip-hop</div></div>
+      <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:8px 12px"><div style="font-weight:600;font-size:13px">Half-time</div><div style="font-size:11px;color:#6B6A65">straight · ballad</div></div>
+      <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:8px 12px"><div style="font-weight:600;font-size:13px">Shuffle</div><div style="font-size:11px;color:#6B6A65">shuffle · blues</div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1160,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['1','e','&','a','2','e','&','a','3','e','&','a','4','e','&','a'];
+    const hdr = labels.map((t, i) => ({ t, w: i % 4 === 0 ? '700' : '400' }));
+    const defs = [
+      { name: 'Kick', key: 'z', note: '', hits: { 0: 'a', 8: 'n' } },
+      { name: 'Snare', key: 'x', note: '', hits: { 4: 'n', 12: 'n', 15: 'g' } },
+      { name: 'Closed hat', key: 'c', note: 'choke', hits: { 0: 'n', 2: 'g', 4: 'n', 6: 'g', 8: 'n', 10: 'g', 12: 'n' } },
+      { name: 'Open hat', key: 'v', note: 'choke', hits: { 14: 'n' } },
+      { name: 'Clap', key: 'b', note: '', hits: {} },
+      { name: 'Crash', key: 'n', note: '', hits: {} },
+      { name: 'Rim', key: 'm', note: '', hits: {} },
+      { name: 'Low tom', key: ',', note: '', hits: {} },
+      { name: 'High tom', key: '.', note: '', hits: {} },
+      { name: 'Ride', key: '–', note: 'no key', hits: {} }
+    ];
+    const rows = defs.map((d) => ({
+      name: d.name,
+      key: d.key,
+      note: d.note,
+      cells: Array.from({ length: 16 }, (_, i) => ({
+        g: d.hits[i] === 'g',
+        n: d.hits[i] === 'n',
+        a: d.hits[i] === 'a',
+        bg: Math.floor(i / 4) % 2 === 0 ? '#FFFFFF' : '#F6F4EF',
+        bd: i % 4 === 0 ? '#D9D6CE' : '#EEEBE4'
+      }))
+    }));
+    return { hdr, rows };
+  }
+}
+</script>
+</body>
+</html>

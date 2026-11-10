@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 0 spike · Layered Composer</title>
+<style>
+  :root {
+    --ground: #F3F1EC; --card: #FBFAF7; --ink: #1d1c1a; --muted: #6b675f; --line: #dcd8cf;
+    --kit: #B5472B; --bass: #2E6B55; --pad: #7A5BA6; --lead: #B07B12; --chords: #2F4B8A;
+    --ok: #2E6B55; --bad: #B5472B;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink);
+         font: 14px/1.45 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; }
+  p { margin: 0 0 10px; }
+  .sub { color: var(--muted); margin-bottom: 20px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+  .row + .row { margin-top: 10px; }
+  button { font: inherit; padding: 7px 14px; border-radius: 7px; border: 1px solid var(--ink); background: var(--ink);
+           color: var(--ground); cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  button:disabled { opacity: .4; cursor: default; }
+  label { display: inline-flex; gap: 6px; align-items: center; }
+  input[type=number] { width: 68px; font: 13px var(--mono); padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+  select { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; max-width: 260px; }
+  .status { font: 12px var(--mono); color: var(--muted); }
+  .status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; }
+  .stat b { display: block; font: 600 17px var(--mono); }
+  .stat span { font-size: 11px; color: var(--muted); }
+  .stat.bad b { color: var(--bad); }
+  .kb { display: grid; gap: 6px; margin: 12px 0; overflow-x: auto; }
+  .kbrow { display: flex; gap: 10px; }
+  .kbrow:nth-child(2) { padding-left: 18px; } .kbrow:nth-child(3) { padding-left: 30px; } .kbrow:nth-child(4) { padding-left: 54px; }
+  .zone { display: flex; gap: 3px; padding: 3px; border-radius: 8px; border: 1.5px solid var(--line); }
+  .zone.pass { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .key { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--line); background: #fff;
+         display: grid; place-items: center; font: 600 13px var(--mono); flex: none; }
+  .key.down { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+  .key.solo { opacity: .45; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 2px; }
+  .hint { font-size: 12px; color: var(--muted); }
+  code { font: 12px var(--mono); background: #ebe8e1; padding: 1px 5px; border-radius: 4px; }
+  #drop.over { outline: 2px dashed var(--chords); outline-offset: 4px; }
+  ul.check { margin: 0; padding-left: 18px; } ul.check li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Phase 0 spike</h1>
+  <p class="sub">A hardcoded drum loop and bass line through a lookahead scheduler, sent to a SoundFont synth and to Web MIDI. Plus a keyboard rollover and input latency test.</p>
+
+  <section id="drop">
+    <h2>1 · Sound sources</h2>
+    <div class="row">
+      <button id="btnAudio">Start audio</button>
+      <span id="audioStatus" class="status">Audio is off. Click to start (browsers need a click first).</span>
+    </div>
+    <div class="row" id="sfRow" hidden>
+      <label>SoundFont file <input type="file" id="sfFile" accept=".sf2,.sf3,.sfogg,.dls"></label>
+      <span class="hint">or drop a file anywhere on this card. For local dev, <code>npm run fetch-soundfont</code> installs a default.</span>
+    </div>
+    <div class="row">
+      <button id="btnMidi" class="ghost">Enable MIDI out</button>
+      <select id="midiPort" disabled><option>No MIDI port</option></select>
+      <span id="midiStatus" class="status">Chrome, Edge or Firefox. Needs HTTPS or localhost, and a permission prompt.</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>2 · Loop: tempo hold test</h2>
+    <div class="row">
+      <button id="btnPlay" disabled>Play</button>
+      <button id="btnStop" class="ghost" disabled>Stop</button>
+      <label>BPM <input type="number" id="bpm" value="112" min="40" max="240"></label>
+      <label><input type="checkbox" id="toSynth" checked> <span class="dot" style="background:var(--kit)"></span>SoundFont</label>
+      <label><input type="checkbox" id="toMidi"> <span class="dot" style="background:var(--chords)"></span>MIDI out</label>
+    </div>
+    <div class="row">
+      <label>Latency offset, SoundFont <input type="number" id="latSynth" value="0" min="-200" max="500"> ms</label>
+      <label>MIDI out <input type="number" id="latMidi" value="0" min="-200" max="500"> ms</label>
+      <span class="hint">Positive plays later. Enable both outputs and adjust until they line up.</span>
+    </div>
+    <div class="stats" id="stats"></div>
+    <p class="hint" style="margin-top:12px">Pass: runs 5+ minutes with <b>late events = 0</b>. The scheduler timer runs in a worker, so a background tab should not break it; try switching tabs. Kit on channel 10, bass on channel 2, live keys on channel 3.</p>
+  </section>
+
+  <section>
+    <h2>3 · Keyboard rollover</h2>
+    <p>Hold all three keys of each zone at once. A zone turns green when the keyboard reports all three together. Zones that never turn green are blocked by this keyboard's matrix.</p>
+    <div class="kb" id="kb"></div>
+    <div class="row">
+      <span class="status" id="rollStatus">0 of 12 zones passed</span>
+      <span class="status" id="maxHeld">Most keys held at once: 0</span>
+      <button id="btnResetRoll" class="ghost">Reset</button>
+    </div>
+    <p class="hint" style="margin-top:10px">Keys also play: bottom row hits drum pads, home row plays bass, top two rows play lead. Try chords across zones while a drum key is held.</p>
+  </section>
+
+  <section>
+    <h2>4 · Input latency</h2>
+    <div class="stats" id="latStats"></div>
+    <p class="hint" style="margin-top:12px"><b>Tap test:</b> with the loop playing, tap <code>Space</code> on every beat for a few bars. The offset is how far your taps land from the beat as heard (negative is early). A steady offset near zero means key-to-ear latency is fine; a large positive mean is latency you would feel when recording. Bluetooth headphones add 100+ ms, so test on wired output or speakers.</p>
+    <div class="row"><button id="btnResetTaps" class="ghost">Reset taps</button></div>
+  </section>
+
+  <section>
+    <h2>Done when</h2>
+    <ul class="check">
+      <li>The loop holds tempo for 5+ minutes with no late events.</li>
+      <li>The same stream plays on a MIDI port in Chrome, in time with the SoundFont output.</li>
+      <li>You know whether three-key zones work on your laptop keyboard, and whether latency is acceptable.</li>
+    </ul>
+  </section>
+</main>
+
+<script type="module">
+import { WorkletSynthesizer } from "spessasynth_lib";
+import processorUrl from "spessasynth_lib/dist/spessasynth_processor.min.js?url";
+
+const $ = (id) => document.getElementById(id);
+const PPQ = 480;
+const CH = { kit: 9, bass: 1, lead: 2 };
+const PROGRAM = { bass: 33, lead: 80 };
+
+// ---------------------------------------------------------------------------
+// Hardcoded note stream: the verse of docs/example.song.json, resolved by hand.
+// vi-IV-I-V in C, rock16 kit with the fill on bar 4, bass8 pattern.
+// ---------------------------------------------------------------------------
+const PADS = [36, 38, 42, 46, 39, 49, 37, 45, 50, 51];
+const VEL = { g: 45, n: 96, a: 120 };
+const S16 = PPQ / 4, S8 = PPQ / 2, BAR = PPQ * 4;
+const hats = [0, 2, 4, 6, 8, 10, 12, 14].map((s) => [s, 3, s % 4 ? "g" : "n"]);
+const ROCK = [[0, 1, "a"], [4, 2, "n"], [8, 1, "n"], [12, 2, "n"], ...hats];
+const FILL = [[0, 1, "a"], [4, 2, "n"], [8, 1, "n"], [12, 2, "n"], [13, 8, "n"], [14, 9, "n"], [15, 9, "a"]];
+// chord tones (root, third, fifth) in the bass register
+const BASS_CHORDS = [[33, 36, 40], [29, 33, 36], [36, 40, 43], [31, 35, 38]]; // Am F C G
+const BASS8 = [[0, 1, 2, 100], [2, 1, 1, 80], [3, 3, 1, 80], [4, 1, 2, 100], [6, 3, 1, 80], [7, 2, 1, 80]];
+
+const LOOP_TICKS = BAR * 4;
+const EVENTS = [];
+for (let bar = 0; bar < 4; bar++) {
+  for (const [step, pad, lv] of bar === 3 ? FILL : ROCK)
+    EVENTS.push({ tick: bar * BAR + step * S16, lane: "kit", note: PADS[pad - 1], vel: VEL[lv], len: S16 });
+  for (const [step, tone, len, vel] of BASS8)
+    EVENTS.push({ tick: bar * BAR + step * S8, lane: "bass", note: BASS_CHORDS[bar][tone - 1], vel, len: len * S8 - 20 });
+}
+EVENTS.sort((a, b) => a.tick - b.tick);
+
+// ---------------------------------------------------------------------------
+// Outputs
+// ---------------------------------------------------------------------------
+let ctx = null, synth = null, synthReady = false;
+let midiAccess = null, midiOut = null;
+
+/** Performance-clock time (ms) at which audio-clock time t (s) is heard. */
+function perfTimeFor(t) {
+  const ts = ctx?.getOutputTimestamp?.();
+  if (ts && ts.performanceTime > 0) return ts.performanceTime + (t - ts.contextTime) * 1000;
+  return performance.now() + (t - (ctx ? ctx.currentTime : 0)) * 1000;
+}
+
+/** Send a note to every enabled output. `t` is audio-clock seconds, or null for "now". */
+function sendNote(ch, note, vel, t, durSec) {
+  if ($("toSynth").checked && synthReady) {
+    if (t === null) {
+      synth.noteOn(ch, note, vel);
+      if (durSec) synth.noteOff(ch, note, { time: ctx.currentTime + durSec });
+    } else {
+      const ts = t + $("latSynth").valueAsNumber / 1000;
+      synth.noteOn(ch, note, vel, { time: ts });
+      synth.noteOff(ch, note, { time: ts + durSec });
+    }
+  }
+  if ($("toMidi").checked && midiOut) {
+    if (t === null) {
+      midiOut.send([0x90 | ch, note, vel]);
+      if (durSec) midiOut.send([0x80 | ch, note, 0], performance.now() + durSec * 1000);
+    } else {
+      const tm = perfTimeFor(t) + $("latMidi").valueAsNumber;
+      midiOut.send([0x90 | ch, note, vel], tm);
+      midiOut.send([0x80 | ch, note, 0], tm + durSec * 1000);
+    }
+  }
+}
+function noteOffNow(ch, note) {
+  if (synthReady) synth.noteOff(ch, note);
+  if (midiOut) midiOut.send([0x80 | ch, note, 0]);
+}
+function allNotesOff(afterSec = 0) {
+  for (const ch of Object.values(CH)) {
+    if (synthReady) synth.controllerChange(ch, 123, 0, { time: ctx.currentTime + afterSec });
+    if (midiOut) { midiOut.clear?.(); midiOut.send([0xb0 | ch, 123, 0]); }
+  }
+}
+
+// --- audio + soundfont
+async function startAudio() {
+  $("btnAudio").disabled = true;
+  try {
+    ctx = new AudioContext({ latencyHint: "interactive" });
+    await ctx.audioWorklet.addModule(processorUrl);
+    synth = new WorkletSynthesizer(ctx);
+    synth.connect(ctx.destination);
+    await ctx.resume();
+    setStatus("audioStatus", "Audio running. Looking for a SoundFont…");
+    let buf = null;
+    try {
+      const res = await fetch(new URL("../soundfonts/default.sf3", location.href));
+      const type = res.headers.get("content-type") || "";
+      if (res.ok && !type.includes("text/html")) buf = await res.arrayBuffer();
+    } catch {}
+    if (buf) await loadSoundFont(buf, "default.sf3");
+    else {
+      $("sfRow").hidden = false;
+      setStatus("audioStatus", "Audio running. No default SoundFont found: choose a .sf2 or .sf3 file.", "bad");
+    }
+    updatePlayEnabled();
+  } catch (err) {
+    console.error(err);
+    setStatus("audioStatus", "Audio failed: " + err.message, "bad");
+    $("btnAudio").disabled = false;
+  }
+}
+async function loadSoundFont(buf, name) {
+  setStatus("audioStatus", `Loading ${name}…`);
+  try {
+    await synth.soundBankManager.addSoundBank(buf, "main");
+    await synth.isReady;
+    synth.programChange(CH.bass, PROGRAM.bass);
+    synth.programChange(CH.lead, PROGRAM.lead);
+    synthReady = true;
+    $("sfRow").hidden = false;
+    setStatus("audioStatus", `SoundFont ready: ${name} · ${ctx.sampleRate} Hz`, "ok");
+  } catch (err) {
+    console.error(err);
+    setStatus("audioStatus", `Could not load ${name}: ${err.message}`, "bad");
+  }
+  updatePlayEnabled();
+}
+async function loadSoundFontFile(file) {
+  if (!file) return;
+  if (!ctx) await startAudio();
+  if (ctx) await loadSoundFont(await file.arrayBuffer(), file.name);
+}
+
+// --- MIDI out
+async function enableMidi() {
+  if (!navigator.requestMIDIAccess) return setStatus("midiStatus", "This browser has no Web MIDI.", "bad");
+  try {
+    midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+    midiAccess.onstatechange = refreshPorts;
+    refreshPorts();
+    $("btnMidi").disabled = true;
+  } catch (err) {
+    setStatus("midiStatus", "MIDI access denied: " + err.message, "bad");
+  }
+}
+function refreshPorts() {
+  const sel = $("midiPort"), prev = sel.value;
+  const outs = [...midiAccess.outputs.values()];
+  sel.innerHTML = "";
+  for (const o of outs) sel.add(new Option(o.name || o.id, o.id));
+  if (!outs.length) sel.add(new Option("No MIDI port found", ""));
+  sel.disabled = !outs.length;
+  if (outs.some((o) => o.id === prev)) sel.value = prev;
+  pickPort();
+  setStatus("midiStatus", outs.length ? `${outs.length} output port${outs.length > 1 ? "s" : ""}` :
+    "MIDI is enabled but no output ports exist. On macOS, enable the IAC Driver in Audio MIDI Setup.", outs.length ? "ok" : "bad");
+}
+function pickPort() {
+  midiOut = midiAccess?.outputs.get($("midiPort").value) || null;
+  if (midiOut) {
+    midiOut.send([0xc0 | CH.bass, PROGRAM.bass]);
+    midiOut.send([0xc0 | CH.lead, PROGRAM.lead]);
+    $("toMidi").checked = true;
+  }
+  updatePlayEnabled();
+}
+
+// ---------------------------------------------------------------------------
+// Lookahead scheduler. A worker timer wakes us every TICK_MS; each wake schedules
+// everything that falls inside the next HORIZON seconds on the audio clock.
+// ---------------------------------------------------------------------------
+const TICK_MS = 25, HORIZON = 0.12, START_DELAY = 0.1;
+const timer = new Worker(URL.createObjectURL(new Blob([`
+  let id = null;
+  onmessage = (e) => {
+    clearInterval(id); id = null;
+    if (e.data > 0) id = setInterval(() => postMessage(0), e.data);
+  };`], { type: "text/javascript" })));
+timer.onmessage = () => { if (playing) pump(); };
+
+let playing = false;
+let anchorTick = 0, anchorTime = 0, secPerTick = 0;   // tick -> time mapping
+let loopIndex = 0, nextEvent = 0;                      // read position in EVENTS
+const stat = { startedAt: 0, scheduled: 0, late: 0, minMargin: Infinity, maxGap: 0, lastPump: 0 };
+
+const timeOfTick = (tick) => anchorTime + (tick - anchorTick) * secPerTick;
+const tickAtTime = (t) => anchorTick + (t - anchorTime) / secPerTick;
+
+function play() {
+  if (playing) return;
+  secPerTick = 60 / (clampBpm() * PPQ);
+  anchorTick = 0; anchorTime = ctx.currentTime + START_DELAY;
+  loopIndex = 0; nextEvent = 0;
+  Object.assign(stat, { startedAt: ctx.currentTime, scheduled: 0, late: 0, minMargin: Infinity, maxGap: 0, lastPump: 0 });
+  playing = true;
+  timer.postMessage(TICK_MS);
+  pump();
+  updatePlayEnabled();
+}
+function stop() {
+  if (!playing) return;
+  playing = false;
+  timer.postMessage(0);
+  allNotesOff(HORIZON + 0.05);
+  updatePlayEnabled();
+}
+function pump() {
+  const now = ctx.currentTime;
+  const wall = performance.now();
+  if (stat.lastPump) stat.maxGap = Math.max(stat.maxGap, wall - stat.lastPump);
+  stat.lastPump = wall;
+  const until = now + HORIZON;
+  for (;;) {
+    const ev = EVENTS[nextEvent];
+    const t = timeOfTick(loopIndex * LOOP_TICKS + ev.tick);
+    if (t >= until) break;
+    const margin = t - now;
+    if (margin < 0) stat.late++;
+    stat.minMargin = Math.min(stat.minMargin, margin);
+    stat.scheduled++;
+    sendNote(CH[ev.lane], ev.note, ev.vel, t, ev.len * secPerTick);
+    if (++nextEvent === EVENTS.length) { nextEvent = 0; loopIndex++; }
+  }
+}
+function clampBpm() {
+  const v = $("bpm").valueAsNumber;
+  return Math.min(240, Math.max(40, Number.isFinite(v) ? v : 112));
+}
+function changeBpm() {
+  if (!playing) return;
+  // Re-anchor at the scheduling horizon so already-sent events keep their times.
+  const t = ctx.currentTime + HORIZON;
+  anchorTick = tickAtTime(t); anchorTime = t;
+  secPerTick = 60 / (clampBpm() * PPQ);
+}
+
+// ---------------------------------------------------------------------------
+// Keyboard: rollover zones, live notes, latency
+// ---------------------------------------------------------------------------
+const ROWS = [
+  ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0"],
+  ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI", "KeyO", "KeyP"],
+  ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH", "KeyJ", "KeyK", "KeyL", "Semicolon"],
+  ["KeyZ", "KeyX", "KeyC", "KeyV", "KeyB", "KeyN", "KeyM", "Comma", "Period", "Slash"],
+];
+const LABEL = { Semicolon: ";", Comma: ",", Period: ".", Slash: "/" };
+const label = (code) => LABEL[code] || code.replace(/^(Key|Digit)/, "").toLowerCase();
+const SCALE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16]; // C major, one step per key
+const keyInfo = new Map(); // code -> { el, zone, ch, note }
+const zones = [];
+
+ROWS.forEach((row, r) => {
+  const rowEl = document.createElement("div");
+  rowEl.className = "kbrow";
+  for (let i = 0; i < row.length; i += 3) {
+    const codes = row.slice(i, i + 3);
+    const zoneEl = document.createElement("div");
+    zoneEl.className = "zone";
+    const zone = codes.length === 3 ? { el: zoneEl, codes, pass: false } : null;
+    if (zone) zones.push(zone);
+    codes.forEach((code, j) => {
+      const el = document.createElement("div");
+      el.className = "key" + (zone ? "" : " solo");
+      el.textContent = label(code);
+      zoneEl.append(el);
+      const k = i + j;
+      const sound = r === 3 ? { ch: CH.kit, note: PADS[k] } :
+                    r === 2 ? { ch: CH.bass, note: 36 + SCALE[k] } :
+                              { ch: CH.lead, note: (r === 1 ? 60 : 72) + SCALE[k] };
+      keyInfo.set(code, { el, zone, ...sound });
+    });
+    rowEl.append(zoneEl);
+  }
+  $("kb").append(rowEl);
+});
+
+const held = new Set();
+let maxHeld = 0;
+const lat = { n: 0, sum: 0, max: 0 };
+const taps = [];
+
+addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches?.("input[type=number], select")) return;
+  if (e.code === "Space") {
+    e.preventDefault();
+    if (!e.repeat) recordTap(e.timeStamp);
+    return;
+  }
+  const k = keyInfo.get(e.code);
+  if (!k) return;
+  e.preventDefault();
+  if (e.repeat || held.has(e.code)) return;
+  const delay = performance.now() - e.timeStamp;
+  lat.n++; lat.sum += delay; lat.max = Math.max(lat.max, delay);
+  held.add(e.code);
+  k.el.classList.add("down");
+  if (ctx) sendNote(k.ch, k.note, 100, null, k.ch === CH.kit ? 0.1 : 0);
+  maxHeld = Math.max(maxHeld, held.size);
+  if (k.zone && !k.zone.pass && k.zone.codes.every((c) => held.has(c))) {
+    k.zone.pass = true;
+    k.zone.el.classList.add("pass");
+  }
+  renderRollover();
+});
+addEventListener("keyup", (e) => {
+  const k = keyInfo.get(e.code);
+  if (!k || !held.delete(e.code)) return;
+  k.el.classList.remove("down");
+  if (ctx && k.ch !== CH.kit) noteOffNow(k.ch, k.note);
+});
+addEventListener("blur", () => { // keyups are lost when focus leaves the window
+  for (const code of held) { const k = keyInfo.get(code); k.el.classList.remove("down"); if (ctx) noteOffNow(k.ch, k.note); }
+  held.clear();
+});
+
+function recordTap(eventTime) {
+  if (!playing) return;
+  const beatSec = PPQ * secPerTick;
+  // When was the nearest beat heard, on the performance clock?
+  const ts = ctx.getOutputTimestamp?.();
+  const heardNow = ts && ts.performanceTime > 0
+    ? ts.contextTime + (eventTime - ts.performanceTime) / 1000
+    : ctx.currentTime - (ctx.outputLatency || 0) + (eventTime - performance.now()) / 1000;
+  const beats = (heardNow - $("latSynth").valueAsNumber / 1000 - anchorTime) / beatSec + anchorTick / PPQ;
+  const off = (beats - Math.round(beats)) * beatSec * 1000;
+  taps.push(off);
+  if (taps.length > 32) taps.shift();
+}
+
+// ---------------------------------------------------------------------------
+// UI
+// ---------------------------------------------------------------------------
+function setStatus(id, text, cls = "") { const el = $(id); el.textContent = text; el.className = "status " + cls; }
+function updatePlayEnabled() {
+  const canPlay = !!ctx && (synthReady || !!midiOut);
+  $("btnPlay").disabled = !canPlay || playing;
+  $("btnStop").disabled = !playing;
+}
+function renderRollover() {
+  const n = zones.filter((z) => z.pass).length;
+  setStatus("rollStatus", `${n} of ${zones.length} zones passed`, n === zones.length ? "ok" : "");
+  $("maxHeld").textContent = `Most keys held at once: ${maxHeld}`;
+}
+const cell = (value, name, bad) => `<div class="stat${bad ? " bad" : ""}"><b>${value}</b><span>${name}</span></div>`;
+const ms = (v, d = 1) => (Number.isFinite(v) ? v.toFixed(d) + " ms" : "–");
+function fmtTime(s) { const m = Math.floor(s / 60); return `${m}:${String(Math.floor(s % 60)).padStart(2, "0")}`; }
+
+function render() {
+  const elapsed = playing ? ctx.currentTime - stat.startedAt : 0;
+  const bar = playing ? Math.max(0, Math.floor(tickAtTime(ctx.currentTime) / BAR)) + 1 : 0;
+  $("stats").innerHTML =
+    cell(playing ? fmtTime(elapsed) : "–", "elapsed") +
+    cell(playing ? bar : "–", "bar") +
+    cell(stat.scheduled, "events scheduled") +
+    cell(stat.late, "late events", stat.late > 0) +
+    cell(ms(stat.minMargin * 1000), "smallest lead time", stat.minMargin < 0.02) +
+    cell(ms(stat.maxGap), "longest timer gap", stat.maxGap > HORIZON * 1000);
+
+  const mean = taps.length ? taps.reduce((a, b) => a + b, 0) / taps.length : NaN;
+  const sd = taps.length > 1 ? Math.sqrt(taps.reduce((a, b) => a + (b - mean) ** 2, 0) / (taps.length - 1)) : NaN;
+  const base = ctx ? ctx.baseLatency * 1000 : NaN, out = ctx ? (ctx.outputLatency || 0) * 1000 : NaN;
+  $("latStats").innerHTML =
+    cell(ms(lat.n ? lat.sum / lat.n : NaN), `key event delay, mean of ${lat.n}`) +
+    cell(ms(lat.n ? lat.max : NaN), "key event delay, worst", lat.max > 20) +
+    cell(ms(base), "audio buffer latency") +
+    cell(ms(out), "audio output latency", out > 50) +
+    cell(ms(base + out + (lat.n ? lat.sum / lat.n : 0)), "estimated key to ear", base + out > 60) +
+    cell(taps.length ? `${mean >= 0 ? "+" : ""}${mean.toFixed(0)} ms` : "–", `tap offset, mean of ${taps.length}`) +
+    cell(ms(sd, 0), "tap offset, spread");
+  requestAnimationFrame(render);
+}
+
+$("btnAudio").onclick = startAudio;
+$("btnMidi").onclick = enableMidi;
+$("midiPort").onchange = pickPort;
+$("btnPlay").onclick = play;
+$("btnStop").onclick = stop;
+$("bpm").onchange = changeBpm;
+$("sfFile").onchange = (e) => loadSoundFontFile(e.target.files[0]);
+$("btnResetRoll").onclick = () => {
+  zones.forEach((z) => { z.pass = false; z.el.classList.remove("pass"); });
+  maxHeld = 0; renderRollover();
+};
+$("btnResetTaps").onclick = () => { taps.length = 0; Object.assign(lat, { n: 0, sum: 0, max: 0 }); };
+const drop = $("drop");
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); loadSoundFontFile(e.dataTransfer.files[0]); };
+// Buttons keep focus after a click; without this, Space (the tap key) would re-click them.
+document.querySelectorAll("button").forEach((b) => b.addEventListener("keydown", (e) => { if (e.code === "Space") e.preventDefault(); }));
+document.querySelectorAll("button").forEach((b) => b.addEventListener("keyup", (e) => { if (e.code === "Space") e.preventDefault(); }));
+
+// Test hook: lets an automated check read scheduler state.
+window.__spike = { stat, get playing() { return playing; }, get ctx() { return ctx; }, get synth() { return synth; }, EVENTS };
+
+render();
+</script>
+</body>
+</html>

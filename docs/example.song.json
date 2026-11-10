@@ -1,0 +1,150 @@
+{
+  "format": "song",
+  "format_version": 1,
+  "rails_version": 1,
+  "id": "prj_8f2k",
+  "title": "Untitled",
+  "created_at": "2026-11-10T18:30:00Z",
+  "updated_at": "2026-11-10T19:02:00Z",
+  "settings": { "minor_dominant": true, "master_volume": 100 },
+  "soundfonts": [
+    { "hash": "sha256:EXAMPLE", "name": "default-gm.sf3" }
+  ],
+  "lanes": [
+    {
+      "id": "l_kit", "role": "kit", "name": "Drums",
+      "instrument": { "backend": "soundfont", "sf": "sha256:EXAMPLE", "program": 0, "drums": true },
+      "zones": ["zxc", "vbn"],
+      "volume": 100, "pan": 64, "mute": false, "solo": false, "latency_ms": 0,
+      "swing": "straight",
+      "pads": [36, 38, 42, 46, 39, 49, 37, 45, 50, 51],
+      "choke": [[3, 4]]
+    },
+    {
+      "id": "l_bass", "role": "bass", "name": "Bass",
+      "instrument": { "backend": "soundfont", "sf": "sha256:EXAMPLE", "program": 33 },
+      "zones": ["asd"],
+      "volume": 100, "pan": 64, "mute": false, "solo": false, "latency_ms": 0,
+      "mono": { "on": true, "priority": "lowest", "legato": false },
+      "register": [28, 52],
+      "swing_follow": true
+    },
+    {
+      "id": "l_pad", "role": "pad", "name": "Pad",
+      "instrument": { "backend": "soundfont", "sf": "sha256:EXAMPLE", "program": 89 },
+      "zones": ["qwe"],
+      "volume": 80, "pan": 64, "mute": false, "solo": false, "latency_ms": 0,
+      "mono": { "on": false, "priority": "last", "legato": false },
+      "register": [48, 76],
+      "swing_follow": true
+    },
+    {
+      "id": "l_lead1", "role": "lead", "name": "Lead",
+      "instrument": { "backend": "midi", "port": "IAC Driver Bus 1", "channel": 3, "program": null },
+      "zones": ["fgh", "jkl"],
+      "volume": 100, "pan": 64, "mute": false, "solo": false, "latency_ms": 0,
+      "mono": { "on": true, "priority": "last", "legato": true },
+      "register": [60, 84]
+    }
+  ],
+  "patterns": {
+    "pt_rock16": {
+      "kind": "drum", "role": "kit", "meter": "4/4", "bars": 1, "grid": "1/16", "loop": "bar",
+      "hits": [
+        { "step": 0, "pad": 1, "lv": "a" },
+        { "step": 4, "pad": 2, "lv": "n" },
+        { "step": 8, "pad": 1, "lv": "n" },
+        { "step": 12, "pad": 2, "lv": "n" },
+        { "step": 0, "pad": 3, "lv": "n" },
+        { "step": 2, "pad": 3, "lv": "g" },
+        { "step": 4, "pad": 3, "lv": "n" },
+        { "step": 6, "pad": 3, "lv": "g" },
+        { "step": 8, "pad": 3, "lv": "n" },
+        { "step": 10, "pad": 3, "lv": "g" },
+        { "step": 12, "pad": 3, "lv": "n" },
+        { "step": 14, "pad": 3, "lv": "g" }
+      ]
+    },
+    "pt_fill1": {
+      "kind": "drum", "role": "kit", "meter": "4/4", "bars": 1, "grid": "1/16", "loop": "bar",
+      "hits": [
+        { "step": 0, "pad": 1, "lv": "a" },
+        { "step": 4, "pad": 2, "lv": "n" },
+        { "step": 8, "pad": 1, "lv": "n" },
+        { "step": 12, "pad": 2, "lv": "n" },
+        { "step": 13, "pad": 8, "lv": "n" },
+        { "step": 14, "pad": 9, "lv": "n" },
+        { "step": 15, "pad": 9, "lv": "a" }
+      ]
+    },
+    "pt_bass8": {
+      "kind": "pitched", "role": "bass", "meter": "4/4", "bars": 1, "grid": "1/8", "loop": "bar",
+      "steps": [
+        { "step": 0, "tones": [1], "len": 2, "vel": 100 },
+        { "step": 2, "tones": [1], "len": 1, "vel": 80 },
+        { "step": 3, "tones": [3], "len": 1, "vel": 80 },
+        { "step": 4, "tones": [1], "len": 2, "vel": 100 },
+        { "step": 6, "tones": [3], "len": 1, "vel": 80 },
+        { "step": 7, "tones": [2], "len": 1, "vel": 80 }
+      ]
+    },
+    "pt_pad1": {
+      "kind": "pitched", "role": "pad", "meter": "4/4", "bars": 1, "grid": "1/4", "loop": "bar",
+      "steps": [
+        { "step": 0, "tones": [1, 2, 3], "len": 4, "vel": 70 }
+      ]
+    }
+  },
+  "sections": {
+    "s_verse": {
+      "name": "Verse", "bars": 4, "meter": "4/4", "tonic": "C", "mode": "ionian", "bpm": 112, "ramp_to_next": false,
+      "chords": [
+        { "start": 0, "len": 1920, "chord": "vi" },
+        { "start": 1920, "len": 1920, "chord": "IV" },
+        { "start": 3840, "len": 1920, "chord": "I" },
+        { "start": 5760, "len": 1920, "chord": "V" }
+      ],
+      "clips": {
+        "l_kit": [
+          { "pattern": "pt_rock16", "start": 0, "len": 5760 },
+          { "pattern": "pt_fill1", "start": 5760, "len": 1920 }
+        ],
+        "l_bass": [ { "pattern": "pt_bass8", "start": 0, "len": 7680 } ],
+        "l_pad": [ { "pattern": "pt_pad1", "start": 0, "len": 7680 } ]
+      }
+    },
+    "s_chorus": {
+      "name": "Chorus", "bars": 8, "meter": "4/4", "tonic": "C", "mode": "ionian", "bpm": 120, "ramp_to_next": false,
+      "chords": [
+        { "start": 0, "len": 3840, "chord": "I" },
+        { "start": 3840, "len": 3840, "chord": "V" },
+        { "start": 7680, "len": 3840, "chord": "vi" },
+        { "start": 11520, "len": 3840, "chord": "IV", "ext": 7 }
+      ],
+      "clips": {
+        "l_kit": [
+          { "pattern": "pt_rock16", "start": 0, "len": 13440 },
+          { "pattern": "pt_fill1", "start": 13440, "len": 1920 }
+        ],
+        "l_bass": [ { "pattern": "pt_bass8", "start": 0, "len": 15360 } ],
+        "l_pad": [ { "pattern": "pt_pad1", "start": 0, "len": 15360 } ]
+      }
+    }
+  },
+  "arrangement": [
+    { "id": "i_1", "section": "s_verse", "leads": {} },
+    {
+      "id": "i_2", "section": "s_chorus",
+      "leads": {
+        "l_lead1": {
+          "notes": [
+            { "start": 0, "len": 480, "deg": 5, "acc": 0, "oct": 0, "vel": 96, "pass": 1 },
+            { "start": 480, "len": 480, "deg": 6, "acc": 0, "oct": 0, "vel": 96, "pass": 1 },
+            { "start": 960, "len": 960, "deg": 5, "acc": 0, "oct": 0, "vel": 90, "pass": 1 }
+          ]
+        }
+      }
+    },
+    { "id": "i_3", "section": "s_chorus", "leads": {} }
+  ]
+}

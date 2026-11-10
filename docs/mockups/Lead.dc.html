@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lead recording</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1160px;height:720px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:28px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+
+  <div style="display:flex;align-items:baseline;gap:12px">
+    <span style="font-size:20px;font-weight:700">Lead 1 · recording</span>
+    <span style="font-size:12px;color:#6B6A65">Rows are scale degrees in C Ionian. Every pass is kept; nothing is erased by playing.</span>
+  </div>
+
+  <div style="display:flex;gap:20px">
+
+    <!-- Roll card -->
+    <div style="width:894px;flex:none;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:flex;align-items:center;gap:8px;background:#B3261E;color:#FFFFFF;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:#FFFFFF"></span>REC · overdub · pass 3</span>
+        <span style="font-size:12px;color:#4A4944">Count-in done · bar 8, beat 2</span>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;color:#6B6A65">Quantize 1/16 · full strength</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column">
+        <!-- ruler -->
+        <div style="display:flex;height:22px">
+          <div style="width:90px;flex:none"></div>
+          <sc-for list="{{bars}}" as="b" hint-placeholder-count="8">
+            <div style="width:96px;flex:none;box-sizing:border-box;border-left:1px solid #D9D6CE;padding:4px 0 0 6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">{{b.n}}</div>
+          </sc-for>
+        </div>
+        <!-- chord reference ribbon -->
+        <div style="display:flex;height:28px;margin-bottom:6px">
+          <div style="width:90px;flex:none;font-size:10px;color:#6B6A65;display:flex;align-items:center">chords (reference)</div>
+          <div style="width:192px;flex:none;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:3px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1F3768">I · C</div>
+          <div style="width:192px;flex:none;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:3px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1F3768">V · G</div>
+          <div style="width:192px;flex:none;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:3px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1F3768">vi · Am</div>
+          <div style="width:192px;flex:none;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:3px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1F3768">IV7 · Fmaj7</div>
+        </div>
+        <!-- roll -->
+        <div style="display:flex">
+          <div style="width:90px;flex:none;display:flex;flex-direction:column">
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+              <div style="height:{{r.h}}px;box-sizing:border-box;border-top:1px solid #E6E3DB;display:flex;align-items:center;gap:6px;padding-right:8px;justify-content:flex-end;font-family:'IBM Plex Mono',monospace;font-size:{{r.fs}}px;color:{{r.fc}}">
+                <span style="font-weight:{{r.fw}}">{{r.label}}</span><span>{{r.name}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="position:relative;width:768px;height:242px;flex:none;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 95px,#D9D6CE 95px,#D9D6CE 96px)">
+            <div style="position:absolute;left:0;top:0;width:768px;display:flex;flex-direction:column">
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="12">
+                <div style="height:{{r.h}}px;box-sizing:border-box;border-top:1px solid #E6E3DB;background:{{r.bg}}"></div>
+              </sc-for>
+            </div>
+            <sc-for list="{{notes}}" as="n" hint-placeholder-count="20">
+              <div style="position:absolute;box-sizing:border-box;border-radius:3px;left:{{n.x}}px;top:{{n.y}}px;width:{{n.w}}px;height:16px;background:{{n.bg}};border:{{n.bd}};border-right-style:{{n.br}}"></div>
+            </sc-for>
+            <div style="position:absolute;left:705px;top:0;width:2px;height:242px;background:#1C1C1A"></div>
+            <div style="position:absolute;left:236px;top:84px;width:196px;box-sizing:border-box;background:#FFFFFF;border:1px solid #B8B4A9;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,0.14);padding:4px 0;font-size:12px">
+              <div style="padding:5px 12px;background:#F3F1EC;font-weight:600">Delete this pass (2)</div>
+              <div style="padding:5px 12px">Select this pass</div>
+              <div style="padding:5px 12px">Select all of degree 4</div>
+              <div style="padding:5px 12px;border-top:1px solid #E6E3DB;margin-top:2px">Delete note</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px">
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 14px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">PASSES</span>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:14px;height:14px;border-radius:3px;background:#8A5F08"></span><span style="flex:1">Pass 1 · 11 notes</span><button aria-label="Mute pass 1" style="font-size:11px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF;padding:1px 6px">mute</button></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:14px;height:14px;border-radius:3px;background:#C48A14"></span><span style="flex:1">Pass 2 · 7 notes</span><button aria-label="Mute pass 2" style="font-size:11px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF;padding:1px 6px">mute</button></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:14px;height:14px;border-radius:3px;background:#E8B03A;border:1px solid #1C1C1A;box-sizing:border-box"></span><span style="flex:1">Pass 3 · live</span><span style="font-size:11px;color:#B3261E;font-weight:600">REC</span></div>
+        <div style="font-size:12px;color:#6B6A65">Newest pass is the lightest. Undo removes the last pass.</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 14px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">LANE</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px"><button style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 8px;border-radius:999px;border:none;background:#1C1C1A;color:#FFFFFF">MONO</button><span>last note</span></div>
+        <div style="font-size:12px;color:#4A4944">Legato on (MIDI out only)</div>
+        <div style="display:flex;gap:6px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">fgh</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">jkl</span></div>
+        <div style="font-size:12px;color:#4A4944">Octave <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">↑</span> <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">↓</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explainers -->
+  <div style="display:flex;gap:16px">
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Mono is a playback filter</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Pass 1 had a degree 6 on bar 3. Pass 2 landed a degree 4 on the same beat, so the older note shows as a dashed outline and does not sound. Flip the lane to POLY and both play.</div>
+    </div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Out-of-scale notes</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Keys snap to the scale. Hold ⇧ for a chromatic passing tone. The shaded half rows between degrees are where those notes sit.</div>
+    </div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Leads follow the key, not the chord</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Notes are stored as degrees, so a mode change re-skins the melody but a chord change never moves it. Leads stay per instance when a section is linked.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1160,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bars = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n }));
+    const defs = [
+      { d: 7, name: 'B' }, { h: '♯6 ♭7' }, { d: 6, name: 'A' }, { h: '♯5 ♭6' }, { d: 5, name: 'G' },
+      { h: '♯4 ♭5' }, { d: 4, name: 'F' }, { d: 3, name: 'E' }, { h: '♯2 ♭3' }, { d: 2, name: 'D' },
+      { h: '♯1 ♭2' }, { d: 1, name: 'C' }
+    ];
+    let y = 0;
+    const degTop = {};
+    const rows = defs.map((r) => {
+      const half = r.h !== undefined;
+      const h = half ? 12 : 26;
+      if (!half) degTop[r.d] = y;
+      y += h;
+      return half
+        ? { h, label: '', name: r.h, fs: 9, fc: '#6B6A65', fw: '400', bg: '#F3F1EC' }
+        : { h, label: String(r.d), name: r.name, fs: 12, fc: '#1C1C1A', fw: '600', bg: '#FFFFFF' };
+    });
+    const P = { 1: '#8A5F08', 2: '#C48A14', 3: '#E8B03A' };
+    const list = [
+      [5, 0, 1, 1], [6, 1, 1, 1], [5, 2, 2, 1], [3, 4, 1, 1], [5, 5, 1, 1], [6, 6, 1, 1], [7, 7, 1, 1],
+      [6, 8, 2, 1, 'supp'], [5, 10, 1, 1], [3, 11, 1, 1], [5, 12, 4, 1],
+      [4, 8, 2, 2], [3, 16, 1, 2], [5, 17, 1, 2], [6, 18, 2, 2], [5, 20, 1, 2], [3, 21, 1, 2], [2, 22, 2, 2],
+      [2, 24, 1, 3], [3, 25, 1, 3], [5, 26, 2, 3], [5, 28, 1.4, 3, 'held']
+    ];
+    const notes = list.map((n) => {
+      const supp = n[4] === 'supp';
+      const held = n[4] === 'held';
+      return {
+        x: n[1] * 24 + 1,
+        y: degTop[n[0]] + 5,
+        w: Math.round(n[2] * 24 - 2),
+        bg: supp ? 'transparent' : P[n[3]],
+        bd: supp ? '1.5px dashed #8A5F08' : (held ? '1.5px solid #1C1C1A' : '1px solid rgba(28,28,26,0.35)'),
+        br: held ? 'dashed' : (supp ? 'dashed' : 'solid')
+      };
+    });
+    return { bars, rows, notes };
+  }
+}
+</script>
+</body>
+</html>

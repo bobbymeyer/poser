@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Section view</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1440px;height:800px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;display:flex;flex-direction:column;overflow:hidden">
+
+  <!-- Top bar -->
+  <div style="height:56px;flex:none;box-sizing:border-box;background:#FFFFFF;border-bottom:1px solid #D9D6CE;padding:0 20px;display:flex;align-items:center;gap:14px">
+    <span style="font-weight:700;font-size:14px;letter-spacing:0.02em">Layered</span>
+    <span style="width:1px;height:20px;background:#D9D6CE"></span>
+    <span style="font-weight:600;font-size:14px">Untitled song</span>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:20px">
+      <button aria-label="Play" style="width:36px;height:36px;border-radius:6px;border:none;background:#1C1C1A;display:flex;align-items:center;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9-5.5z" fill="#FFFFFF"/></svg>
+      </button>
+      <button aria-label="Stop" style="width:36px;height:36px;border-radius:6px;border:1px solid #B8B4A9;background:#FFFFFF;display:flex;align-items:center;justify-content:center">
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="#1C1C1A"/></svg>
+      </button>
+      <button style="height:36px;padding:0 12px;border-radius:6px;border:1.5px solid #1C1C1A;background:#FFFFFF;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#1C1C1A"></span>Loop section
+      </button>
+      <button style="height:36px;padding:0 12px;border-radius:6px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:12px;color:#4A4944">Count-in · 1 bar</button>
+      <button style="height:36px;padding:0 12px;border-radius:6px;border:1px solid #D9D6CE;background:transparent;font-size:12px;color:#4A4944">Play song</button>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;background:#FBEFD0;border:1px solid #E5CE8F;color:#6B4A00;border-radius:999px;padding:5px 12px;font-size:12px">
+      <span style="width:7px;height:7px;border-radius:50%;background:#B07B12"></span>Saved locally · last backed up 8 days ago
+    </div>
+    <button style="height:32px;padding:0 12px;border-radius:6px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:12px;font-weight:500">Save file</button>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#4A4944">Master
+      <input type="range" min="0" max="127" value="100" aria-label="Master volume" style="width:84px">
+    </label>
+    <div style="display:flex;border:1px solid #B8B4A9;border-radius:6px;overflow:hidden">
+      <button style="padding:6px 12px;border:none;background:#1C1C1A;color:#FFFFFF;font-size:12px;font-weight:600">Section</button>
+      <button style="padding:6px 12px;border:none;background:#FFFFFF;color:#1C1C1A;font-size:12px">Overview</button>
+    </div>
+  </div>
+
+  <!-- Arrangement strip -->
+  <div style="flex:none;padding:12px 24px 10px;display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;align-items:baseline;gap:10px;font-size:11px;color:#6B6A65">
+      <span style="font-weight:600;letter-spacing:0.08em">ARRANGEMENT</span><span>48 bars · 7 sections · click selects, drag moves, Alt-drag copies a linked instance</span>
+    </div>
+    <div style="display:flex;gap:3px;height:62px">
+      <div style="flex:4 1 0;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <span style="font-weight:600;font-size:12px">Intro</span><span style="font-size:11px;color:#6B6A65">4 bars</span>
+      </div>
+      <div style="flex:8 1 0;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:12px">Verse</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#1C1C1A;color:#FFFFFF;border-radius:3px;padding:0 5px">×2</span></div>
+        <span style="font-size:11px;color:#6B6A65">8 bars · C Ionian · 112</span>
+      </div>
+      <div style="flex:8 1 0;min-width:0;box-sizing:border-box;background:#E4EAF6;border:1px solid #9FB2D8;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:12px">Chorus</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#1C1C1A;color:#FFFFFF;border-radius:3px;padding:0 5px">×2</span></div>
+        <span style="font-size:11px;color:#2A3F6E">8 bars · C Ionian · 120</span>
+      </div>
+      <div style="flex:8 1 0;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:12px">Verse</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#1C1C1A;color:#FFFFFF;border-radius:3px;padding:0 5px">×2</span></div>
+        <span style="font-size:11px;color:#6B6A65">8 bars · C Ionian · 112</span>
+      </div>
+      <div style="flex:8 1 0;min-width:0;box-sizing:border-box;background:#E4EAF6;border:2px solid #1C1C1A;border-radius:4px;padding:5px 7px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:12px">Chorus</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#1C1C1A;color:#FFFFFF;border-radius:3px;padding:0 5px">×2</span></div>
+        <span style="font-size:11px;color:#2A3F6E">8 bars · C Ionian · 120</span>
+      </div>
+      <div style="flex:8 1 0;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600;font-size:12px">Chorus 2</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;background:#FBEFD0;color:#6B4A00;border:1px solid #E5CE8F;border-radius:3px;padding:0 5px">↑ +2</span></div>
+        <span style="font-size:11px;color:#6B6A65">8 bars · D Ionian · 124</span>
+      </div>
+      <div style="flex:4 1 0;min-width:0;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:4px;padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between">
+        <span style="font-weight:600;font-size:12px">Outro</span><span style="font-size:11px;color:#6B6A65">4 bars</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section header -->
+  <div style="flex:none;height:60px;box-sizing:border-box;padding:0 24px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:22px;font-weight:700">Chorus</span>
+    <span style="font-size:12px;color:#6B6A65">instance 2 of 2</span>
+    <span style="width:1px;height:24px;background:#D9D6CE;margin:0 4px"></span>
+    <button style="display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:4px 12px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF">
+      <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">RHYTHM</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500">120 · 4/4</span>
+    </button>
+    <button style="display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:4px 12px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF">
+      <span style="font-size:9px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">KEY</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500">C Ionian</span>
+    </button>
+    <span style="font-size:12px;background:#E4EAF6;color:#1F3768;border:1px solid #9FB2D8;border-radius:999px;padding:4px 10px">Edits affect 2 instances</span>
+    <div style="flex:1"></div>
+    <button style="height:32px;padding:0 14px;border-radius:6px;border:1px solid #1C1C1A;background:#FFFFFF;font-size:12px;font-weight:600">Bake → Chorus 3</button>
+  </div>
+
+  <!-- Lane stack -->
+  <div style="flex:none;margin:0 10px;width:1420px;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;overflow:hidden">
+
+    <!-- ruler -->
+    <div style="display:flex;height:28px;border-bottom:1px solid #D9D6CE;background:#FBFAF7">
+      <div style="width:218px;flex:none;border-right:1px solid #D9D6CE"></div>
+      <div style="width:40px;flex:none"></div>
+      <div style="width:1120px;flex:none;display:flex">
+        <sc-for list="{{bars}}" as="b" hint-placeholder-count="8">
+          <div style="width:140px;flex:none;box-sizing:border-box;border-left:1px solid #D9D6CE;padding:6px 0 0 6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">{{b.n}}</div>
+        </sc-for>
+      </div>
+      <div style="width:40px;flex:none"></div>
+    </div>
+
+    <!-- chords -->
+    <div style="display:flex;height:80px;border-bottom:1px solid #D9D6CE">
+      <div style="width:218px;flex:none;box-sizing:border-box;padding:6px 12px;border-right:1px solid #D9D6CE;background:#FBFAF7;display:flex;flex-direction:column;justify-content:center;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:#2F4B8A"></span><span style="font-weight:600;font-size:13px">Chords</span></div>
+        <div style="font-size:11px;color:#6B6A65">Typing cursor · length 2 bars</div>
+        <div style="display:flex;align-items:center;gap:6px"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">1–7</span><span style="font-size:11px;color:#6B6A65">enter degree</span></div>
+      </div>
+      <div style="width:40px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">‹ G</div>
+      <div style="width:1120px;flex:none;position:relative;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 139px,#E6E3DB 139px,#E6E3DB 140px)">
+        <div style="position:absolute;left:1px;top:8px;width:278px;height:64px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px"><div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:#1F3768">I</div><div style="font-size:12px;color:#2A3F6E">C</div></div>
+        <div style="position:absolute;left:281px;top:8px;width:278px;height:64px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px"><div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:#1F3768">V</div><div style="font-size:12px;color:#2A3F6E">G</div></div>
+        <div style="position:absolute;left:561px;top:8px;width:278px;height:64px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px"><div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:#1F3768">vi</div><div style="font-size:12px;color:#2A3F6E">Am</div></div>
+        <div style="position:absolute;left:841px;top:8px;width:278px;height:64px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px"><div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:#1F3768">IV7</div><div style="font-size:12px;color:#2A3F6E">Fmaj7</div></div>
+      </div>
+      <div style="width:40px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">D ›</div>
+    </div>
+
+    <!-- drums -->
+    <div style="display:flex;height:96px;border-bottom:1px solid #D9D6CE">
+      <div style="width:218px;flex:none;box-sizing:border-box;padding:6px 12px;border-right:1px solid #D9D6CE;background:#FBFAF7;display:flex;flex-direction:column;justify-content:center;gap:5px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:#B5472B"></span><span style="font-weight:600;font-size:13px">Kit</span><span style="margin-left:auto;font-size:11px;color:#6B6A65">Swing: Straight</span></div>
+        <button style="text-align:left;font-size:11px;padding:3px 8px;border:1px solid #D9D6CE;border-radius:4px;background:#FFFFFF;color:#1C1C1A">SF · Standard Kit</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">zxc</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">vbn</span>
+          <button aria-label="Arm Kit for recording" style="margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid #B8B4A9;background:#FFFFFF;padding:0"></button>
+          <button aria-label="Mute Kit" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">M</button>
+          <button aria-label="Solo Kit" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">S</button>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+      <div style="width:1120px;flex:none;position:relative;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 139px,#E6E3DB 139px,#E6E3DB 140px)">
+        <div style="position:absolute;left:1px;top:8px;width:978px;height:80px;box-sizing:border-box;background:#F6E6DF;border:1px solid #D9A18F;border-radius:4px;overflow:hidden">
+          <div style="padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6E2A14">Rock 16 · linked ×6</div>
+          <svg width="978" height="52" aria-hidden="true">
+            <defs>
+              <pattern id="rock" width="140" height="52" patternUnits="userSpaceOnUse">
+                <circle cx="5" cy="12" r="3.5" fill="#B5472B"/><circle cx="75" cy="12" r="3.5" fill="#B5472B"/>
+                <circle cx="40" cy="26" r="3.5" fill="#B5472B"/><circle cx="110" cy="26" r="3.5" fill="#B5472B"/>
+                <circle cx="5" cy="40" r="2.5" fill="#B5472B"/><circle cx="22.5" cy="40" r="2.5" fill="#B5472B" opacity="0.4"/>
+                <circle cx="40" cy="40" r="2.5" fill="#B5472B"/><circle cx="57.5" cy="40" r="2.5" fill="#B5472B" opacity="0.4"/>
+                <circle cx="75" cy="40" r="2.5" fill="#B5472B"/><circle cx="92.5" cy="40" r="2.5" fill="#B5472B" opacity="0.4"/>
+                <circle cx="110" cy="40" r="2.5" fill="#B5472B"/><circle cx="127.5" cy="40" r="2.5" fill="#B5472B" opacity="0.4"/>
+              </pattern>
+            </defs>
+            <rect width="978" height="52" fill="url(#rock)"/>
+          </svg>
+        </div>
+        <div style="position:absolute;left:981px;top:8px;width:138px;height:80px;box-sizing:border-box;background:#F6E6DF;border:1px solid #D9A18F;border-radius:4px;overflow:hidden">
+          <div style="padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6E2A14">Fill 1</div>
+          <svg width="138" height="52" aria-hidden="true">
+            <circle cx="5" cy="12" r="3.5" fill="#B5472B"/><circle cx="75" cy="12" r="3.5" fill="#B5472B"/>
+            <circle cx="40" cy="26" r="3.5" fill="#B5472B"/><circle cx="105" cy="26" r="3.5" fill="#B5472B"/>
+            <circle cx="105" cy="40" r="3" fill="#B5472B"/><circle cx="114" cy="40" r="3" fill="#B5472B"/><circle cx="123" cy="40" r="3" fill="#B5472B"/><circle cx="132" cy="40" r="3.5" fill="#B5472B"/>
+          </svg>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+    </div>
+
+    <!-- bass -->
+    <div style="display:flex;height:84px;border-bottom:1px solid #D9D6CE">
+      <div style="width:218px;flex:none;box-sizing:border-box;padding:6px 12px;border-right:1px solid #D9D6CE;background:#FBFAF7;display:flex;flex-direction:column;justify-content:center;gap:5px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:#2E6B55"></span><span style="font-weight:600;font-size:13px">Bass</span></div>
+        <button style="text-align:left;font-size:11px;padding:3px 8px;border:1px solid #D9D6CE;border-radius:4px;background:#FFFFFF;color:#1C1C1A">SF · Fingered Bass</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">asd</span>
+          <button style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 8px;border-radius:999px;border:none;background:#1C1C1A;color:#FFFFFF">MONO</button>
+          <button aria-label="Arm Bass for recording" style="margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid #B8B4A9;background:#FFFFFF;padding:0"></button>
+          <button aria-label="Mute Bass" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">M</button>
+          <button aria-label="Solo Bass" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">S</button>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+      <div style="width:1120px;flex:none;position:relative;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 139px,#E6E3DB 139px,#E6E3DB 140px)">
+        <div style="position:absolute;left:1px;top:8px;width:1118px;height:68px;box-sizing:border-box;background:#DFEDE6;border:1px solid #8DB8A5;border-radius:4px;overflow:hidden">
+          <div style="padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1B4535">Walking 8ths · linked ×3</div>
+          <svg width="1118" height="40" aria-hidden="true">
+            <defs>
+              <pattern id="bassp" width="140" height="40" patternUnits="userSpaceOnUse">
+                <rect x="2" y="26" width="30" height="6" rx="1" fill="#2E6B55"/>
+                <rect x="37" y="26" width="13" height="6" rx="1" fill="#2E6B55"/>
+                <rect x="54" y="18" width="13" height="6" rx="1" fill="#2E6B55"/>
+                <rect x="72" y="26" width="30" height="6" rx="1" fill="#2E6B55"/>
+                <rect x="107" y="18" width="13" height="6" rx="1" fill="#2E6B55"/>
+                <rect x="124" y="22" width="13" height="6" rx="1" fill="#2E6B55"/>
+              </pattern>
+            </defs>
+            <rect width="1118" height="40" fill="url(#bassp)"/>
+          </svg>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+    </div>
+
+    <!-- pad -->
+    <div style="display:flex;height:84px;border-bottom:1px solid #D9D6CE">
+      <div style="width:218px;flex:none;box-sizing:border-box;padding:6px 12px;border-right:1px solid #D9D6CE;background:#FBFAF7;display:flex;flex-direction:column;justify-content:center;gap:5px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:#7A5BA6"></span><span style="font-weight:600;font-size:13px">Pad</span></div>
+        <button style="text-align:left;font-size:11px;padding:3px 8px;border:1px solid #D9D6CE;border-radius:4px;background:#FFFFFF;color:#1C1C1A">SF · Warm Pad</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">qwe</span>
+          <button style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 8px;border-radius:999px;border:1px solid #B8B4A9;background:#FFFFFF;color:#1C1C1A">POLY</button>
+          <button aria-label="Arm Pad for recording" style="margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid #B8B4A9;background:#FFFFFF;padding:0"></button>
+          <button aria-label="Mute Pad" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">M</button>
+          <button aria-label="Solo Pad" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">S</button>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+      <div style="width:1120px;flex:none;position:relative;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 139px,#E6E3DB 139px,#E6E3DB 140px)">
+        <div style="position:absolute;left:1px;top:8px;width:1118px;height:68px;box-sizing:border-box;background:#EAE4F2;border:1px solid #B5A3D0;border-radius:4px;overflow:hidden">
+          <div style="padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3E2B63">Whole-note triads · linked ×4</div>
+          <svg width="1118" height="40" aria-hidden="true">
+            <defs>
+              <pattern id="padp" width="140" height="40" patternUnits="userSpaceOnUse">
+                <rect x="3" y="8" width="132" height="6" rx="1" fill="#7A5BA6"/>
+                <rect x="3" y="17" width="132" height="6" rx="1" fill="#7A5BA6"/>
+                <rect x="3" y="26" width="132" height="6" rx="1" fill="#7A5BA6"/>
+              </pattern>
+            </defs>
+            <rect width="1118" height="40" fill="url(#padp)"/>
+          </svg>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+    </div>
+
+    <!-- lead -->
+    <div style="display:flex;height:112px">
+      <div style="width:218px;flex:none;box-sizing:border-box;padding:6px 12px;border-right:1px solid #D9D6CE;background:#FBFAF7;display:flex;flex-direction:column;justify-content:center;gap:5px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:#B07B12"></span><span style="font-weight:600;font-size:13px">Lead 1</span></div>
+        <button style="text-align:left;font-size:11px;padding:3px 8px;border:1px solid #D9D6CE;border-radius:4px;background:#FFFFFF;color:#1C1C1A">MIDI · IAC Bus 1 · ch 3</button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">fgh</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">jkl</span>
+          <button style="font-size:10px;font-weight:600;letter-spacing:0.04em;padding:2px 8px;border-radius:999px;border:none;background:#1C1C1A;color:#FFFFFF">MONO</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button aria-label="Arm Lead 1 for recording" style="width:22px;height:22px;border-radius:50%;border:1.5px solid #B8B4A9;background:#FFFFFF;padding:0"></button>
+          <span style="font-size:11px;color:#6B6A65">Passes: 2</span>
+          <button aria-label="Mute Lead 1" style="margin-left:auto;width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">M</button>
+          <button aria-label="Solo Lead 1" style="width:22px;height:22px;border-radius:4px;border:1px solid #B8B4A9;background:#FFFFFF;font-size:10px;font-weight:600;padding:0">S</button>
+        </div>
+      </div>
+      <div style="width:40px;flex:none"></div>
+      <div style="width:1120px;flex:none;position:relative;background-image:repeating-linear-gradient(90deg,transparent 0,transparent 139px,#E6E3DB 139px,#E6E3DB 140px)">
+        <span style="position:absolute;right:8px;top:6px;font-size:11px;background:#F5EBD3;color:#5E4106;border:1px solid #D9BE80;border-radius:999px;padding:2px 10px">this instance only</span>
+        <svg width="1120" height="112" aria-hidden="true" style="display:block">
+          <g stroke="#ECE9E1" stroke-width="1">
+            <line x1="0" y1="20" x2="1120" y2="20"/><line x1="0" y1="32" x2="1120" y2="32"/><line x1="0" y1="44" x2="1120" y2="44"/><line x1="0" y1="56" x2="1120" y2="56"/><line x1="0" y1="68" x2="1120" y2="68"/><line x1="0" y1="80" x2="1120" y2="80"/><line x1="0" y1="92" x2="1120" y2="92"/>
+          </g>
+          <g fill="#8A5F08">
+            <rect x="3" y="24" width="30" height="9" rx="2"/><rect x="38" y="12" width="30" height="9" rx="2"/><rect x="73" y="24" width="64" height="9" rx="2"/>
+            <rect x="143" y="48" width="30" height="9" rx="2"/><rect x="178" y="24" width="30" height="9" rx="2"/><rect x="213" y="12" width="30" height="9" rx="2"/><rect x="248" y="0" width="30" height="9" rx="2" transform="translate(0,2)"/>
+            <rect x="283" y="12" width="64" height="9" rx="2"/><rect x="353" y="24" width="30" height="9" rx="2"/><rect x="388" y="48" width="30" height="9" rx="2"/>
+            <rect x="423" y="24" width="134" height="9" rx="2"/>
+          </g>
+          <g fill="#C48A14">
+            <rect x="563" y="36" width="30" height="9" rx="2"/><rect x="598" y="24" width="30" height="9" rx="2"/><rect x="633" y="12" width="64" height="9" rx="2"/>
+            <rect x="703" y="24" width="30" height="9" rx="2"/><rect x="738" y="36" width="30" height="9" rx="2"/><rect x="773" y="48" width="64" height="9" rx="2"/>
+          </g>
+          <rect x="250" y="38" width="28" height="9" rx="2" fill="none" stroke="#8A5F08" stroke-width="1.2" stroke-dasharray="3 2"/>
+        </svg>
+      </div>
+      <div style="width:40px;flex:none"></div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div style="margin-top:auto;flex:none;height:52px;box-sizing:border-box;background:#FFFFFF;border-top:1px solid #D9D6CE;padding:0 24px;display:flex;align-items:center;gap:16px;font-size:12px">
+    <span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">RECORD CONTEXT</span>
+      <button style="padding:4px 10px;border:1px solid #1C1C1A;border-radius:999px;background:#FFFFFF;font-size:12px;font-weight:600">Pinned · vi (Am)</button>
+      <button style="padding:4px 10px;border:1px solid #D9D6CE;border-radius:999px;background:transparent;font-size:12px;color:#4A4944">Follow song</button>
+    </span>
+    <span style="width:1px;height:20px;background:#D9D6CE"></span>
+    <button style="padding:5px 12px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF;font-size:12px">Keyboard overlay</button>
+    <span style="color:#6B6A65">Input latency +0 ms</span>
+    <div style="flex:1"></div>
+    <span style="color:#6B6A65">Undo = one loop pass</span>
+    <button style="padding:5px 12px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF;font-size:12px">Undo</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { bars: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ n })) };
+  }
+}
+</script>
+</body>
+</html>

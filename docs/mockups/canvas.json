@@ -1,0 +1,27 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-10T18:35:00Z" },
+  "title": "Layered Composer Mockups",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1440, "h": 800, "title": "1 · Section view (main screen)" },
+    "Chords.dc.html": { "x": 0, "y": 920, "w": 1160, "h": 720, "title": "2 · Chord lane + mode audition" },
+    "Drums.dc.html": { "x": 1240, "y": 920, "w": 1160, "h": 720, "title": "3 · Drum pattern editor" },
+    "Lead.dc.html": { "x": 0, "y": 1760, "w": 1160, "h": 720, "title": "4 · Lead recording (pure overdub)" },
+    "Zones.dc.html": { "x": 1240, "y": 1760, "w": 1160, "h": 720, "title": "5 · Keyboard zones overlay" },
+    "Overview.dc.html": { "x": 0, "y": 2600, "w": 1440, "h": 640, "title": "6 · Song overview" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Chords.dc.html",
+    "Drums.dc.html",
+    "Lead.dc.html",
+    "Zones.dc.html",
+    "Overview.dc.html"
+  ],
+  "notes": {
+    "t1": { "x": 0, "y": -260, "text": "Layered Composer · UI mockups", "kind": "title1", "maxW": 1440 }
+  },
+  "designSystems": []
+}

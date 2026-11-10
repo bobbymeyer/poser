@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Song overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1440px;height:640px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:24px 32px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+
+  <div style="display:flex;align-items:center;gap:14px">
+    <span style="font-size:20px;font-weight:700">Song overview</span>
+    <span style="font-size:12px;color:#6B6A65">Drag cards to reorder. ⌥-drag copies as a linked instance. Double-click a card to open that section.</span>
+    <span style="flex:1"></span>
+    <span style="display:flex;border:1px solid #B8B4A9;border-radius:6px;overflow:hidden;font-size:12px">
+      <span style="padding:5px 12px;background:#FFFFFF">Section</span>
+      <span style="padding:5px 12px;background:#1C1C1A;color:#FFFFFF;font-weight:600">Overview</span>
+    </span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4A4944">5 sections · 48 bars · 1:36 at 120</span>
+  </div>
+
+  <div style="display:flex;gap:12px;align-items:flex-start">
+    <sc-for list="{{cards}}" as="c" hint-placeholder-count="7">
+      <div style="width:{{c.w}}px;flex:none;box-sizing:border-box;background:#FFFFFF;border:{{c.bw}}px solid {{c.bd}};border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:9px;min-height:300px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:8px;height:8px;border-radius:2px;background:{{c.dot}}"></span>
+          <span style="font-size:14px;font-weight:700;flex:1">{{c.name}}</span>
+          <span style="font-size:11px;font-weight:600;color:#4A4944;background:#EDEAE2;border-radius:4px;padding:1px 6px">{{c.badge}}</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">{{c.bars}} bars</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:1px 6px;border-radius:4px;background:{{c.keyBg}};border:1px solid {{c.keyBd}};color:#3A3935">{{c.key}}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:1px 6px;border-radius:4px;background:#F3F1EC;border:1px solid #D9D6CE;color:#3A3935">{{c.tempo}}</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#2F4B8A">{{c.nums}}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B6A65">{{c.names}}</div>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:34px;font-size:10px;color:#6B6A65">Kit</span><span style="flex:1;height:6px;border-radius:3px;background:#EDEAE2"><span style="display:block;height:6px;border-radius:3px;background:#B5472B;width:{{c.kit}}%"></span></span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:34px;font-size:10px;color:#6B6A65">Bass</span><span style="flex:1;height:6px;border-radius:3px;background:#EDEAE2"><span style="display:block;height:6px;border-radius:3px;background:#2E6B55;width:{{c.bass}}%"></span></span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:34px;font-size:10px;color:#6B6A65">Pad</span><span style="flex:1;height:6px;border-radius:3px;background:#EDEAE2"><span style="display:block;height:6px;border-radius:3px;background:#7A5BA6;width:{{c.pad}}%"></span></span></div>
+          <div style="display:flex;align-items:center;gap:6px"><span style="width:34px;font-size:10px;color:#6B6A65">Lead</span><span style="flex:1;height:6px;border-radius:3px;background:#EDEAE2"><span style="display:block;height:6px;border-radius:3px;background:#B07B12;width:{{c.lead}}%"></span></span></div>
+        </div>
+        <div style="font-size:11px;color:#6B6A65;border-top:1px solid #EDEAE2;padding-top:7px">{{c.foot}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;gap:16px;margin-top:auto">
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:12px 16px;font-size:12px;color:#4A4944;line-height:1.5"><b style="color:#1C1C1A">Linked instances</b> share a tint and a ×N badge. Selecting one outlines the others, and the active card gets the heavy border.</div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:12px 16px;font-size:12px;color:#4A4944;line-height:1.5"><b style="color:#1C1C1A">Changes stand out.</b> A key or tempo chip turns amber on the first section where it differs from the one before. Chorus 2 is a baked key change.</div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:12px 16px;font-size:12px;color:#4A4944;line-height:1.5"><b style="color:#1C1C1A">Card width</b> is proportional to bar count, so the row reads as a rough timeline of the song.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const base = { keyBg: '#F3F1EC', keyBd: '#D9D6CE' };
+    const chg = { keyBg: '#F8E7BE', keyBd: '#D9A93A' };
+    const mk = (o) => Object.assign({ bw: 1, bd: '#D9D6CE', tempo: '120 · 4/4' }, base, o);
+    const cards = [
+      mk({ name: 'Intro', bars: 4, w: 120, dot: '#8A8780', badge: '×1', key: 'C Ionian', nums: 'I – V', names: 'C G', kit: 0, bass: 0, pad: 90, lead: 0, foot: 'Pad only' }),
+      mk({ name: 'Verse', bars: 8, w: 200, dot: '#2F4B8A', bd: '#2F4B8A', badge: '×2', key: 'C Ionian', nums: 'I – V – vi – IV7', names: 'C G Am Fmaj7', kit: 55, bass: 70, pad: 80, lead: 0, foot: 'Rock 16 · lead per instance' }),
+      mk({ name: 'Chorus', bars: 8, w: 200, dot: '#B5472B', bw: 2, bd: '#1C1C1A', badge: '×2', key: 'C Ionian', nums: 'vi – IV – I – V', names: 'Am F C G', kit: 90, bass: 85, pad: 70, lead: 80, foot: 'Active · edits affect 2' }),
+      mk({ name: 'Verse', bars: 8, w: 200, dot: '#2F4B8A', bd: '#2F4B8A', badge: '×2', key: 'C Ionian', nums: 'I – V – vi – IV7', names: 'C G Am Fmaj7', kit: 55, bass: 70, pad: 80, lead: 0, foot: 'Linked to Verse' }),
+      mk({ name: 'Chorus', bars: 8, w: 200, dot: '#B5472B', bd: '#B5472B', badge: '×2', key: 'C Ionian', nums: 'vi – IV – I – V', names: 'Am F C G', kit: 90, bass: 85, pad: 70, lead: 60, foot: 'Linked to Chorus' }),
+      mk({ name: 'Chorus 2', bars: 8, w: 200, dot: '#C06A1A', badge: '×1', key: 'D Ionian', keyBg: '#F8E7BE', keyBd: '#D9A93A', nums: 'vi – IV – I – V', names: 'Bm G D A', kit: 95, bass: 90, pad: 70, lead: 85, foot: 'Baked from Chorus · +2' }),
+      mk({ name: 'Outro', bars: 4, w: 120, dot: '#8A8780', badge: '×1', key: 'D Ionian', nums: 'I', names: 'D', kit: 20, bass: 40, pad: 90, lead: 0, foot: 'Fade' })
+    ];
+    return { cards };
+  }
+}
+</script>
+</body>
+</html>

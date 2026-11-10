@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Keyboard zones overlay</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1160px;height:720px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:28px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+
+  <div style="display:flex;align-items:baseline;gap:12px">
+    <span style="font-size:20px;font-weight:700">Keyboard zones</span>
+    <span style="font-size:12px;color:#6B6A65">Overlay toggled from the bottom bar. Keys show the notes they play right now and follow the chord.</span>
+  </div>
+
+  <div style="display:flex;gap:20px">
+
+    <!-- Keyboard -->
+    <div style="width:800px;flex:none;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">CHORD CONTEXT</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;background:#E4EAF6;color:#1F3768;border:1px solid #7F96C9;border-radius:4px;padding:2px 8px">vi · Am · pinned</span>
+        <span style="font-size:12px;color:#6B6A65">Keys below are resolved against Am.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{kb}}" as="row" hint-placeholder-count="4">
+          <div style="display:flex;gap:6px;padding-left:{{row.off}}px">
+            <sc-for list="{{row.keys}}" as="k" hint-placeholder-count="10">
+              <div style="width:62px;height:62px;flex:none;box-sizing:border-box;border-radius:6px;padding:4px 6px;display:flex;flex-direction:column;justify-content:space-between;background:{{k.bg}};border:1px {{k.bs}} {{k.bd}};color:{{k.tx}}">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;opacity:0.8">{{k.ch}}</span>
+                <span style="font-size:13px;font-weight:600;text-align:center">{{k.nm}}</span>
+                <span style="font-size:10px;text-align:center;opacity:0.85">{{k.sb}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:#4A4944;margin-top:4px">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#F6E6DF;border:1px solid #D9A18F"></span>Kit</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#DFEDE6;border:1px solid #8DB8A5"></span>Bass</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#EAE4F2;border:1px solid #B5A3D0"></span>Pad</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#F5EBD3;border:1px solid #D9BE80"></span>Lead 1</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:3px;background:#FFFFFF;border:1px dashed #B8B4A9"></span>Free</span>
+      </div>
+    </div>
+
+    <!-- Zones list -->
+    <div style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px">
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">ASSIGNED</span>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#B5472B"></span><span style="flex:1">Kit</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px">zxc vbn m,.</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#2E6B55"></span><span style="flex:1">Bass</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px">asd</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#7A5BA6"></span><span style="flex:1">Pad</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px">qwe</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#B07B12"></span><span style="flex:1">Lead 1</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px">fgh jkl</span></div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#2F4B8A"></span><span style="flex:1">Chords</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px">1–7 when armed</span></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button style="flex:1;padding:6px 8px;border:1px solid #1C1C1A;border-radius:6px;background:#FFFFFF;font-size:12px;font-weight:600">Left / right hand</button>
+          <button style="flex:1;padding:6px 8px;border:1px solid #B8B4A9;border-radius:6px;background:#FFFFFF;font-size:12px">Four-up</button>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">CONFLICTS</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:1px 7px;border:2px solid #B3261E;border-radius:4px;background:#FAF9F6">asd</span>
+          <span style="font-size:12px;color:#4A4944">claimed twice</span>
+        </div>
+        <div style="font-size:12px;color:#4A4944;line-height:1.5">Last assigned wins. The other lane is released and shows a notice. Changing a zone never changes the stored music.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:16px">
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Pattern zones</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Three keys are chord tones 1, 2 and 3 of the current chord, so there are no wrong notes. Bass and pad read the same chord, each in its own register.</div>
+    </div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Lead zones</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Two zones give six scale degrees. ← → slide the window, ↑ ↓ change octave, ⇧ + key plays a chromatic passing tone.</div>
+    </div>
+    <div style="flex:1;box-sizing:border-box;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Chord entry and rollover</div>
+      <div style="font-size:12px;color:#4A4944;line-height:1.5">Arming the chord lane makes the number row degrees I–VII. Laptop keyboards can drop keys when several are held, so MIDI keyboard input is the answer for dense playing.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1160,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const L = {
+      none: { bg: '#FFFFFF', bd: '#B8B4A9', tx: '#6B6A65', bs: 'dashed' },
+      kit: { bg: '#F6E6DF', bd: '#D9A18F', tx: '#6E2A14', bs: 'solid' },
+      bass: { bg: '#DFEDE6', bd: '#8DB8A5', tx: '#1B4535', bs: 'solid' },
+      pad: { bg: '#EAE4F2', bd: '#B5A3D0', tx: '#3E2B63', bs: 'solid' },
+      lead: { bg: '#F5EBD3', bd: '#D9BE80', tx: '#5E4106', bs: 'solid' }
+    };
+    const key = (ch, lane, nm, sb) => Object.assign({ ch, nm, sb }, L[lane]);
+    const free = (ch) => key(ch, 'none', '–', 'free');
+    const kb = [
+      { off: 0, keys: ['1','2','3','4','5','6','7','8','9','0'].map(free) },
+      { off: 34, keys: [
+        key('q', 'pad', 'A3', 'tone 1'), key('w', 'pad', 'C4', 'tone 2'), key('e', 'pad', 'E4', 'tone 3'),
+        free('r'), free('t'), free('y'), free('u'), free('i'), free('o'), free('p')
+      ] },
+      { off: 51, keys: [
+        key('a', 'bass', 'A1', 'tone 1'), key('s', 'bass', 'C2', 'tone 2'), key('d', 'bass', 'E2', 'tone 3'),
+        key('f', 'lead', 'C4', 'degree 1'), key('g', 'lead', 'D4', 'degree 2'), key('h', 'lead', 'E4', 'degree 3'),
+        key('j', 'lead', 'F4', 'degree 4'), key('k', 'lead', 'G4', 'degree 5'), key('l', 'lead', 'A4', 'degree 6'),
+        free(';')
+      ] },
+      { off: 85, keys: [
+        key('z', 'kit', 'Kick', 'pad 1'), key('x', 'kit', 'Snare', 'pad 2'), key('c', 'kit', 'C-hat', 'pad 3'),
+        key('v', 'kit', 'O-hat', 'pad 4'), key('b', 'kit', 'Clap', 'pad 5'), key('n', 'kit', 'Crash', 'pad 6'),
+        key('m', 'kit', 'Rim', 'pad 7'), key(',', 'kit', 'Lo tom', 'pad 8'), key('.', 'kit', 'Hi tom', 'pad 9'),
+        free('/')
+      ] }
+    ];
+    return { kb };
+  }
+}
+</script>
+</body>
+</html>

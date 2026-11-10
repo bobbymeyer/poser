@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chord lane and mode audition</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #2F4B8A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:1160px;height:720px;box-sizing:border-box;background:#F3F1EC;color:#1C1C1A;font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:28px 32px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+
+  <div style="display:flex;align-items:baseline;gap:12px">
+    <span style="font-size:20px;font-weight:700">Chord lane</span>
+    <span style="font-size:12px;color:#6B6A65">Chorus · numerals are input, chord quality comes from the mode</span>
+  </div>
+
+  <!-- 1. Mode audition -->
+  <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">1 · MODE AUDITION</span>
+      <span style="font-size:12px;color:#4A4944">Hold ⌥ on the mode chip and drag. The loop keeps playing and the chords re-skin. Release to commit.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;border:1px solid #B8B4A9;border-radius:6px;overflow:hidden">
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Lydian</button>
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#1C1C1A;color:#FFFFFF;font-size:12px;font-weight:600">Ionian</button>
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Mixolydian</button>
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Dorian</button>
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Aeolian</button>
+        <button style="padding:8px 14px;border:none;border-right:1px solid #D9D6CE;background:#FFFFFF;font-size:12px">Phrygian</button>
+        <button style="padding:8px 14px;border:none;background:#FBFAF7;font-size:12px;color:#4A4944">More ▾</button>
+      </div>
+      <span style="font-size:12px;color:#6B6A65">Locrian lives under More, with a warning: its tonic chord is unstable.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:11px;color:#6B6A65;width:50px">brighter</span>
+      <div style="flex:1;position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#F0DC8C,#2B3A5C)">
+        <div style="position:absolute;left:16%;top:-5px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:#FFFFFF;border:2px solid #1C1C1A"></div>
+      </div>
+      <span style="font-size:11px;color:#6B6A65;width:50px;text-align:right">darker</span>
+    </div>
+  </div>
+
+  <!-- 2. Before / after -->
+  <div style="background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">2 · SAME NUMBERS, DIFFERENT MODE</span>
+      <span style="font-size:12px;color:#4A4944">Blocks that changed get an amber tint and show what they were.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="width:150px;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600">C Ionian</span>
+      <div style="flex:1;display:flex;gap:4px">
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px;height:54px"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#1F3768">I</div><div style="font-size:12px;color:#2A3F6E">C</div></div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px;height:54px"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#1F3768">V</div><div style="font-size:12px;color:#2A3F6E">G</div></div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px;height:54px"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#1F3768">vi</div><div style="font-size:12px;color:#2A3F6E">Am</div></div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px;height:54px"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#1F3768">IV7</div><div style="font-size:12px;color:#2A3F6E">Fmaj7</div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="width:150px;flex:none;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600">C Aeolian <span style="font-weight:400;color:#6B6A65">↓ mode</span></span>
+      <div style="flex:1;display:flex;gap:4px">
+        <div style="flex:1;box-sizing:border-box;background:#FBEFD0;border:1px solid #E5CE8F;border-radius:4px;padding:6px 10px;height:54px;position:relative"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#5E4106">i</div><div style="font-size:12px;color:#6B4A00">Cm</div><span style="position:absolute;right:8px;top:6px;font-size:10px;color:#6B4A00">was I</span></div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:6px 10px;height:54px;position:relative"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#1F3768">V</div><div style="font-size:12px;color:#2A3F6E">G</div><span style="position:absolute;right:8px;top:6px;font-size:10px;color:#2A3F6E">minor dominant</span></div>
+        <div style="flex:1;box-sizing:border-box;background:#FBEFD0;border:1px solid #E5CE8F;border-radius:4px;padding:6px 10px;height:54px;position:relative"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#5E4106">VI</div><div style="font-size:12px;color:#6B4A00">A♭</div><span style="position:absolute;right:8px;top:6px;font-size:10px;color:#6B4A00">was vi</span></div>
+        <div style="flex:1;box-sizing:border-box;background:#FBEFD0;border:1px solid #E5CE8F;border-radius:4px;padding:6px 10px;height:54px;position:relative"><div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:#5E4106">iv7</div><div style="font-size:12px;color:#6B4A00">Fm7</div><span style="position:absolute;right:8px;top:6px;font-size:10px;color:#6B4A00">was IV7</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:20px;flex:1;min-height:0">
+
+    <!-- 3. Typing cursor -->
+    <div style="flex:1 1 0;min-width:0;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">3 · TYPING CURSOR</span>
+      <div style="display:flex;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6B6A65">
+        <span style="width:12.5%">1</span><span style="width:12.5%">2</span><span style="width:12.5%">3</span><span style="width:12.5%">4</span><span style="width:12.5%">5</span><span style="width:12.5%">6</span><span style="width:12.5%">7</span><span style="width:12.5%">8</span>
+      </div>
+      <div style="position:relative;height:56px;border:1px solid #D9D6CE;border-radius:4px;background-image:repeating-linear-gradient(90deg,transparent 0,transparent calc(12.5% - 1px),#E6E3DB calc(12.5% - 1px),#E6E3DB 12.5%)">
+        <div style="position:absolute;left:0;top:4px;width:24.5%;height:46px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:#1F3768">I</div>
+        <div style="position:absolute;left:25%;top:4px;width:24.5%;height:46px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:#1F3768">V</div>
+        <div style="position:absolute;left:50%;top:4px;width:24.5%;height:46px;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:4px 8px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:#1F3768">vi</div>
+        <div style="position:absolute;left:75%;top:4px;width:24.5%;height:46px;box-sizing:border-box;background:transparent;border:1.5px dashed #7F96C9;border-radius:4px;padding:4px 8px;font-size:11px;color:#2A3F6E">next: 2 bars</div>
+        <div style="position:absolute;left:75%;top:-4px;width:2px;height:64px;background:#1C1C1A"></div>
+      </div>
+      <div style="font-size:12px;color:#4A4944">First block length is the section divided by 4, so 8 bars gives 2 bars each. After any resize, that length becomes the new default.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:#4A4944">
+        <span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">1–7</span> append at cursor</span>
+        <span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">← →</span> move cursor</span>
+        <span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">⌫</span> delete before cursor</span>
+        <span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">0</span> rest</span>
+        <span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:0 6px;border:1px solid #B8B4A9;border-bottom-width:2px;border-radius:4px;background:#FAF9F6">S</span> split in half</span>
+      </div>
+    </div>
+
+    <!-- 4. Extension ladder -->
+    <div style="flex:1 1 0;min-width:0;background:#FFFFFF;border:1px solid #D9D6CE;border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65">4 · EXTENSION LADDER (SELECTED BLOCK)</span>
+      <div style="display:flex;align-items:stretch;gap:8px">
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:8px 10px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:#1F3768">V</div>
+          <div style="font-size:12px;color:#2A3F6E">G</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2A3F6E;margin-top:4px">G B D</div>
+        </div>
+        <div style="align-self:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4A4944">⇧↑</div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:1px solid #7F96C9;border-radius:4px;padding:8px 10px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:#1F3768">V7</div>
+          <div style="font-size:12px;color:#2A3F6E">G7</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2A3F6E;margin-top:4px">G B D F</div>
+        </div>
+        <div style="align-self:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#4A4944">⇧↑</div>
+        <div style="flex:1;box-sizing:border-box;background:#E4EAF6;border:2px solid #1C1C1A;border-radius:4px;padding:7px 9px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:#1F3768">V9</div>
+          <div style="font-size:12px;color:#2A3F6E">G9</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2A3F6E;margin-top:4px">G B D F A</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#4A4944">Ladder stops at 9. It also stops wherever the next note would land a half step above a chord tone: <span style="font-family:'IBM Plex Mono',monospace">iii</span> and <span style="font-family:'IBM Plex Mono',monospace">vii°</span> top out at 7 in major.</div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:#6B6A65;margin-top:2px">BORROWED PALETTE · ⇧ + DIGIT</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">♭III</button>
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">♭VI</button>
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">♭VII</button>
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">iv</button>
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">V/V</button>
+        <button style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:4px 10px;border:1px solid #B8B4A9;border-radius:4px;background:#FFFFFF">V/vi</button>
+      </div>
+      <div style="font-size:12px;color:#4A4944">Menu: sus2, sus4, add9, inversion <span style="font-family:'IBM Plex Mono',monospace">⌥↑↓</span>.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1160,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
