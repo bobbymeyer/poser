@@ -73,8 +73,11 @@ export function resolveSection(song, section, leads = {}, lanes = new Map(song.l
   // Swing comes from the kit lane and is shared by lanes that follow it.
   const kit = song.lanes.find((l) => l.role === "kit");
   const ratio = SWINGS[kit?.swing] ?? 0.5;
-  const kitGrids = (kit && section.clips?.[kit.id] || []).map((c) => song.patterns[c.pattern]?.grid);
-  const swingUnit = kitGrids.some((g) => g === "1/16" || g === "1/32") ? GRIDS["1/16"] : GRIDS["1/8"];
+  // The swing unit comes from the kit's main (first) pattern: 16ths for a 1/16 or finer grid,
+  // otherwise 8ths. Everything else in the section, fills included, rides the same warp.
+  const firstKitClip = [...(kit && section.clips?.[kit.id] || [])].sort((x, y) => x.start - y.start)[0];
+  const kitGrid = song.patterns[firstKitClip?.pattern]?.grid;
+  const swingUnit = kitGrid === "1/16" || kitGrid === "1/32" ? GRIDS["1/16"] : GRIDS["1/8"];
   const canSwing = ratio !== 0.5 && !(section.meter === "6/8" && swingUnit === GRIDS["1/8"]);
 
   for (const [laneId, clips] of Object.entries(section.clips || {})) {

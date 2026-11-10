@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { enter, remove, split, moveBoundary, climb, invert, setOptions, normalize, defaultLength, sectionLength, visibleCount } from "../src/editor/chordOps.js";
-import { newProject, setBars } from "../src/editor/template.js";
-import { validateSong } from "../src/core/validate.js";
-import { resolveSong } from "../src/core/resolve.js";
 
 const BAR = 1920, LEN = 8 * BAR;
 const ids = (chords) => chords.map((c) => `${c.chord}@${c.start / BAR}+${c.len / BAR}`);
@@ -83,26 +80,3 @@ describe("chord entry", () => {
   });
 });
 
-describe("new project template", () => {
-  it("is a valid song that sounds block chords for typed degrees", () => {
-    const song = newProject();
-    expect(validateSong(song)).toMatchObject({ ok: true });
-    song.sections.s_1.chords = type(["I", "V", "VI", "IV"]).chords;
-    song.sections.s_1.chords = setOptions(song.sections.s_1.chords, 3, { ext: 7 });
-    expect(validateSong(song).ok).toBe(true);
-    const r = resolveSong(song);
-    const at = (lane, tick) => r.notes.filter((n) => n.lane === lane && n.tick === tick).map((n) => n.pitch % 12);
-    expect(at("l_bass", 0)).toEqual([0]);
-    expect(at("l_bass", 2 * BAR)).toEqual([7]);
-    expect(new Set(at("l_pad", 4 * BAR))).toEqual(new Set([9, 0, 4]));
-    expect(new Set(at("l_pad", 6 * BAR))).toEqual(new Set([5, 9, 0, 4]));
-    expect(at("l_pad", 6 * BAR).length).toBe(5);
-  });
-  it("clips follow the section when bars change", () => {
-    const s = newProject().sections.s_1;
-    expect(setBars(s, 12).clips.l_pad[0].len).toBe(12 * BAR);
-    const shrunk = setBars(s, 4);
-    expect(shrunk.clips.l_pad[0].len).toBe(8 * BAR);
-    expect(setBars(shrunk, 16).clips.l_pad[0].len).toBe(16 * BAR);
-  });
-});

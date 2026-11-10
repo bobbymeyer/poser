@@ -1,6 +1,7 @@
 // Editor state: the song, the caret, the sticky chord length, and undo history.
 
 import { normalize, visibleCount, sectionLength } from "../editor/chordOps.js";
+import { ensureKit } from "../editor/patternOps.js";
 
 const HISTORY = 200;
 
@@ -31,7 +32,7 @@ const clampCaret = (song, caret) => {
 export function reducer(state, action) {
   switch (action.type) {
     case "load": {
-      const song = withSection(action.song, { chords: normalize(sectionOf(action.song).chords) });
+      const song = ensureKit(withSection(action.song, { chords: normalize(sectionOf(action.song).chords) }));
       song.updated_at = action.song.updated_at;
       return { song, caret: clampCaret(song, Infinity), sticky: null, past: [], future: [] };
     }

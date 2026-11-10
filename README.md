@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-2 are built: the timing spike, the core (theory, resolver, MIDI export, validation), and the chord lane app. Phases 3-8 are not started.
+Phases 0-3 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, and pattern lanes. Phases 4-8 are not started.
 
 ## Run
 
@@ -28,14 +28,28 @@ A section view with the chord lane only. Type degrees, hear them, change key and
 | Part | Where | Notes |
 | --- | --- | --- |
 | Chord editing | `src/editor/chordOps.js` | Pure functions: typing at the caret, delete, split, shared-edge drag, extension ladder, inversion. Blocks always tile with no gaps |
-| New project | `src/editor/template.js` | One 8-bar section plus bass and pad lanes holding "audition" patterns, so typed chords sound as block chords through the normal resolver |
+| New project | `src/editor/template.js` | One empty 8-bar section, with role defaults for the kit, bass and pad lanes |
 | UI | `src/app/` | React. `project.js` holds the song, caret, sticky length and undo history |
 | Live playback | `src/audio/engine.js`, `player.js` | The section loops; edits swap in without moving the playhead, and sounding chords are re-struck |
 | Storage | `src/storage/` | Dexie autosave to IndexedDB after every change; `.song.json` save and open through the File System Access API, with download and upload as the fallback |
 
 Mode audition: press a mode in the row and drag. The loop keeps playing in the mode under the pointer, changed blocks turn amber and show what they were, and releasing commits.
 
-Phase 2 limits: one section per project (the first, when a file has more), meter fixed at 4/4, and no song list, so "New" replaces the open song.
+## Phase 3 pattern lanes
+
+A new project has kit, bass and pad lanes already playing factory patterns, so typing chords gives a full groove. Select a lane to edit it.
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Factory library | `src/factory/patterns.js` | 13 patterns in 4/4: five grooves and a fill, four bass, three pad. Drum patterns are written as one character per step |
+| Pattern editing | `src/editor/patternOps.js` | Pure functions: lane layout (one pattern per lane, plus a kit fill on the last bar), drum cell cycling, step notes, grid and length changes, make unique |
+| Drum grid | `src/app/PatternEditors.jsx` | Pads by steps. Click cycles off, normal, accent, ghost; right-click clears. Grid, swing and fill controls |
+| Step editor | same file | Chord tones by steps for bass and pad. Click adds, drag holds, click removes |
+| Library | same file | Hovering a pattern plays it against the running loop; clicking uses it. A groove brings its swing preset |
+
+Editing a factory pattern first moves it to a new ID inside the song, so a song never holds an altered pattern under a factory ID, and the library always offers the original. Every clip that used the pattern follows the edit.
+
+Limits so far: one section per project (the first, when a file has more), meter fixed at 4/4, fixed instruments per role, and no song list, so "New" replaces the open song.
 
 ## Phase 0 spike (`spike/index.html`)
 
@@ -71,6 +85,6 @@ Rules the handoff left open, as implemented (each is one small place in the code
 | Pattern tone indices | Count up the voiced chord from the bottom and wrap an octave past its top, so index 4 is the octave on a triad and the seventh on a seventh chord |
 | Voicing | Bass lanes put the chord's bass tone at the bottom of the register. Other lanes take the close-position inversion nearest the previous chord. Voice leading restarts each section so linked instances sound identical |
 | Held steps | A pattern step held across a chord change is re-voiced at the change |
-| Swing | A time warp from the kit's preset, at 16ths if the section's kit patterns use a 1/16 or finer grid, otherwise at 8ths. Applies to the kit and lanes with `swing_follow`; triplet-grid patterns and leads are left alone |
+| Swing | A time warp from the kit's preset, at 16ths if the kit's main (first) pattern uses a 1/16 or finer grid, otherwise at 8ths. Fills ride the same warp. Applies to the kit and lanes with `swing_follow`; triplet-grid patterns and leads are left alone |
 | Mono | A note either takes over when it starts or stays silent; a cut note does not come back. On a tie, `last` prefers the newer pass |
 | Tempo | BPM counts quarter notes in every meter. `ramp_to_next` is read but ignored (ramps are deferred) |

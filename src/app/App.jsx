@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
-import { MODES, TONICS, METERS, BORROWED, DEGREES, resolveChord, validateSong } from "../core/index.js";
+import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, validateSong } from "../core/index.js";
 import { enter, remove, split, moveBoundary, climb, invert, setOptions, defaultLength, sectionLength, visibleCount } from "../editor/chordOps.js";
-import { newProject, setBars } from "../editor/template.js";
+import { newProject } from "../editor/template.js";
+import { setBars, setLane, applyEntry } from "../editor/patternOps.js";
 import { saveProject, loadLastProject } from "../storage/db.js";
 import { saveSongFile, openSongFile } from "../storage/files.js";
 import { engine } from "../audio/engine.js";
-import { reducer, sectionOf, withSection, loopSong } from "./project.js";
+import { reducer, sectionId, sectionOf, withSection, loopSong } from "./project.js";
 import ChordLane from "./ChordLane.jsx";
+import LaneRow from "./LaneRow.jsx";
+import { DrumEditor, StepEditor } from "./PatternEditors.jsx";
 
 const MODE_ROW = ["lydian", "ionian", "mixolydian", "dorian", "aeolian", "phrygian"]; // bright to dark
 const ALL_MODES = [...MODE_ROW, "locrian"];
@@ -23,6 +26,8 @@ export default function App() {
   const [fileNote, setFileNote] = useState("");
   const [problem, setProblem] = useState(null);     // { title, errors } from a rejected file
   const [moreOpen, setMoreOpen] = useState(false);
+  const [selected, setSelected] = useState("chords"); // "chords" or a lane id
+  const [patPreview, setPatPreview] = useState(null); // { laneId, slot, entry } hovered in a library
   const fileHandle = useRef(null), auditionRef = useRef(null);
   useSyncExternalStore(engine.subscribe, () => `${engine.status}|${engine.playing}`);
 
@@ -53,9 +58,12 @@ export default function App() {
   // Keep the engine on the edited section, in the auditioned mode if there is one.
   const playSong = useMemo(() => {
     if (!song) return null;
-    const base = preview ? withSection(song, { chords: preview.chords }) : song;
+    let base = preview ? withSection(song, { chords: preview.chords }) : song;
+    const lane = patPreview && base.lanes.find((l) => l.id === patPreview.laneId);
+    if (lane) base = applyEntry(base, sectionId(base), lane, patPreview.entry, patPreview.slot);
     return loopSong(base, audition);
-  }, [song, audition, preview]);
+  }, [song, audition, preview, patPreview]);
+  const resolved = useMemo(() => (playSong ? resolveSong(playSong) : null), [playSong]);
   useEffect(() => { if (playSong) engine.setSong(playSong); }, [playSong]);
 
   const latest = useRef(null);
@@ -93,6 +101,8 @@ export default function App() {
       },
       section(patch) { dispatch({ type: "edit", song: withSection(cur().song, patch) }); },
       song(patch) { dispatch({ type: "edit", song: { ...cur().song, ...patch, updated_at: new Date().toISOString() } }); },
+      replace(song) { dispatch({ type: "edit", song }); },
+      bars(n) { const { song } = cur(); dispatch({ type: "edit", song: setBars(song, sectionId(song), n) }); },
     };
   }, []);
 
@@ -204,6 +214,9 @@ export default function App() {
   const activeIndex = state.caret - 1;
   const active = blocks[activeIndex];
   const bar = METERS[stored.meter].barTicks;
+  const sid = sectionId(song);
+  const shown = playSong.sections[sid]; // what is sounding, including a hovered pattern
+  const picked = song.lanes.find((l) => l.id === selected);
   const multi = song.arrangement.length > 1 || Object.keys(song.sections).length > 1;
 
   return (
@@ -257,9 +270,9 @@ export default function App() {
         <label className="field">
           <small>Bars</small>
           <span className="stepper">
-            <button aria-label="Fewer bars" disabled={stored.bars <= 1} onClick={() => api.section(setBars(stored, stored.bars - 1))}>−</button>
+            <button aria-label="Fewer bars" disabled={stored.bars <= 1} onClick={() => api.bars(stored.bars - 1)}>−</button>
             <span className="mono" data-testid="bars">{stored.bars}</span>
-            <button aria-label="More bars" disabled={stored.bars >= 64} onClick={() => api.section(setBars(stored, stored.bars + 1))}>+</button>
+            <button aria-label="More bars" disabled={stored.bars >= 64} onClick={() => api.bars(stored.bars + 1)}>+</button>
           </span>
         </label>
         <label className="check" title="In minor modes, play the chord on degree 5 as major">
@@ -295,7 +308,8 @@ export default function App() {
         </div>
       </div>
 
-      <div className="card lane-card">
+      <div className="card lanes">
+       <div className={`lane-row role-chords${selected === "chords" ? " selected" : ""}`} onClick={() => setSelected("chords")}>
         <div className="lane-head">
           <div className="lane-name"><i />Chords</div>
           <div className="hint">Typing cursor · length {sticky / bar} bar{sticky === bar ? "" : "s"}</div>
@@ -311,9 +325,19 @@ export default function App() {
             setPreview(null);
           }}
         />
+       </div>
+       {song.lanes.map((lane) => (
+         <LaneRow key={lane.id} lane={playSong.lanes.find((l) => l.id === lane.id)} section={shown} len={len} patterns={playSong.patterns}
+           notes={resolved.notes.filter((n) => n.lane === lane.id)} selected={selected === lane.id}
+           onSelect={() => setSelected(lane.id)} onPatch={(patch) => api.replace(setLane(song, lane.id, patch))} />
+       ))}
       </div>
 
-      <div className="row2">
+      {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={api.replace} onPreview={setPatPreview} />}
+      {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={api.replace} onPreview={setPatPreview} />}
+      {picked && picked.role === "lead" && <div className="card"><p className="hint">Lead lanes are played and recorded live. That arrives in a later phase.</p></div>}
+
+      {!picked && <div className="row2">
         <div className="card">
           <div className="card-title"><b>Selected block</b></div>
           {active?.chord ? (
@@ -362,7 +386,7 @@ export default function App() {
             <li><kbd>⌘S</kbd> save file</li>
           </ul>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

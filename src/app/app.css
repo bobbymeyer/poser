@@ -57,10 +57,62 @@ button.link { border: 0; background: none; text-decoration: underline; padding: 
 .track { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #EBD57C, #2C3A62); position: relative; }
 .track i { position: absolute; top: -6px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); transition: left .12s; }
 
-.lane-card { display: grid; grid-template-columns: 190px 1fr; padding: 0; }
-.lane-head { padding: 34px 16px 14px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 5px; }
+.lanes { padding: 0; overflow: hidden; }
+.lane-row { display: grid; grid-template-columns: 190px 1fr; border-top: 1px solid var(--line); cursor: pointer; --c: var(--chords); --c-bg: var(--chords-bg); }
+.lane-row:first-child { border-top: 0; cursor: default; }
+.lane-row.selected { box-shadow: inset 3px 0 0 var(--c); background: #FCFBF8; }
+.role-kit { --c: #B5472B; --c-bg: #F7E3DC; }
+.role-bass { --c: #2E6B55; --c-bg: #E0ECE6; }
+.role-pad, .role-arp, .role-comp { --c: #7A5BA6; --c-bg: #E9E3F1; }
+.role-lead { --c: #B07B12; --c-bg: #F6ECD4; }
+.lane-row:not(.role-chords) .lane-head { padding: 12px 16px; }
+.lane-row:not(.role-chords) .lane { padding: 10px 16px; }
+.lane-name .right { margin-left: auto; font-weight: 400; }
+.instrument { border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px; font-size: 12px; background: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lane-tags { display: flex; align-items: center; gap: 6px; }
+.tag { font: 600 10px var(--mono); letter-spacing: .04em; border: 1px solid #BEB9AC; border-radius: 999px; padding: 2px 8px; }
+.tag.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+.ms { width: 24px; height: 24px; padding: 0; font-size: 11px; font-weight: 600; border-radius: 4px; }
+.ms.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.clipview { position: relative; height: 66px; }
+.clipview.muted { opacity: .4; }
+.clip { position: absolute; top: 0; bottom: 0; background: var(--c-bg); border: 1px solid color-mix(in srgb, var(--c) 45%, #fff); border-radius: 4px; overflow: hidden; }
+.clip span { position: absolute; top: 4px; left: 8px; font: 11px var(--mono); color: var(--c); white-space: nowrap; }
+.clip.empty { left: 0; right: 0; background: #FAF9F5; border-style: dashed; border-color: #CFCBC0; }
+.clip.empty span { color: var(--muted); font-family: inherit; top: 24px; }
+.marks { position: absolute; left: 2px; right: 0; top: 24px; bottom: 7px; pointer-events: none; }
+.dot { position: absolute; width: 5px; height: 5px; margin: -2.5px 0 0 0; border-radius: 50%; background: var(--c); }
+.bar { position: absolute; height: 4px; margin-top: -2px; min-width: 2px; border-radius: 1px; background: var(--c); }
+
+.editor-bar { display: flex; align-items: center; gap: 10px 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.editor-bar h3 { margin: 0 8px 0 0; font-size: 15px; }
+.grid-scroll { overflow-x: auto; padding-bottom: 4px; }
+.grid { display: grid; gap: 2px; min-width: 480px; }
+.grid .head { font: 11px var(--mono); color: var(--muted); text-align: center; padding-bottom: 3px; border-bottom: 2px solid transparent; }
+.grid .head.beat { color: var(--ink); font-weight: 600; }
+.grid .head.now { border-bottom-color: var(--c); color: var(--c); }
+.rowname { font-size: 13px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.rowname small { font: 10px var(--mono); color: var(--muted); }
+.cell { height: 24px; padding: 0; border-radius: 3px; border: 1px solid #DCD8CD; background: #fff; font-size: 11px; line-height: 1; color: #fff; touch-action: manipulation; }
+.cell.alt { background: #F6F4EF; }
+.cell.lv-n, .sw.lv-n { background: var(--c); border-color: var(--c); }
+.cell.lv-a, .sw.lv-a { background: color-mix(in srgb, var(--c) 70%, #000); border-color: #1C1C1A; box-shadow: inset 0 0 0 2px #fff; }
+.cell.lv-g, .sw.lv-g { background: color-mix(in srgb, var(--c) 30%, #fff); border-color: color-mix(in srgb, var(--c) 55%, #fff); }
+.grid.tones .cell.on, .grid.tones .cell.held { background: color-mix(in srgb, var(--c) calc(var(--v) * 100%), #fff); border-color: var(--c); }
+.grid.tones .cell.held { margin-left: -3px; border-left-color: transparent; border-radius: 0; }
+.grid.tones .cell.on:not(.end) { border-radius: 3px 0 0 3px; }
+.grid.tones .cell.held.end { border-radius: 0 3px 3px 0; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid; vertical-align: -2px; }
+.legend { margin: 10px 0 0; }
+.library { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.lib-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.lib { text-align: left; padding: 7px 12px; min-width: 132px; }
+.lib b { display: block; font-size: 13px; } .lib span { font-size: 11px; color: var(--muted); font-weight: 400; }
+.lib.on { border-color: var(--c); box-shadow: inset 0 0 0 1px var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
+.lib.new { border-style: dashed; }
+.lane-head { padding: 34px 16px 14px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .lane-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.lane-name i { width: 10px; height: 10px; border-radius: 2px; background: var(--chords); }
+.lane-name i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); flex: none; }
 .lane { padding: 0 16px 14px; min-width: 0; }
 .ruler { position: relative; height: 26px; font: 11px var(--mono); color: var(--muted); }
 .ruler span { position: absolute; top: 7px; padding-left: 4px; }
@@ -99,8 +151,9 @@ button.link { border: 0; background: none; text-decoration: underline; padding: 
 .keys { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 13px; }
 
 @media (max-width: 760px) {
-  .lane-card { grid-template-columns: 1fr; }
-  .lane-head { padding: 12px 16px 0; border-right: 0; flex-direction: row; flex-wrap: wrap; gap: 4px 14px; }
+  .lane-row { grid-template-columns: 1fr; }
+  .lane-row .lane-head, .lane-row:not(.role-chords) .lane-head { padding: 10px 16px 0; border-right: 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+  .lane-tags { margin-left: auto; }
   .row2 { grid-template-columns: 1fr; }
   .card, .row2, .problem { margin-left: 12px; margin-right: 12px; }
   .top, .section-head { padding-left: 12px; padding-right: 12px; }
