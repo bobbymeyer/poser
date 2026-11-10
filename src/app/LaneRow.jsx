@@ -1,13 +1,6 @@
-import { ROLE_DEFAULTS } from "../editor/template.js";
+import { soundLabel } from "./SoundPanel.jsx";
 
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
-
-function instrumentLabel(lane) {
-  const ins = lane.instrument;
-  if (ins.backend === "midi") return `MIDI · ${ins.port} · ch ${ins.channel}`;
-  const d = ROLE_DEFAULTS[lane.role];
-  return `SF · ${d && d.instrument.program === ins.program ? d.label : ins.drums ? "Drum kit" : `Program ${ins.program}`}`;
-}
 
 /** One lane of the stack: header on the left, its clips drawn against the section's time axis. */
 export default function LaneRow({ lane, section, len, notes, patterns, selected, onSelect, onPatch }) {
@@ -29,14 +22,16 @@ export default function LaneRow({ lane, section, len, notes, patterns, selected,
     }
   }
   const stop = (fn) => (e) => { e.stopPropagation(); fn(); };
+  const sound = soundLabel(lane);
   return (
     <div className={`lane-row role-${lane.role}${selected ? " selected" : ""}`} onClick={onSelect} data-testid={`lane-${lane.id}`}>
       <div className="lane-head">
         <div className="lane-name"><i />{lane.name}{kit && <span className="hint right">Swing: {cap(lane.swing || "straight")}</span>}</div>
-        <div className="instrument">{instrumentLabel(lane)}</div>
+        <div className={`instrument${sound.bad ? " bad" : ""}`} title={sound.text}>{sound.text}</div>
         <div className="lane-tags">
           {!kit && lane.mono && <span className={`tag${lane.mono.on ? " dark" : ""}`}>{lane.mono.on ? "MONO" : "POLY"}</span>}
-          <span className="spacer" />
+          <input type="range" className="vol" aria-label={`${lane.name} volume`} min="0" max="127" value={lane.volume}
+            onClick={(e) => e.stopPropagation()} onChange={(e) => onPatch({ volume: +e.target.value }, `${lane.id}:volume`)} />
           <button className={`ms${lane.mute ? " on" : ""}`} aria-label={`Mute ${lane.name}`} aria-pressed={lane.mute} onClick={stop(() => onPatch({ mute: !lane.mute }))}>M</button>
           <button className={`ms${lane.solo ? " on" : ""}`} aria-label={`Solo ${lane.name}`} aria-pressed={lane.solo} onClick={stop(() => onPatch({ solo: !lane.solo }))}>S</button>
         </div>

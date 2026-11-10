@@ -24,9 +24,10 @@ function track(events, endTick) {
 /**
  * @param song     the song document
  * @param resolved optional result of `resolveSong(song)`
+ * @param options  `bankOf(lane)` returns a bank-select value to send before the program (used by the WAV bounce)
  * @returns Uint8Array of a `.mid` file: a conductor track, then one track per audible lane.
  */
-export function exportMidi(song, resolved = resolveSong(song)) {
+export function exportMidi(song, resolved = resolveSong(song), { bankOf = null } = {}) {
   const channels = assignChannels(song), audible = audibleLanes(song);
   const conductor = [{ tick: 0, order: 0, bytes: meta(0x03, text(song.title || "Untitled")) }];
   for (const t of resolved.tempo) {
@@ -43,6 +44,7 @@ export function exportMidi(song, resolved = resolveSong(song)) {
     if (!notes.length) continue;
     const ch = channels.get(lane.id);
     const ev = [{ tick: 0, order: 0, bytes: meta(0x03, text(lane.name)) }];
+    if (bankOf) ev.push({ tick: 0, order: 1, bytes: [0xb0 | ch, 0, bankOf(lane)] });
     if (lane.instrument.program != null) ev.push({ tick: 0, order: 1, bytes: [0xc0 | ch, lane.instrument.program] });
     ev.push({ tick: 0, order: 1, bytes: [0xb0 | ch, 7, lane.volume] }, { tick: 0, order: 1, bytes: [0xb0 | ch, 10, lane.pan] });
     for (const n of notes) {

@@ -49,7 +49,10 @@ export function reducer(state, action) {
       const moved = inst !== state.inst;
       const caret = clampCaret(action.song, inst, action.caret ?? (moved ? Infinity : state.caret));
       if (action.song === state.song) return { ...state, inst, caret };
+      // Edits that share a group (a slider being dragged) fold into one undo step.
+      if (action.group && action.group === state.group) return { ...state, song: action.song, inst, caret };
       return {
+        group: action.group ?? null,
         song: action.song, inst, caret,
         sticky: action.sticky !== undefined ? action.sticky : moved ? null : state.sticky,
         past: [...state.past.slice(-HISTORY), snap(state)],
@@ -57,20 +60,20 @@ export function reducer(state, action) {
       };
     }
     case "caret":
-      return { ...state, caret: clampCaret(state.song, state.inst, action.caret) };
+      return { ...state, group: null, caret: clampCaret(state.song, state.inst, action.caret) };
     case "select": {
       const inst = clampInst(state.song, action.inst);
-      return inst === state.inst ? state : { ...state, inst, caret: clampCaret(state.song, inst, Infinity), sticky: null };
+      return inst === state.inst ? state : { ...state, group: null, inst, caret: clampCaret(state.song, inst, Infinity), sticky: null };
     }
     case "undo": {
       const prev = state.past.at(-1);
       if (!prev) return state;
-      return { ...state, ...prev, sticky: null, past: state.past.slice(0, -1), future: [snap(state), ...state.future] };
+      return { ...state, ...prev, group: null, sticky: null, past: state.past.slice(0, -1), future: [snap(state), ...state.future] };
     }
     case "redo": {
       const next = state.future[0];
       if (!next) return state;
-      return { ...state, ...next, sticky: null, past: [...state.past, snap(state)], future: state.future.slice(1) };
+      return { ...state, ...next, group: null, sticky: null, past: [...state.past, snap(state)], future: state.future.slice(1) };
     }
     default:
       return state;

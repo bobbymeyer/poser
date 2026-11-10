@@ -18,6 +18,10 @@ export const ROLE_DEFAULTS = {
     mono: { on: true, priority: "lowest", legato: false }, register: [28, 52], swing_follow: true },
   pad: { name: "Pad", instrument: { program: 89 }, label: "Warm Pad", zones: ["qwe"], volume: 84,
     mono: { on: false, priority: "last", legato: false }, register: [50, 76], swing_follow: true },
+  arp: { name: "Arp", instrument: { program: 46 }, label: "Harp", zones: ["rty"], volume: 88,
+    mono: { on: false, priority: "last", legato: false }, register: [55, 84], swing_follow: true },
+  comp: { name: "Comp", instrument: { program: 4 }, label: "Electric Piano", zones: ["uio"], volume: 88,
+    mono: { on: false, priority: "last", legato: false }, register: [48, 74], swing_follow: true },
   lead: { name: "Lead 1", instrument: { program: 80 }, label: "Square Lead", zones: ["fgh", "jkl"], volume: 96,
     mono: { on: true, priority: "last", legato: false }, register: [60, 84] },
 };

@@ -16,6 +16,8 @@ import { applyTake } from "../editor/liveOps.js";
 import { createLive, chordIndexAt } from "./live.js";
 import { KeyboardOverlay, BottomBar } from "./Live.jsx";
 import LeadView from "./LeadView.jsx";
+import { SoundPanel, BounceDialog } from "./SoundPanel.jsx";
+import { addLane, addableRoles } from "../editor/laneOps.js";
 
 const LIVE_KEY = "layered-composer:live";
 const loadLive = () => {
@@ -50,13 +52,14 @@ export default function App() {
   const [muted, setMuted] = useState({});             // "instanceId|laneId" -> muted pass numbers (session only)
   const [chordNow, setChordNow] = useState(0);
   const [midiNote, setMidiNote] = useState("");
+  const [bouncing, setBouncing] = useState(false);
   const fileHandle = useRef(null), auditionRef = useRef(null), noRestrike = useRef(false);
   const setLive = (patch) => setLiveState((cur) => {
     const next = { ...cur, ...patch };
     try { const { playMode, ...keep } = next; localStorage.setItem(LIVE_KEY, JSON.stringify(keep)); } catch {}
     return next;
   });
-  useSyncExternalStore(engine.subscribe, () => `${engine.status}|${engine.playing}`);
+  useSyncExternalStore(engine.subscribe, () => engine.version);
 
   // Open the last project, or start a new one.
   useEffect(() => {
@@ -102,7 +105,7 @@ export default function App() {
   // What is on screen: the selected instance alone.
   const viewSong = useMemo(() => (base ? loopSong(base, inst, audition) : null), [base, inst, audition]);
   const resolved = useMemo(() => (viewSong ? resolveSong(viewSong) : null), [viewSong]);
-  const full = useMemo(() => (song && view === "overview" ? resolveSong(song) : null), [song, view]);
+  const full = useMemo(() => (song && (view === "overview" || bouncing) ? resolveSong(song) : null), [song, view, bouncing]);
   // What the engine plays: that loop, or the song from where "Play song" was pressed.
   const songMode = transport.mode === "song" && engine.playing;
   const engineSong = useMemo(
@@ -166,7 +169,7 @@ export default function App() {
       },
       section(patch) { const { song, inst } = cur(); dispatch({ type: "edit", song: withSection(song, inst, patch) }); },
       song(patch) { dispatch({ type: "edit", song: { ...cur().song, ...patch, updated_at: new Date().toISOString() } }); },
-      replace(song, inst) { dispatch({ type: "edit", song, inst }); },
+      replace(song, inst, group) { dispatch({ type: "edit", song, inst, group }); },
       bars(n) { const { song, inst } = cur(); dispatch({ type: "edit", song: setBars(song, sectionId(song, inst), n) }); },
     };
   }, []);
@@ -428,7 +431,12 @@ export default function App() {
         <span className="spacer" />
         <button onClick={saveFile}>Save file</button>
         <button onClick={openFile}>Open file</button>
+        <label className="master">Master
+          <input type="range" aria-label="Master volume" min="0" max="127" value={song.settings.master_volume}
+            onChange={(e) => api.replace({ ...song, settings: { ...song.settings, master_volume: +e.target.value }, updated_at: new Date().toISOString() }, undefined, "master")} />
+        </label>
         <button onClick={exportMid}>Export .mid</button>
+        <button onClick={() => { engine.start(); setBouncing(true); }} data-testid="bounce-open">Bounce .wav</button>
         <button onClick={newSong}>New</button>
         <div className="seg" role="group" aria-label="View">
           <button className={view === "section" ? "on" : ""} onClick={() => setView("section")}>Section</button>
@@ -539,10 +547,18 @@ export default function App() {
         {song.lanes.map((lane) => (
           <LaneRow key={lane.id} lane={viewSong.lanes.find((l) => l.id === lane.id)} section={shown} len={len} patterns={viewSong.patterns}
             notes={resolved.notes.filter((n) => n.lane === lane.id)} selected={selected === lane.id}
-            onSelect={() => setSelected(lane.id)} onPatch={(patch) => api.replace(setLane(song, lane.id, patch))} />
+            onSelect={() => setSelected(lane.id)} onPatch={(patch, group) => api.replace(setLane(song, lane.id, patch), undefined, group)} />
         ))}
+        <div className="add-lane">
+          <select aria-label="Add lane" value="" onChange={(e) => { if (!e.target.value) return; const next = addLane(song, e.target.value); api.replace(next); setSelected(next.lanes.at(-1).id); }}>
+            <option value="">Add lane…</option>
+            {addableRoles(song).map((r) => <option key={r} value={r}>{cap(r)}</option>)}
+          </select>
+          <span className="hint">One kit and up to two leads. Arp and comp lanes play the pad patterns for now.</span>
+        </div>
       </div>
 
+      {picked && <SoundPanel song={song} lane={picked} onSong={(s, group) => api.replace(s, undefined, group)} />}
       {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
       {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
       {live.playMode && (
@@ -610,6 +626,7 @@ export default function App() {
         </div>
       </div>}
       </>}
+      {bouncing && <BounceDialog song={song} seconds={(full ?? resolveSong(song)).totalSec} onClose={() => setBouncing(false)} />}
       <BottomBar live={live} set={setLive} pinnedLabel={pinned ? `${pinned.numeral} (${pinned.name})` : "no chord"}
         onUndo={() => dispatch({ type: "undo" })} canUndo={state.past.length > 0} onMidi={connectMidi} midiNote={midiNote} />
     </div>

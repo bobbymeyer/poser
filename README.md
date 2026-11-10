@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-5 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, and live play with recording. Phases 6-8 are not started.
+Phases 0-6 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, live play with recording, and sound sources with a mixer and WAV bounce. Phases 7-8 are not started.
 
 ## Run
 
@@ -87,7 +87,26 @@ How it behaves:
 
 Recorded patterns follow the same rule as edited ones: a factory pattern becomes a copy in the song, and linked clips change together.
 
-Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), fixed instruments per role, pass mute lasts for the session, and no song list, so "New" replaces the open song.
+## Phase 6 sound sources, mixer and bounce
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Lane logic | `src/editor/laneOps.js` | Pure functions: add a lane by role, delete a lane with its clips and lead notes, switch a lane between a SoundFont and MIDI out, mixer settings, and what a bounce skips |
+| Engine | `src/audio/engine.js` | Loads the SoundFonts a song's lanes ask for, lists their presets, and holds MIDI access |
+| SoundFont storage | `src/storage/db.js` | Files are stored in IndexedDB under `sha256:` plus their digest, the same hash the song file records |
+| Sound panel | `src/app/SoundPanel.jsx` | Per lane: SoundFont and instrument, or MIDI port, channel and program; volume, pan, latency offset, voices; delete lane. Also the bounce dialog |
+| Bounce | `src/audio/bounce.js` | Renders the SoundFont lanes through an `OfflineAudioContext` and encodes 44.1 kHz 16-bit stereo WAV |
+
+How it works:
+
+- **Several SoundFonts at once.** Each user SoundFont is loaded into the synth at its own bank offset, and a lane on it sends that bank before its program. The format has no bank field, so the picker offers each file's melodic bank 0 and its drum kits.
+- **A SoundFont this browser does not have.** The lane plays on the factory SoundFont and is flagged "SoundFont not found", with the file name the song recorded. Loading a file puts the lane on it.
+- **A MIDI port this machine does not have.** The lane is flagged "device not found" and is silent, as the spec says.
+- **Mixer.** Master in the top bar; volume on each lane header; pan and latency offset in the sound panel. Dragging a slider is one undo step.
+- **Bounce.** The dialog lists the audible MIDI-out lanes it will skip, renders the whole song with a 2.5 s tail, honours mute and solo, and applies the master volume.
+- **Lanes.** One kit, up to two leads, any number of bass, pad, arp and comp. Arp and comp lanes use the pad patterns for now.
+
+Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), pass mute lasts for the session, no song list (so "New" replaces the open song), and stored SoundFonts cannot be removed from the browser yet.
 
 ## Phase 0 spike (`spike/index.html`)
 

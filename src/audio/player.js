@@ -6,7 +6,7 @@ import { resolveSong, audibleLanes, assignChannels } from "../core/index.js";
 const TICK_MS = 25, HORIZON = 0.12, START_DELAY = 0.1;
 const FALLBACK_PROGRAM = 80; // for MIDI-out lanes auditioned on the soundfont
 
-export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
+export function createPlayer({ ctx, synth, master }, { onEnd, bankOf = () => 0 } = {}) {
   const timer = new Worker(URL.createObjectURL(new Blob([`
     let id = null;
     onmessage = (e) => { clearInterval(id); id = null; if (e.data > 0) id = setInterval(() => postMessage(0), e.data); };`],
@@ -38,7 +38,8 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
         else { r.out = "none"; r.note = `device not found: ${ins.port} (muted)`; }
       } else r.note = `SoundFont · program ${ins.program}${ins.drums ? " · drums" : ""}`;
       if (r.out === "synth") {
-        if (ch !== 9) synth.programChange(ch, ins.program ?? FALLBACK_PROGRAM);
+        synth.controllerChange(ch, 0, ins.backend === "midi" ? 0 : bankOf(lane));
+        synth.programChange(ch, ins.program ?? (ch === 9 ? 0 : FALLBACK_PROGRAM));
         synth.controllerChange(ch, 7, lane.volume);
         synth.controllerChange(ch, 10, lane.pan);
       } else if (r.out === "midi") {
@@ -50,7 +51,11 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     }
     audible = audibleLanes(song);
     master.gain.value = (song.settings?.master_volume ?? 100) / 127;
+    routeSig = sigOf(song);
   }
+  // What `route` depends on. When it changes, lanes are routed again.
+  const sigOf = (s) => JSON.stringify(s.lanes.map((l) => [l.id, l.instrument, l.volume, l.pan, l.latency_ms]));
+  let routeSig = "";
 
   const toEvents = (r) => r.notes.map((n) => {
     const sec = r.secAt(n.tick);
@@ -79,6 +84,7 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     song = nextSong;
     resolved = resolveSong(song);
     events = toEvents(resolved);
+    if (sigOf(song) !== routeSig) route();
     audible = audibleLanes(song);
     master.gain.value = (song.settings?.master_volume ?? 100) / 127;
     if (posSec > 0) { state.startTime = now - resolved.secAt(posTick % resolved.totalTicks); state.pass = 0; }
@@ -197,6 +203,8 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     /** Ticks into the song, or -1 when stopped. */
     positionTicks() { const p = this.position(); return p < 0 ? -1 : resolved.tickAt(p); },
     setMute(laneId, mute) { song.lanes.find((l) => l.id === laneId).mute = mute; audible = audibleLanes(song); },
-    setMidi(access, fallback) { midiAccess = access; midiFallback = fallback; if (song) { stop(); route(); } },
+    setMidi(access, fallback) { midiAccess = access; midiFallback = fallback; if (song) route(); },
+    /** Route every lane again (after a SoundFont finishes loading). */
+    reroute() { if (song) route(); },
   };
 }
