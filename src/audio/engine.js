@@ -7,7 +7,7 @@ import { resolveChord, bassVoicing, nearestVoicing } from "../core/index.js";
 
 const listeners = new Set();
 let audio = null, player = null, starting = null, song = null, wantPlay = false, wantLoop = true;
-let viewOffset = 0, viewLen = Infinity;
+let viewOffset = 0, viewLen = Infinity, wantCountIn = null;
 
 export const engine = {
   /** "off" | "loading" | "ready" | "error" */
@@ -27,7 +27,7 @@ export const engine = {
         player = createPlayer(audio, { onEnd: () => { wantPlay = false; notify(); } });
         if (song) player.load(song);
         setStatus("ready");
-        if (wantPlay) engine.play({ loop: wantLoop });
+        if (wantPlay) engine.play({ loop: wantLoop, countIn: wantCountIn });
       } catch (err) {
         console.error(err);
         engine.error = err.message;
@@ -39,17 +39,26 @@ export const engine = {
   },
 
   /** Give the engine the song to loop. Live edits keep the playhead where it is. */
-  setSong(next) {
+  setSong(next, opts) {
     song = next;
-    if (player) player.update(next);
+    if (player) player.update(next, opts);
   },
 
   get playing() { return wantPlay; },
-  /** Loop the song given to `setSong`, or play it once to the end. */
-  play({ loop = true } = {}) {
+  /**
+   * Loop the song given to `setSong`, or play it once to the end.
+   * `countIn` is `{ beats, bpm }`: that many clicks first, then the song starts on the next beat.
+   */
+  play({ loop = true, countIn = null } = {}) {
     wantPlay = true;
     wantLoop = loop;
-    if (player) { player.stop(); player.play({ loop }); } else engine.start();
+    wantCountIn = countIn;
+    if (player) {
+      player.stop();
+      const beat = countIn ? 60 / countIn.bpm : 0;
+      player.play({ loop, delay: countIn ? countIn.beats * beat : 0 });
+      if (countIn) for (let i = 0; i < countIn.beats; i++) player.click(player.startTime - (countIn.beats - i) * beat, i === 0);
+    } else engine.start();
     notify();
   },
   stop() {
@@ -61,6 +70,15 @@ export const engine = {
 
   /** Ticks into the loop, or -1 when stopped. */
   positionTicks() { return player ? player.positionTicks() : -1; },
+
+  /** Live playing: see the player. All are no-ops until the engine is ready. */
+  noteOn(laneId, pitch, vel) { player?.noteOn(laneId, pitch, vel); },
+  noteOff(laneId, pitch) { player?.noteOff(laneId, pitch); },
+  click(time, accent) { player?.click(time, accent); },
+  heardTicks(agoSec) { return player ? player.heardTicks(agoSec) : -1; },
+  /** Audio-clock time now, and the time the playing song started (for scheduling clicks). */
+  get now() { return audio ? audio.ctx.currentTime : 0; },
+  get startTime() { return player ? player.startTime : 0; },
 
   /** Tell the engine which stretch of the playing song the screen is showing. */
   setView(offset, len) { viewOffset = offset; viewLen = len; },

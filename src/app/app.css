@@ -204,3 +204,53 @@ button.link { border: 0; background: none; text-decoration: underline; padding: 
 .ov-notes { list-style: none; padding: 0; margin: 18px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; font-size: 13px; color: var(--muted); }
 .ov-notes b { color: var(--ink); }
 @media (max-width: 760px) { .arr, .overview { padding-left: 12px; padding-right: 12px; } }
+
+/* ---- live play: record button, overlay, lead view, bottom bar */
+.app { padding-bottom: 76px; }
+.rec { color: var(--bad); border-color: #E2B3A5; }
+.top .rec.on { background: var(--bad); border-color: var(--bad); color: #fff; }
+.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--card); border-top: 1px solid var(--line); padding: 8px 24px;
+  display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; font-size: 13px; }
+.bottom > b { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #4A4944; }
+.bottom button { padding: 4px 10px; font-size: 13px; }
+.bottom > button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.bottom input[type=number] { width: 54px; font: 13px var(--mono); border: 1px solid #CFCBC0; border-radius: 5px; padding: 2px 4px; }
+.overlay-body { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 20px; }
+.kbd { display: grid; gap: 5px; overflow-x: auto; padding-bottom: 4px; }
+.kbd-row { display: flex; gap: 5px; }
+.kkey { flex: none; width: 62px; height: 58px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c) 50%, #fff); background: var(--c-bg); padding: 4px 6px;
+  display: grid; grid-template-rows: auto 1fr auto; position: relative; color: color-mix(in srgb, var(--c) 70%, #000); }
+.kkey.free { border: 1px dashed #B8B4A9; background: #fff; color: var(--muted); }
+.kkey kbd { justify-self: start; }
+.kkey b { font: 600 13px var(--mono); align-self: center; white-space: nowrap; }
+.kkey span { font-size: 10px; white-space: nowrap; }
+.assign { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 7px; font-size: 13px; }
+.assign .lane-name { width: 64px; font-weight: 500; }
+.zone { font: 12px var(--mono); padding: 2px 7px; }
+.assign select { font-size: 12px; border: 1px solid #CFCBC0; border-radius: 5px; background: var(--card); padding: 2px 4px; max-width: 86px; }
+.notice { margin: 8px 0 0; color: var(--amber); }
+.lead-wrap { display: grid; grid-template-columns: 62px 1fr; }
+.lead-labels div { height: 17px; font: 11px/17px var(--mono); color: var(--muted); }
+.lead-labels b { color: var(--ink); margin-right: 4px; }
+.lead-grid { position: relative; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.lead-row { height: 17px; border-bottom: 1px solid #F0EDE5; background: #fff; }
+.lead-row.half { background: var(--ground); }
+.lead-grid .barline, .lead-grid .playhead { top: 0; bottom: 0; }
+.lead-note { position: absolute; height: 13px; margin-top: 2px; padding: 0; border-radius: 2px; border: 1px solid color-mix(in srgb, var(--t) 70%, #000); background: var(--t);
+  font-size: 9px; line-height: 1; color: #fff; }
+.lead-note.silent { background: transparent; border-style: dashed; color: var(--t); }
+.lead-note.sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+.lead-note.live { background: var(--bad); border-color: var(--bad); pointer-events: none; }
+.lead-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 14px; }
+.pass { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+.pass i { width: 12px; height: 12px; border-radius: 3px; flex: none; }
+.pass span { min-width: 130px; }
+.pass button, .lead-info button { padding: 2px 9px; font-size: 12px; }
+.pass button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.rec { font-weight: 600; } b.rec { font: 600 10px var(--mono); background: var(--bad); color: #fff; border-radius: 4px; padding: 1px 6px; }
+.editor-bar .spacer { flex: 1; }
+@media (max-width: 760px) {
+  .overlay-body, .lead-foot { grid-template-columns: 1fr; }
+  .bottom { padding: 8px 12px; position: static; }
+  .app { padding-bottom: 20px; }
+}

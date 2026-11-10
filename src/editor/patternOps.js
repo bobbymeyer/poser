@@ -112,7 +112,7 @@ export function ensureKit(song) {
   const sf = song.soundfonts[0]?.hash ?? "";
   return { ...song, lanes: [{
     id: "l_kit", role: "kit", name: "Kit", instrument: { backend: "soundfont", sf, program: 0, drums: true },
-    zones: ["zxc", "vbn"], volume: 100, pan: 64, mute: false, solo: false, latency_ms: 0,
+    zones: ["zxc", "vbn", "m,."], volume: 100, pan: 64, mute: false, solo: false, latency_ms: 0,
     swing: "straight", pads: DEFAULT_PADS, choke: [[3, 4]],
   }, ...song.lanes] };
 }

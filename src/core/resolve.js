@@ -63,6 +63,21 @@ export function resolveChords(song, section) {
     .sort((a, b) => a.start - b.start);
 }
 
+/**
+ * One voicing per chord for a pitched lane, each led from the one before. Restarts every
+ * section so that linked instances always sound the same. `chords` comes from `resolveChords`;
+ * rests give null.
+ */
+export function laneVoicings(chords, lane) {
+  let prev = null;
+  return chords.map(({ chord }) => {
+    if (!chord) return null;
+    const v = lane.role === "bass" ? bassVoicing(chord, lane.register) : nearestVoicing(chord, lane.register, prev);
+    prev = v;
+    return v;
+  });
+}
+
 /** Notes of one section instance, with ticks relative to the section start. */
 export function resolveSection(song, section, leads = {}, lanes = new Map(song.lanes.map((l) => [l.id, l]))) {
   const meter = METERS[section.meter];
@@ -86,18 +101,7 @@ export function resolveSection(song, section, leads = {}, lanes = new Map(song.l
     const swung = canSwing && (lane.role === "kit" || lane.swing_follow);
     const laneNotes = [];
 
-    // One voicing per chord, each led from the one before. Restarts every section so that
-    // linked instances always sound the same.
-    let voicings = null;
-    if (lane.role !== "kit") {
-      let prev = null;
-      voicings = chords.map(({ chord }) => {
-        if (!chord) return null;
-        const v = lane.role === "bass" ? bassVoicing(chord, lane.register) : nearestVoicing(chord, lane.register, prev);
-        prev = v;
-        return v;
-      });
-    }
+    const voicings = lane.role === "kit" ? null : laneVoicings(chords, lane);
 
     for (const clip of clips) {
       const pattern = song.patterns[clip.pattern];

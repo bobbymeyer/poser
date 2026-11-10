@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-4 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, and sections with an arrangement. Phases 5-8 are not started.
+Phases 0-5 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, and live play with recording. Phases 6-8 are not started.
 
 ## Run
 
@@ -66,7 +66,28 @@ Rules as built:
 - Patterns stay linked across sections and bakes until edited apart with "Make unique".
 - Deleting the last instance of a section deletes the section. Undo brings it back.
 
-Limits so far: meter fixed at 4/4, one pattern per lane per section (plus the kit fill), fixed instruments per role, and no song list, so "New" replaces the open song.
+## Phase 5 live play and recording
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Recording logic | `src/editor/liveOps.js` | Pure functions: zones and key map, claim and release, lead keys, MIDI pitch to lead note, and `applyTake`, which applies one loop pass of playing to the song |
+| Live controller | `src/app/live.js` | Turns key presses and MIDI notes into sound, and into a take while recording. Hands the take over when the loop comes round |
+| Overlay and bottom bar | `src/app/Live.jsx` | Keyboard tinted by lane with the note under each key, zone assignment, record context, count-in, latency, MIDI keyboard, undo |
+| Lead view | `src/app/LeadView.jsx` | Read view with tinted passes, mute and delete per pass, delete per note, dashed outlines for notes the mono filter silences |
+
+How it behaves:
+
+- **Play mode** (the "Keyboard overlay" button, or `` ` ``): letter keys play their zones and arrows move the lead keys. The number row still enters chords unless a lane claims it. Other editing keys are off. Esc leaves play mode.
+- **Record** (`⇧ Space`) works over "Loop section". Each loop pass is applied in one step when the loop comes round, so you hear a pass back on the next time through and one pass is one undo step.
+- **Drums:** a hit replaces that pad on the nearest step of whichever pattern is playing (groove or fill). ⌥ is a ghost, ⇧ an accent. Hold ⌫ and tap a pad to erase it; with the kit lane selected while recording, ⌫ alone clears the pattern.
+- **Bass and pad:** keys are chord tones 1-3. A played step replaces what was on that step. They sound against the chord under the playhead ("Follow song") or the chord before the cursor ("Pinned").
+- **Leads:** six keys are six scale degrees; ← → slide them along the scale, ↑ ↓ change octave, ⇧ raises a semitone. Notes snap to the quantize grid as recorded and are tagged with a pass number.
+- **MIDI keyboard:** plays and records the selected lead lane (or the first one).
+- **Timing:** key presses are placed where they were heard: the audio output latency is subtracted, plus the "Input latency" trim, which is saved per browser.
+
+Recorded patterns follow the same rule as edited ones: a factory pattern becomes a copy in the song, and linked clips change together.
+
+Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), fixed instruments per role, pass mute lasts for the session, and no song list, so "New" replaces the open song.
 
 ## Phase 0 spike (`spike/index.html`)
 

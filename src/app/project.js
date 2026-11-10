@@ -2,6 +2,7 @@
 
 import { normalize, visibleCount, sectionLength } from "../editor/chordOps.js";
 import { ensureKit } from "../editor/patternOps.js";
+import { ensureLead } from "../editor/liveOps.js";
 
 const HISTORY = 200;
 const clampInst = (song, inst) => Math.max(0, Math.min(song.arrangement.length - 1, inst));
@@ -40,7 +41,7 @@ export function reducer(state, action) {
   switch (action.type) {
     case "load": {
       const sections = Object.fromEntries(Object.entries(action.song.sections).map(([id, s]) => [id, { ...s, chords: normalize(s.chords) }]));
-      const song = ensureKit({ ...action.song, sections });
+      const song = ensureLead(ensureKit({ ...action.song, sections }));
       return { song, inst: 0, caret: clampCaret(song, 0, Infinity), sticky: null, past: [], future: [] };
     }
     case "edit": {

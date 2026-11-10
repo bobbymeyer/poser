@@ -24,7 +24,7 @@ export default function LaneRow({ lane, section, len, notes, patterns, selected,
     } else {
       const lo = Math.min(...notes.map((n) => n.pitch)), hi = Math.max(...notes.map((n) => n.pitch));
       marks = notes.map((n, i) => (
-        <i key={i} className="bar" style={{ left: pct(n.tick), width: `calc(${pct(n.len)} - 2px)`, top: `${((hi - n.pitch + 0.5) / (hi - lo + 1)) * 100}%` }} />
+        <i key={i} className="bar" style={{ opacity: n.pass ? 0.55 + 0.45 / n.pass : 1, left: pct(n.tick), width: `calc(${pct(n.len)} - 2px)`, top: `${((hi - n.pitch + 0.5) / (hi - lo + 1)) * 100}%` }} />
       ));
     }
   }
@@ -49,7 +49,7 @@ export default function LaneRow({ lane, section, len, notes, patterns, selected,
             </div>
           ))}
           {!clips.length && (
-            <div className="clip empty"><span>{lane.role === "lead" ? "Leads are recorded live, in a later phase" : "No pattern yet. Select this lane to pick one."}</span></div>
+            <div className="clip empty">{!notes.length && <span>{lane.role === "lead" ? "No notes yet. Select this lane, then record." : "No pattern yet. Select this lane to pick one."}</span>}</div>
           )}
           <div className="marks">{marks}</div>
         </div>

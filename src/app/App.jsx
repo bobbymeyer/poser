@@ -12,6 +12,17 @@ import ChordLane from "./ChordLane.jsx";
 import LaneRow from "./LaneRow.jsx";
 import { DrumEditor, StepEditor } from "./PatternEditors.jsx";
 import { ArrangementStrip, Overview } from "./Arrangement.jsx";
+import { applyTake } from "../editor/liveOps.js";
+import { createLive, chordIndexAt } from "./live.js";
+import { KeyboardOverlay, BottomBar } from "./Live.jsx";
+import LeadView from "./LeadView.jsx";
+
+const LIVE_KEY = "layered-composer:live";
+const loadLive = () => {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(LIVE_KEY)) || {}; } catch {}
+  return { context: "follow", countIn: true, metronome: false, latencyMs: 0, quant: 120, ...saved, playMode: false };
+};
 
 const MODE_ROW = ["lydian", "ionian", "mixolydian", "dorian", "aeolian", "phrygian"]; // bright to dark
 const ALL_MODES = [...MODE_ROW, "locrian"];
@@ -32,7 +43,19 @@ export default function App() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [selected, setSelected] = useState("chords"); // "chords" or a lane id
   const [patPreview, setPatPreview] = useState(null); // { laneId, slot, entry } hovered in a library
-  const fileHandle = useRef(null), auditionRef = useRef(null);
+  const [live, setLiveState] = useState(loadLive);    // play mode and recording settings (kept per browser)
+  const [recording, setRecording] = useState(false);
+  const [lead, setLead] = useState({ window: 0, octave: 0 }); // where the lead keys sit on the scale
+  const [liveNotes, setLiveNotes] = useState([]);     // lead notes of the pass being played
+  const [muted, setMuted] = useState({});             // "instanceId|laneId" -> muted pass numbers (session only)
+  const [chordNow, setChordNow] = useState(0);
+  const [midiNote, setMidiNote] = useState("");
+  const fileHandle = useRef(null), auditionRef = useRef(null), noRestrike = useRef(false);
+  const setLive = (patch) => setLiveState((cur) => {
+    const next = { ...cur, ...patch };
+    try { const { playMode, ...keep } = next; localStorage.setItem(LIVE_KEY, JSON.stringify(keep)); } catch {}
+    return next;
+  });
   useSyncExternalStore(engine.subscribe, () => `${engine.status}|${engine.playing}`);
 
   // Open the last project, or start a new one.
@@ -65,8 +88,17 @@ export default function App() {
     let b = preview ? withSection(song, inst, { chords: preview.chords }) : song;
     const lane = patPreview && b.lanes.find((l) => l.id === patPreview.laneId);
     if (lane) b = applyEntry(b, sectionId(b, inst), lane, patPreview.entry, patPreview.slot);
+    // Muted lead passes are left out of what plays; the song itself keeps them.
+    const here = b.arrangement[Math.min(inst, b.arrangement.length - 1)];
+    const leads = { ...here.leads };
+    let changed = false;
+    for (const [laneId, v] of Object.entries(here.leads || {})) {
+      const m = muted[`${here.id}|${laneId}`];
+      if (m?.length) { leads[laneId] = { notes: v.notes.filter((n) => !m.includes(n.pass)) }; changed = true; }
+    }
+    if (changed) b = { ...b, arrangement: b.arrangement.map((a) => (a === here ? { ...a, leads } : a)) };
     return b;
-  }, [song, inst, preview, patPreview]);
+  }, [song, inst, preview, patPreview, muted]);
   // What is on screen: the selected instance alone.
   const viewSong = useMemo(() => (base ? loopSong(base, inst, audition) : null), [base, inst, audition]);
   const resolved = useMemo(() => (viewSong ? resolveSong(viewSong) : null), [viewSong]);
@@ -76,10 +108,15 @@ export default function App() {
   const engineSong = useMemo(
     () => (base ? (songMode ? songFrom(base, transport.start, inst, audition) : viewSong) : null),
     [base, viewSong, songMode, transport.start, inst, audition]);
-  useEffect(() => { if (engineSong) engine.setSong(engineSong); }, [engineSong]);
+  useEffect(() => {
+    if (!engineSong) return;
+    // A recorded pass is swapped in quietly: no re-striking of the chords that are sounding.
+    engine.setSong(engineSong, noRestrike.current ? { restrike: false } : undefined);
+    noRestrike.current = false;
+  }, [engineSong]);
 
   const latest = useRef(null);
-  latest.current = { state, view, transport, songMode };
+  latest.current = { state, view, transport, songMode, live, recording, lead, selected };
 
   // In song mode the screen follows the instance that is playing.
   useEffect(() => {
@@ -145,9 +182,74 @@ export default function App() {
     remove: () => { const { song, inst } = api.cur(); api.replace(removeInstance(song, inst), Math.min(inst, song.arrangement.length - 2)); },
   }), [api]);
 
+  // ---- live play and recording
+  const liveCtl = useMemo(() => createLive(() => {
+    const { state, live, recording, lead, selected } = latest.current;
+    const section = sectionOf(state.song, state.inst), lanes = state.song.lanes;
+    const sel = lanes.find((l) => l.id === selected);
+    return {
+      song: state.song, section, len: sectionLength(section), caret: state.caret, recording, lead,
+      context: live.context, latencyMs: live.latencyMs, metronome: live.metronome,
+      leadLaneId: (sel?.role === "lead" ? sel : lanes.find((l) => l.role === "lead"))?.id,
+      kitSelected: sel?.role === "kit" ? sel.id : null,
+    };
+  }, {
+    commit(take) {
+      const { song, inst } = api.cur();
+      noRestrike.current = true;
+      api.replace(applyTake(song, inst, take, { quant: latest.current.live.quant }));
+    },
+    erase(take) { const { song, inst } = api.cur(); api.replace(applyTake(song, inst, take)); },
+    live: setLiveNotes,
+    slide: (d) => setLead((l) => ({ ...l, window: Math.max(-7, Math.min(14, l.window + d)) })),
+    octave: (d) => setLead((l) => ({ ...l, octave: Math.max(-2, Math.min(2, l.octave + d)) })),
+  }), [api]);
+  useEffect(() => {
+    if (!recording) return;
+    const t = setInterval(() => liveCtl.tick(), 25);
+    return () => clearInterval(t);
+  }, [recording, liveCtl]);
+  useEffect(() => { if (recording && !engine.playing) { liveCtl.end(); setRecording(false); } });
+  useEffect(() => { if (!live.playMode) liveCtl.allOff(); }, [live.playMode, liveCtl]);
+  // The overlay follows the chord under the playhead.
+  useEffect(() => {
+    if (!live.playMode) return;
+    const t = setInterval(() => {
+      const { state, live } = latest.current;
+      if (!engine.playing || live.context !== "follow") return;
+      setChordNow(chordIndexAt(state.song, sectionOf(state.song, state.inst), engine.localTicks(), state.caret));
+    }, 100);
+    return () => clearInterval(t);
+  }, [live.playMode]);
+  async function connectMidi() {
+    if (!navigator.requestMIDIAccess) return setMidiNote("No Web MIDI in this browser");
+    try {
+      const access = await navigator.requestMIDIAccess();
+      const hook = () => {
+        let n = 0;
+        for (const input of access.inputs.values()) { input.onmidimessage = (m) => liveCtl.midi(m.data[0], m.data[1], m.data[2]); n++; }
+        setMidiNote(n ? `MIDI keyboard · ${n} input${n > 1 ? "s" : ""}` : "MIDI: no keyboard found");
+      };
+      access.onstatechange = hook;
+      hook();
+      engine.start();
+    } catch { setMidiNote("MIDI access denied"); }
+  }
+
   // ---- transport
   const act = useRef(null);
   act.current = {
+    record() {
+      if (recording) { liveCtl.end(); setRecording(false); return; }
+      setLive({ playMode: true });
+      liveCtl.begin();
+      setRecording(true);
+      if (!engine.playing || songMode) {
+        setTransport({ mode: "loop", start: 0 });
+        engine.setSong(viewSong);
+        engine.play({ loop: true, countIn: live.countIn ? { beats: 4, bpm: sectionOf(song, inst).bpm } : null });
+      }
+    },
     loop() {
       if (engine.playing) return engine.stop();
       setTransport({ mode: "loop", start: 0 });
@@ -155,6 +257,7 @@ export default function App() {
       engine.play({ loop: true });
     },
     song() {
+      if (recording) { liveCtl.end(); setRecording(false); }
       setTransport({ mode: "song", start: inst });
       engine.setSong(songFrom(base, inst, inst, audition));
       engine.play({ loop: false });
@@ -168,17 +271,21 @@ export default function App() {
       const mod = e.metaKey || e.ctrlKey;
       if (mod && e.code === "KeyZ") { e.preventDefault(); dispatch({ type: e.shiftKey ? "redo" : "undo" }); return; }
       if (mod && e.code === "KeyS") { e.preventDefault(); saveFile(); return; }
-      if (e.code === "Escape") { auditionRef.current = null; setAudition(null); setMoreOpen(false); return; }
+      if (e.code === "Escape") { auditionRef.current = null; setAudition(null); setMoreOpen(false); setLive({ playMode: false }); return; }
       if (mod || isTyping(e.target)) return;
       engine.start();
-      if (e.code === "Space") { e.preventDefault(); act.current.loop(); return; }
+      if (e.code === "Space") { e.preventDefault(); if (e.shiftKey) act.current.record(); else act.current.loop(); return; }
+      if (e.code === "Backquote") { e.preventDefault(); setLive({ playMode: !latest.current.live.playMode }); return; }
       if (latest.current.view !== "section") return;
+      const play = latest.current.live.playMode;
+      if (play && liveCtl.keydown(e)) { e.preventDefault(); return; }
       const digit = /^Digit(\d)$/.exec(e.code)?.[1];
       const { caret } = latest.current.state;
       let handled = true;
       if (digit && e.shiftKey && +digit >= 1 && +digit <= BORROWED.length) api.type(BORROWED[+digit - 1]);
       else if (digit && !e.shiftKey && !e.altKey && +digit >= 1 && +digit <= 7) api.type(DEGREES[+digit - 1]);
       else if (digit === "0" && !e.shiftKey) api.type("rest");
+      else if (play) handled = false; // the rest are editing keys, off while keys play
       else if (e.code === "ArrowLeft") dispatch({ type: "caret", caret: caret - 1 });
       else if (e.code === "ArrowRight") dispatch({ type: "caret", caret: caret + 1 });
       else if (e.code === "Home") dispatch({ type: "caret", caret: 0 });
@@ -192,9 +299,13 @@ export default function App() {
       else handled = false;
       if (handled) e.preventDefault();
     };
+    const onUp = (e) => { if (latest.current.live.playMode) liveCtl.keyup(e); };
+    const onBlur = () => liveCtl.allOff();
     addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
-  }, [api]);
+    addEventListener("keyup", onUp);
+    addEventListener("blur", onBlur);
+    return () => { removeEventListener("keydown", onKey); removeEventListener("keyup", onUp); removeEventListener("blur", onBlur); };
+  }, [api, liveCtl]);
 
   // ---- mode audition: press a mode, drag across the row, release to commit
   const startAudition = (e, mode) => {
@@ -283,6 +394,9 @@ export default function App() {
   const bar = METERS[stored.meter].barTicks;
   const shown = viewSong.sections[sid]; // includes a hovered pattern
   const picked = song.lanes.find((l) => l.id === selected);
+  const chordIdx = engine.playing && live.context === "follow" ? chordNow : chordIndexAt(song, stored, -1, state.caret);
+  const pinned = blocks[Math.max(0, state.caret - 1)]?.chord;
+  const muteKey = picked ? `${song.arrangement[inst].id}|${picked.id}` : "";
 
   // Where the playhead is, relative to the instance on screen.
   let playing = -1;
@@ -305,6 +419,7 @@ export default function App() {
         </button>
         <span className={`pill${engine.playing && !songMode ? " on" : ""}`}>Loop section</span>
         <button className={songMode ? "on" : ""} onClick={() => act.current.song()} data-testid="play-song">Play song</button>
+        <button className={`rec${recording ? " on" : ""}`} onClick={() => act.current.record()} aria-pressed={recording} data-testid="record" title="Record over the loop (⇧ Space)">● {recording ? "Recording" : "Record"}</button>
         <span className={`chip ${engine.status === "error" || saved === "error" ? "bad" : ""}`} data-testid="save-chip">
           {saved === "error" ? "Could not save in this browser" : saved === "saving" ? "Saving…" : "Saved locally"}
           {fileNote ? ` · ${fileNote}` : ""}
@@ -430,7 +545,17 @@ export default function App() {
 
       {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
       {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
-      {picked && picked.role === "lead" && <div className="card"><p className="hint">Lead lanes are played and recorded live. That arrives in a later phase.</p></div>}
+      {live.playMode && (
+        <KeyboardOverlay song={song} section={stored} at={{ chordIndex: chordIdx, ...lead }} onSong={(s) => api.replace(s)}
+          contextLabel={live.context === "follow" && engine.playing ? "Bass and pad keys follow the chord under the playhead." : `Bass and pad keys are resolved against ${pinned ? `${pinned.numeral} (${pinned.name})` : "the chord before the cursor"}.`} />
+      )}
+      {picked && picked.role === "lead" && (
+        <LeadView song={song} inst={inst} lane={picked} section={stored} sounding={resolved.notes.filter((n) => n.lane === picked.id)}
+          liveNotes={liveNotes} recording={recording} lead={lead} quant={live.quant} setQuant={(q) => setLive({ quant: q })}
+          muted={new Set(muted[muteKey] || [])}
+          onMute={(p) => setMuted((m) => { const cur = m[muteKey] || []; return { ...m, [muteKey]: cur.includes(p) ? cur.filter((x) => x !== p) : [...cur, p] }; })}
+          onSong={(s) => api.replace(s)} />
+      )}
 
       {!picked && <div className="row2">
         <div className="card">
@@ -479,10 +604,14 @@ export default function App() {
             <li><kbd>Space</kbd> loop section / stop</li>
             <li><kbd>⌘Z</kbd> undo</li>
             <li><kbd>⌘S</kbd> save file</li>
+            <li><kbd>`</kbd> keyboard overlay</li>
+            <li><kbd>⇧ Space</kbd> record</li>
           </ul>
         </div>
       </div>}
       </>}
+      <BottomBar live={live} set={setLive} pinnedLabel={pinned ? `${pinned.numeral} (${pinned.name})` : "no chord"}
+        onUndo={() => dispatch({ type: "undo" })} canUndo={state.past.length > 0} onMidi={connectMidi} midiNote={midiNote} />
     </div>
   );
 }

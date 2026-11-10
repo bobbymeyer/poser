@@ -13,16 +13,18 @@ const newId = (prefix) => `${prefix}_${Math.random().toString(36).slice(2, 8)}`;
 
 /** Lane settings a role starts with. */
 export const ROLE_DEFAULTS = {
-  kit: { name: "Kit", instrument: { program: 0, drums: true }, label: "Standard Kit", zones: ["zxc", "vbn"], swing: "straight", pads: DEFAULT_PADS, choke: [[3, 4]] },
+  kit: { name: "Kit", instrument: { program: 0, drums: true }, label: "Standard Kit", zones: ["zxc", "vbn", "m,."], swing: "straight", pads: DEFAULT_PADS, choke: [[3, 4]] },
   bass: { name: "Bass", instrument: { program: 33 }, label: "Fingered Bass", zones: ["asd"],
     mono: { on: true, priority: "lowest", legato: false }, register: [28, 52], swing_follow: true },
   pad: { name: "Pad", instrument: { program: 89 }, label: "Warm Pad", zones: ["qwe"], volume: 84,
     mono: { on: false, priority: "last", legato: false }, register: [50, 76], swing_follow: true },
+  lead: { name: "Lead 1", instrument: { program: 80 }, label: "Square Lead", zones: ["fgh", "jkl"], volume: 96,
+    mono: { on: true, priority: "last", legato: false }, register: [60, 84] },
 };
 
 function lane(role, sf) {
   const { label, instrument, ...rest } = ROLE_DEFAULTS[role];
-  return { id: `l_${role}`, role, instrument: { backend: "soundfont", sf, ...instrument },
+  return { id: role === "lead" ? "l_lead1" : `l_${role}`, role, instrument: { backend: "soundfont", sf, ...instrument },
     volume: 100, pan: 64, mute: false, solo: false, latency_ms: 0, ...rest };
 }
 
@@ -35,7 +37,7 @@ export function newProject() {
     id: newId("prj"), title: "Untitled song", created_at: now, updated_at: now,
     settings: { minor_dominant: true, master_volume: 100 },
     soundfonts: [FACTORY_SOUNDFONT],
-    lanes: [lane("kit", sf), lane("bass", sf), lane("pad", sf)],
+    lanes: [lane("kit", sf), lane("bass", sf), lane("pad", sf), lane("lead", sf)],
     patterns: Object.fromEntries(use.map((id) => [id, structuredClone(FACTORY_BY_ID[id].pattern)])),
     sections: {
       s_1: { name: "Verse", bars, meter: "4/4", tonic: "C", mode: "ionian", bpm: 112, ramp_to_next: false, chords: [],

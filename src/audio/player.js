@@ -70,7 +70,7 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
    * Swap in an edited song. While playing, the playhead keeps its musical position and
    * pitched notes that should be sounding right now are re-struck with the new pitches.
    */
-  function update(nextSong) {
+  function update(nextSong, { restrike = true } = {}) {
     if (!state.playing) return load(nextSong);
     const now = ctx.currentTime, until = now + HORIZON;
     const before = JSON.stringify(events) + resolved.totalSec;
@@ -85,7 +85,7 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     const at = (e) => state.startTime + state.pass * resolved.totalSec + e.sec;
     state.next = events.findIndex((e) => at(e) >= until);
     if (state.next < 0) state.next = events.length;
-    if (JSON.stringify(events) + resolved.totalSec === before) return resolved;
+    if (!restrike || JSON.stringify(events) + resolved.totalSec === before) return resolved;
     for (const r of routes.values())
       if (r.out === "synth" && r.ch !== 9) synth.controllerChange(r.ch, 123, 0, { time: until });
     for (const e of events) {
@@ -127,6 +127,32 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     }
   }
 
+  /** Hold and release a note by hand (live playing). */
+  function noteOn(laneId, pitch, vel) {
+    const r = routes.get(laneId);
+    if (r?.out === "synth") synth.noteOn(r.ch, pitch, vel);
+    else if (r?.out === "midi") r.port.send([0x90 | r.ch, pitch, vel]);
+  }
+  function noteOff(laneId, pitch) {
+    const r = routes.get(laneId);
+    if (r?.out === "synth") synth.noteOff(r.ch, pitch);
+    else if (r?.out === "midi") r.port.send([0x80 | r.ch, pitch, 0]);
+  }
+  /** A metronome click on the drum channel at audio time `t`. */
+  function click(t, accent) { synth.noteOn(9, 37, accent ? 124 : 88, { time: t }); }
+
+  /**
+   * Ticks into the song as it is heard `agoSec` seconds before now, or -1 when stopped or
+   * still in the count-in. Used to place live input.
+   */
+  function heardTicks(agoSec = 0) {
+    if (!state.playing || !resolved) return -1;
+    let t = ctx.currentTime - (ctx.outputLatency || 0) - agoSec - state.startTime;
+    if (t < 0) return -1;
+    if (state.loop) t %= resolved.totalSec; else if (t > resolved.totalSec) return -1;
+    return resolved.tickAt(t);
+  }
+
   /** Play one note right away, outside the timeline (for auditioning). */
   function playNow(laneId, pitch, vel, dur) {
     const r = routes.get(laneId);
@@ -140,9 +166,9 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
     }
   }
 
-  function play({ loop = false } = {}) {
+  function play({ loop = false, delay = 0 } = {}) {
     if (!resolved || state.playing) return;
-    Object.assign(state, { playing: true, loop, startTime: ctx.currentTime + START_DELAY, next: 0, pass: 0, late: 0, scheduled: 0 });
+    Object.assign(state, { playing: true, loop, startTime: ctx.currentTime + START_DELAY + delay, next: 0, pass: 0, late: 0, scheduled: 0 });
     timer.postMessage(TICK_MS);
     pump();
   }
@@ -158,7 +184,8 @@ export function createPlayer({ ctx, synth, master }, { onEnd } = {}) {
   }
 
   return {
-    load, update, play, stop, playNow, state,
+    load, update, play, stop, playNow, noteOn, noteOff, click, heardTicks, state,
+    get startTime() { return state.startTime; },
     get resolved() { return resolved; },
     get routes() { return routes; },
     /** Seconds into the song, or -1 when stopped. */
