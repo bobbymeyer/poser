@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { MODES, METERS, TONICS, scaleNames, leadPitch } from "../core/index.js";
 import {
   deleteLeadPass, editLead, pitchToLead, snapToScale, leadSpan,
-  moveOp, stretchOp, reverseOp, quantizeOp, velocityOp, deleteOp, copyLead, pasteOp,
+  moveOp, stretchOp, reverseOp, quantizeOp, velocityOp, deleteOp, copyLead, pasteOp, invertOp, scaleTimeOp,
 } from "../editor/liveOps.js";
 import { engine } from "../audio/engine.js";
 
@@ -100,6 +100,9 @@ export default function LeadView({ song, inst, lane, section, sounding, liveNote
       setPicked(Array.from({ length: added }, (_, i) => notes.length + i));
     },
     reverse: () => commit(reverseOp(sel)),
+    invert: () => commit(invertOp(sel, section, lane.register)),
+    // Scaling can drop notes off the end of the section, so the selection is cleared rather than left pointing at the wrong ones.
+    scale(factor) { const kept = scaleTimeOp(sel, factor, len)(notes).length === notes.length; commit(scaleTimeOp(sel, factor, len)); if (!kept) setPicked([]); },
     quantize: () => commit(quantizeOp(sel, unit, len)),
     move: (delta) => commit(moveOp(sel, delta, section, lane.register, len), "lead-nudge"),
     velocity: (v) => commit(velocityOp(sel, v), "lead-velocity"),
@@ -263,6 +266,9 @@ export default function LeadView({ song, inst, lane, section, sounding, liveNote
         <button onClick={() => cmd.paste(sel.length ? leadSpan(notes, sel)[1] : 0)} disabled={!clipboard.length} title="⌘V pastes at the pointer">Paste</button>
         <button onClick={cmd.duplicate} disabled={!sel.length} title="⌘D">Duplicate</button>
         <button onClick={cmd.reverse} disabled={sel.length < 2}>Reverse</button>
+        <button onClick={cmd.invert} disabled={sel.length < 2} title="Mirror the melody around its first note">Invert</button>
+        <button onClick={() => cmd.scale(0.5)} disabled={!sel.length} title="Halve lengths and spacing">÷2</button>
+        <button onClick={() => cmd.scale(2)} disabled={!sel.length} title="Double lengths and spacing">×2</button>
         <button onClick={cmd.quantize} disabled={!sel.length} title="Snap starts to the grid">Quantize</button>
         <button onClick={cmd.remove} disabled={!sel.length} title="⌫">Delete</button>
         <label className={sel.length ? "" : "off"}>Velocity

@@ -302,3 +302,46 @@ export function pasteOp(clip, at, len) {
     return fresh.length ? [...list, ...fresh] : list;
   };
 }
+
+/**
+ * Turn a melody upside down: each chosen note is mirrored, by scale steps, around the earliest
+ * one, which stays where it is. Accidentals flip with it. Nothing changes if a note would leave the range.
+ */
+export function invertOp(indices, section, register) {
+  return (list) => {
+    const chosen = indices.filter((i) => list[i]);
+    if (chosen.length < 2) return list;
+    const axis = chosen.reduce((a, i) => (list[i].start < list[a].start ? i : a), chosen[0]);
+    const at = (n) => n.oct * 7 + n.deg - 1, mid = at(list[axis]);
+    const base = pitchAtOrAbove(TONICS[section.tonic], register[0]);
+    const next = only(chosen, (n, i) => {
+      if (i === axis) return n;
+      const k = 2 * mid - at(n);
+      return { ...n, deg: mod(k, 7) + 1, oct: Math.floor(k / 7), acc: -n.acc || 0 };
+    })(list);
+    const ok = chosen.every((i) => {
+      const n = next[i], p = base + MODES[section.mode][n.deg - 1] + n.acc + 12 * n.oct;
+      return p >= 0 && p <= 127 && n.oct >= -4 && n.oct <= 4;
+    });
+    return ok ? next : list;
+  };
+}
+
+/**
+ * Halve or double the chosen notes in time (`factor` 0.5 or 2): lengths and the gaps between
+ * them scale together from the first note. Notes pushed past the end of the section are
+ * dropped, and one that crosses it is cut to fit.
+ */
+export function scaleTimeOp(indices, factor, len) {
+  return (list) => {
+    const chosen = new Set(indices.filter((i) => list[i]));
+    if (!chosen.size) return list;
+    const [a] = leadSpan(list, [...chosen]);
+    return list.flatMap((n, i) => {
+      if (!chosen.has(i)) return [n];
+      const start = Math.round(a + (n.start - a) * factor);
+      if (start >= len) return [];
+      return [{ ...n, start, len: Math.max(10, Math.min(Math.round(n.len * factor), len - start)) }];
+    });
+  };
+}

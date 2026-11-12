@@ -5,7 +5,7 @@ import { notesOf } from "../src/editor/patternOps.js";
 import { copyLinked } from "../src/editor/arrangeOps.js";
 import {
   ZONES, keyMap, claimZone, releaseZone, ensureLead, leadKey, pitchToLead, nextPass, deleteLeadPass, deleteLeadNote, applyTake, emptyTake, takeIsEmpty, snapToScale, addLeadNote, updateLeadNote,
-  editLead, leadSpan, shiftLeadNote, moveOp, stretchOp, reverseOp, quantizeOp, velocityOp, deleteOp, copyLead, pasteOp,
+  editLead, leadSpan, shiftLeadNote, moveOp, stretchOp, reverseOp, quantizeOp, velocityOp, deleteOp, copyLead, pasteOp, invertOp, scaleTimeOp,
 } from "../src/editor/liveOps.js";
 import { leadPitch } from "../src/core/theory.js";
 import { MODES, TONICS } from "../src/core/rails.js";
@@ -228,6 +228,25 @@ describe("editing several lead notes at once", () => {
     const l = list();
     expect(pasteOp(clip, LEN, LEN)(l)).toBe(l);
     expect(copyLead(l, [])).toEqual([]);
+  });
+  it("inverts a melody around its first note, by scale steps", () => {
+    const up = [N(0, 240, 60), N(240, 240, 64), N(480, 240, 67), N(720, 240, 72)]; // C E G C'
+    expect(show(invertOp([0, 1, 2, 3], C, REG)(up)).map((n) => n[2])).toEqual([60, 57, 53, 48]); // C A F C,
+    expect(show(invertOp([0, 1, 2, 3], C, REG)(invertOp([0, 1, 2, 3], C, REG)(up)))).toEqual(show(up));
+    expect(show(invertOp([1, 2], C, REG)(up)).map((n) => n[2])).toEqual([60, 64, 60, 72]); // around E: G becomes C
+    const sharp = [N(0, 240, 64), N(240, 240, 66)]; // E, F#: two steps up with a sharp
+    expect(invertOp([0, 1], C, REG)(sharp)[1]).toMatchObject({ deg: 2, acc: -1 }); // D flat: mirrored
+    const l = list();
+    expect(invertOp([0], C, REG)(l)).toBe(l);
+  });
+  it("halves and doubles in time from the first note, cutting what crosses the end", () => {
+    expect(show(scaleTimeOp([0, 1, 2], 0.5, LEN)(list())).slice(0, 3)).toEqual([[0, 120, 60], [120, 240, 64], [480, 120, 67]]);
+    expect(show(scaleTimeOp([1, 2], 2, LEN)(list())).slice(1, 3)).toEqual([[240, 960, 64], [1680, 480, 67]]);
+    expect(show(scaleTimeOp([0, 1, 2], 2, LEN)(scaleTimeOp([0, 1, 2], 0.5, LEN)(list())))).toEqual(show(list()));
+    const late = [N(1920, 480, 60), N(2880, 960, 64), N(3600, 240, 67)];
+    expect(show(scaleTimeOp([0, 1, 2], 2, LEN)(late))).toEqual([[1920, 960, 60]]); // the other two would start past the end
+    expect(show(scaleTimeOp([0, 1], 2, LEN)([N(1920, 480, 60), N(2400, 1000, 64)]))).toEqual([[1920, 960, 60], [2880, 960, 64]]);
+    expect(show(scaleTimeOp([0], 0.5, LEN)(list()))[0]).toEqual([0, 120, 60]);
   });
   it("applies an operation to the stored song and leaves it alone when nothing changes", () => {
     let song = newProject();
