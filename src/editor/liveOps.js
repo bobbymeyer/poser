@@ -180,3 +180,29 @@ export function applyTake(song, inst, take, { quant = 120 } = {}) {
   }
   return song;
 }
+
+// ---- editing lead notes by hand
+
+/** The nearest pitch that is in the section's scale (the lower one on a tie). */
+export function snapToScale(pitch, { tonic, mode }) {
+  const inScale = (p) => MODES[mode].includes(mod(p - TONICS[tonic], 12));
+  return pitch + [0, -1, 1, -2, 2].find((d) => inScale(pitch + d));
+}
+
+/**
+ * Draw a note: `{ start, len, deg, acc, oct, vel }`. It joins the newest pass (or starts pass 1),
+ * so drawn notes and recorded ones are deleted and muted together.
+ * @returns `{ song, index }`, the note's index in the lane's list.
+ */
+export function addLeadNote(song, inst, laneId, note) {
+  const notes = song.arrangement[inst].leads?.[laneId]?.notes || [];
+  const pass = notes.reduce((m, n) => Math.max(m, n.pass), 0) || 1;
+  return { song: withLead(song, inst, laneId, (list) => [...list, { ...note, pass }]), index: notes.length };
+}
+
+/** Move, re-pitch or stretch a note: `patch` may carry `start`, `len`, `deg`, `acc`, `oct`. */
+export function updateLeadNote(song, inst, laneId, index, patch) {
+  const cur = song.arrangement[inst].leads?.[laneId]?.notes?.[index];
+  if (!cur || Object.entries(patch).every(([k, v]) => cur[k] === v)) return song;
+  return withLead(song, inst, laneId, (list) => list.map((n, i) => (i === index ? { ...n, ...patch } : n)));
+}

@@ -73,7 +73,7 @@ Rules as built:
 | Recording logic | `src/editor/liveOps.js` | Pure functions: zones and key map, claim and release, lead keys, MIDI pitch to lead note, and `applyTake`, which applies one loop pass of playing to the song |
 | Live controller | `src/app/live.js` | Turns key presses and MIDI notes into sound, and into a take while recording. Hands the take over when the loop comes round |
 | Overlay and bottom bar | `src/app/Live.jsx` | Keyboard tinted by lane with the note under each key, zone assignment, record context, count-in, latency, MIDI keyboard, undo |
-| Lead view | `src/app/LeadView.jsx` | Read view with tinted passes, mute and delete per pass, delete per note, dashed outlines for notes the mono filter silences |
+| Lead view | `src/app/LeadView.jsx` | A piano roll across the lane's register. Draw a note by dragging on the grid, drag a note to move or re-pitch it, drag its right edge to stretch it, right-click or ⌫ to delete it. Passes are tinted, with mute and delete per pass, and dashed outlines for notes the mono filter silences |
 
 How it behaves:
 
@@ -81,6 +81,7 @@ How it behaves:
 - **Record** (`⇧ Space`) works over "Loop section". Each loop pass is applied in one step when the loop comes round, so you hear a pass back on the next time through and one pass is one undo step.
 - **Drums:** a hit replaces that pad on the nearest step of whichever pattern is playing (groove or fill). ⌥ is a ghost, ⇧ an accent. Hold ⌫ and tap a pad to erase it; with the kit lane selected while recording, ⌫ alone clears the pattern.
 - **Bass and pad:** keys are chord tones 1-3. A played step replaces what was on that step. They sound against the chord under the playhead ("Follow song") or the chord before the cursor ("Pinned").
+- **Editing leads:** recorded and drawn notes are edited the same way. Notes snap to the key and to the Snap grid; ⇧ allows a note outside the key. A drawn note joins the newest pass.
 - **Leads:** six keys are six scale degrees; ← → slide them along the scale, ↑ ↓ change octave, ⇧ raises a semitone. Notes snap to the quantize grid as recorded and are tagged with a pass number.
 - **MIDI keyboard:** plays and records the selected lead lane (or the first one).
 - **Timing:** key presses are placed where they were heard: the audio output latency is subtracted, plus the "Input latency" trim, which is saved per browser.

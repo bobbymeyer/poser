@@ -4,7 +4,7 @@ import { enter } from "../src/editor/chordOps.js";
 import { notesOf } from "../src/editor/patternOps.js";
 import { copyLinked } from "../src/editor/arrangeOps.js";
 import {
-  ZONES, keyMap, claimZone, releaseZone, ensureLead, leadKey, pitchToLead, nextPass, deleteLeadPass, deleteLeadNote, applyTake, emptyTake, takeIsEmpty,
+  ZONES, keyMap, claimZone, releaseZone, ensureLead, leadKey, pitchToLead, nextPass, deleteLeadPass, deleteLeadNote, applyTake, emptyTake, takeIsEmpty, snapToScale, addLeadNote, updateLeadNote,
 } from "../src/editor/liveOps.js";
 import { leadPitch } from "../src/core/theory.js";
 import { MODES, TONICS } from "../src/core/rails.js";
@@ -142,5 +142,35 @@ describe("applying a take", () => {
     const song = base(), section = song.sections.s_1, bass = song.lanes[1];
     const v = laneVoicings(resolveChords(song, section), bass);
     expect(v.map((x) => x[0])).toEqual([36, 31, 33, 29]);
+  });
+});
+
+describe("editing lead notes by hand", () => {
+  const C = { tonic: "C", mode: "ionian" }, REG = [60, 84];
+  const note = (pitch, start, len = 240) => ({ start, len, ...pitchToLead(pitch, C, REG), vel: 100 });
+  const pitches = (song) => song.arrangement[0].leads.l_lead1.notes.map((n) => [n.start, n.len, leadPitch(n, C, REG), n.pass]);
+  it("snaps a pitch to the scale, lower on a tie", () => {
+    expect([60, 61, 62, 63, 66, 70, 71].map((p) => snapToScale(p, C))).toEqual([60, 60, 62, 62, 65, 69, 71]);
+    expect(snapToScale(61, { tonic: "D", mode: "aeolian" })).toBe(60);
+    for (let p = 40; p < 90; p++) expect(pitchToLead(snapToScale(p, { tonic: "F#", mode: "locrian" }), { tonic: "F#", mode: "locrian" }, REG).acc).toBe(0);
+  });
+  it("draws into an empty lane as pass 1, and into the newest pass after recording", () => {
+    let r = addLeadNote(newProject(), 0, "l_lead1", note(67, 0));
+    expect(r.index).toBe(0);
+    expect(pitches(r.song)).toEqual([[0, 240, 67, 1]]);
+    let song = applyTake(r.song, 0, { ...emptyTake(), leads: [{ laneId: "l_lead1", start: 480, len: 200, deg: 1, acc: 0, oct: 0, vel: 96 }] });
+    r = addLeadNote(song, 0, "l_lead1", note(73, 960));
+    expect(r.index).toBe(2);
+    expect(pitches(r.song)).toEqual([[0, 240, 67, 1], [480, 200, 60, 2], [960, 240, 73, 2]]);
+    expect(validateSong(r.song)).toMatchObject({ ok: true, errors: [] });
+  });
+  it("drags, re-pitches and stretches a note, leaving the others and the pass alone", () => {
+    let song = addLeadNote(addLeadNote(newProject(), 0, "l_lead1", note(67, 0)).song, 0, "l_lead1", note(64, 480)).song;
+    song = updateLeadNote(song, 0, "l_lead1", 0, { start: 240, ...pitchToLead(72, C, REG) });
+    song = updateLeadNote(song, 0, "l_lead1", 1, { len: 960 });
+    expect(pitches(song)).toEqual([[240, 240, 72, 1], [480, 960, 64, 1]]);
+    expect(updateLeadNote(song, 0, "l_lead1", 1, { len: 960 })).toBe(song);
+    expect(updateLeadNote(song, 0, "l_lead1", 9, { len: 1 })).toBe(song);
+    expect(resolveSong(song).notes.filter((n) => n.lane === "l_lead1").map((n) => n.pitch)).toEqual([72, 64]);
   });
 });
