@@ -81,7 +81,10 @@ How it behaves:
 - **Record** (`⇧ Space`) works over "Loop section". Each loop pass is applied in one step when the loop comes round, so you hear a pass back on the next time through and one pass is one undo step.
 - **Drums:** a hit replaces that pad on the nearest step of whichever pattern is playing (groove or fill). ⌥ is a ghost, ⇧ an accent. Hold ⌫ and tap a pad to erase it; with the kit lane selected while recording, ⌫ alone clears the pattern.
 - **Bass and pad:** keys are chord tones 1-3. A played step replaces what was on that step. They sound against the chord under the playhead ("Follow song") or the chord before the cursor ("Pinned").
-- **Editing leads:** recorded and drawn notes are edited the same way. Notes snap to the key and to the Snap grid; ⇧ allows a note outside the key. A drawn note joins the newest pass.
+- **Editing leads:** recorded and drawn notes are edited the same way. Notes snap to the key and to the Snap grid; ⇧ allows a note outside the key. Drawn and pasted notes join the newest pass.
+- **Selecting:** the Select tool (or ⌘-drag) draws a box around notes; ⇧-click adds or drops one; ⌘A takes all. Dragging a selected note moves the whole selection, in key by scale steps or with ⇧ by semitones; dragging a right edge stretches them all.
+- **Selection commands:** copy, cut, paste (at the pointer), duplicate, reverse, quantize, delete, and a velocity slider. Arrow keys nudge in time and transpose by scale step (⇧ semitone, ⌥ octave). The clipboard lasts for the page, so notes can be pasted into another section or lane, where they take that section's key.
+- **Keyboard focus:** the roll takes these keys after a click inside it and gives them back on a click elsewhere, so ⌫ and the arrows still edit chords when the roll is not in use.
 - **Leads:** six keys are six scale degrees; ← → slide them along the scale, ↑ ↓ change octave, ⇧ raises a semitone. Notes snap to the quantize grid as recorded and are tagged with a pass number.
 - **MIDI keyboard:** plays and records the selected lead lane (or the first one).
 - **Timing:** key presses are placed where they were heard: the audio output latency is subtracted, plus the "Input latency" trim, which is saved per browser.

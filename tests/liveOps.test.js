@@ -5,6 +5,7 @@ import { notesOf } from "../src/editor/patternOps.js";
 import { copyLinked } from "../src/editor/arrangeOps.js";
 import {
   ZONES, keyMap, claimZone, releaseZone, ensureLead, leadKey, pitchToLead, nextPass, deleteLeadPass, deleteLeadNote, applyTake, emptyTake, takeIsEmpty, snapToScale, addLeadNote, updateLeadNote,
+  editLead, leadSpan, shiftLeadNote, moveOp, stretchOp, reverseOp, quantizeOp, velocityOp, deleteOp, copyLead, pasteOp,
 } from "../src/editor/liveOps.js";
 import { leadPitch } from "../src/core/theory.js";
 import { MODES, TONICS } from "../src/core/rails.js";
@@ -172,5 +173,69 @@ describe("editing lead notes by hand", () => {
     expect(updateLeadNote(song, 0, "l_lead1", 1, { len: 960 })).toBe(song);
     expect(updateLeadNote(song, 0, "l_lead1", 9, { len: 1 })).toBe(song);
     expect(resolveSong(song).notes.filter((n) => n.lane === "l_lead1").map((n) => n.pitch)).toEqual([72, 64]);
+  });
+});
+
+describe("editing several lead notes at once", () => {
+  const C = { tonic: "C", mode: "ionian" }, REG = [60, 84], LEN = 2 * 1920;
+  const N = (start, len, pitch, pass = 1) => ({ start, len, ...pitchToLead(pitch, C, REG), vel: 100, pass });
+  const list = () => [N(0, 240, 60), N(240, 480, 64), N(960, 240, 67), N(1920, 240, 61)];
+  const show = (l) => l.map((n) => [n.start, n.len, leadPitch(n, C, REG)]);
+  it("moves a group in time, held inside the section as a group", () => {
+    expect(show(moveOp([0, 1], { dTick: 480 }, C, REG, LEN)(list())).slice(0, 2)).toEqual([[480, 240, 60], [720, 480, 64]]);
+    expect(show(moveOp([0, 1], { dTick: -999 }, C, REG, LEN)(list())).slice(0, 2)).toEqual([[0, 240, 60], [240, 480, 64]]);
+    expect(show(moveOp([2, 3], { dTick: 99999 }, C, REG, LEN)(list())).slice(2)).toEqual([[2640, 240, 67], [3600, 240, 61]]);
+    const l = list();
+    expect(moveOp([], { dTick: 480 }, C, REG, LEN)(l)).toBe(l);
+    expect(moveOp([0], {}, C, REG, LEN)(l)).toBe(l);
+  });
+  it("transposes by scale steps keeping accidentals, or by semitones", () => {
+    expect(show(moveOp([0, 1, 2, 3], { steps: 2 }, C, REG, LEN)(list())).map((n) => n[2])).toEqual([64, 67, 71, 65]); // C#  -> E#
+    expect(show(moveOp([0, 1], { steps: -1 }, C, REG, LEN)(list())).map((n) => n[2]).slice(0, 2)).toEqual([59, 62]);
+    expect(show(moveOp([0, 1], { steps: 7 }, C, REG, LEN)(list())).map((n) => n[2]).slice(0, 2)).toEqual([72, 76]);
+    expect(show(moveOp([0, 1], { semis: 1 }, C, REG, LEN)(list())).map((n) => n[2]).slice(0, 2)).toEqual([61, 65]);
+    expect(shiftLeadNote(N(0, 1, 71), { steps: 1 }, C, REG)).toMatchObject({ deg: 1, oct: 1 });
+    const l = list();
+    expect(moveOp([0], { steps: 60 }, C, REG, LEN)(l)).toBe(l); // would leave the range: nothing moves
+  });
+  it("stretches a group by the same amount, within limits", () => {
+    expect(show(stretchOp([0, 1], 240, 120, LEN)(list())).slice(0, 2)).toEqual([[0, 480, 60], [240, 720, 64]]);
+    expect(show(stretchOp([0, 1], -9999, 120, LEN)(list())).slice(0, 2)).toEqual([[0, 120, 60], [240, 120, 64]]);
+    expect(show(stretchOp([3], 99999, 120, LEN)(list()))[3]).toEqual([1920, 1920, 61]);
+  });
+  it("reverses the chosen notes inside their own span", () => {
+    expect(leadSpan(list(), [0, 1, 2])).toEqual([0, 1200]);
+    expect(show(reverseOp([0, 1, 2])(list()))).toEqual([[960, 240, 60], [480, 480, 64], [0, 240, 67], [1920, 240, 61]]);
+    expect(show(reverseOp([0, 1, 2])(reverseOp([0, 1, 2])(list())))).toEqual(show(list()));
+    const l = list();
+    expect(reverseOp([1])(l)).toBe(l);
+  });
+  it("quantizes starts, sets velocity, deletes", () => {
+    const loose = [N(110, 200, 60), N(500, 200, 62), N(LEN - 20, 20, 64)];
+    expect(quantizeOp([0, 1, 2], 240, LEN)(loose).map((n) => [n.start, n.len])).toEqual([[0, 200], [480, 200], [LEN - 1, 1]]);
+    expect(velocityOp([1], 300)(list()).map((n) => n.vel)).toEqual([100, 127, 100, 100]);
+    expect(show(deleteOp([0, 2])(list()))).toEqual([[240, 480, 64], [1920, 240, 61]]);
+  });
+  it("copies and pastes, dropping what falls off the end", () => {
+    const clip = copyLead(list(), [2, 1]);
+    expect(clip.map((c) => [c.dt, c.len, c.deg])).toEqual([[0, 480, 3], [720, 240, 5]]);
+    expect(clip[0].pass).toBeUndefined();
+    const withPass2 = [...list(), N(3000, 100, 72, 2)];
+    const pasted = pasteOp(clip, 2400, LEN)(withPass2);
+    expect(show(pasted).slice(5)).toEqual([[2400, 480, 64], [3120, 240, 67]]);
+    expect(pasted.slice(5).map((n) => n.pass)).toEqual([2, 2]);
+    expect(show(pasteOp(clip, LEN - 240, LEN)(list())).slice(4)).toEqual([[LEN - 240, 240, 64]]);
+    const l = list();
+    expect(pasteOp(clip, LEN, LEN)(l)).toBe(l);
+    expect(copyLead(l, [])).toEqual([]);
+  });
+  it("applies an operation to the stored song and leaves it alone when nothing changes", () => {
+    let song = newProject();
+    for (const n of list()) song = addLeadNote(song, 0, "l_lead1", { start: n.start, len: n.len, deg: n.deg, acc: n.acc, oct: n.oct, vel: 100 }).song;
+    const moved = editLead(song, 0, "l_lead1", moveOp([0, 1], { dTick: 240, steps: 1 }, C, REG, LEN));
+    expect(show(moved.arrangement[0].leads.l_lead1.notes).slice(0, 2)).toEqual([[240, 240, 62], [480, 480, 65]]);
+    expect(validateSong(moved)).toMatchObject({ ok: true, errors: [] });
+    expect(editLead(song, 0, "l_lead1", moveOp([], { dTick: 240 }, C, REG, LEN))).toBe(song);
+    expect(editLead(song, 0, "l_lead1", deleteOp([0, 1, 2, 3])).arrangement[0].leads).toEqual({});
   });
 });

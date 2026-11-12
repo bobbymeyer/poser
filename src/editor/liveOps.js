@@ -206,3 +206,99 @@ export function updateLeadNote(song, inst, laneId, index, patch) {
   if (!cur || Object.entries(patch).every(([k, v]) => cur[k] === v)) return song;
   return withLead(song, inst, laneId, (list) => list.map((n, i) => (i === index ? { ...n, ...patch } : n)));
 }
+
+// ---- editing several lead notes at once
+// Each `...Op` returns a function from a lane's note list to a new list, so the editor can
+// preview it on the notes on screen and then apply the same thing to the stored song.
+
+/** Apply a list operation to a lane's lead notes on one instance. */
+export const editLead = (song, inst, laneId, op) => {
+  const before = song.arrangement[inst].leads?.[laneId]?.notes || [];
+  const after = op(before);
+  return after === before ? song : withLead(song, inst, laneId, () => after);
+};
+
+const only = (indices, fn) => (list) => {
+  const set = new Set(indices);
+  return list.map((n, i) => (set.has(i) ? fn(n, i) : n));
+};
+
+/** `[start, end]` covered by the chosen notes. */
+export function leadSpan(list, indices) {
+  const chosen = indices.map((i) => list[i]).filter(Boolean);
+  return [Math.min(...chosen.map((n) => n.start)), Math.max(...chosen.map((n) => n.start + n.len))];
+}
+
+/** A note moved by scale steps (keeping any accidental) and then by semitones. */
+export function shiftLeadNote(n, { steps = 0, semis = 0 }, section, register) {
+  let out = n;
+  if (steps) {
+    const at = n.oct * 7 + n.deg - 1 + steps;
+    out = { ...out, deg: mod(at, 7) + 1, oct: Math.floor(at / 7) };
+  }
+  if (semis) {
+    const base = pitchAtOrAbove(TONICS[section.tonic], register[0]);
+    const pitch = base + MODES[section.mode][out.deg - 1] + out.acc + 12 * out.oct + semis;
+    out = { ...out, ...pitchToLead(pitch, section, register) };
+  }
+  return out;
+}
+
+/**
+ * Move notes together: `dTick` in time (held inside the section as a group), `steps` up the
+ * scale, `semis` chromatically. Nothing moves if a note would leave the MIDI range.
+ */
+export function moveOp(indices, { dTick = 0, steps = 0, semis = 0 }, section, register, len) {
+  return (list) => {
+    if (!indices.length) return list;
+    const [a, b] = leadSpan(list, indices);
+    const dt = Math.max(-a, Math.min(len - b, dTick));
+    if (!dt && !steps && !semis) return list;
+    const base = pitchAtOrAbove(TONICS[section.tonic], register[0]);
+    const pitchOf = (n) => base + MODES[section.mode][n.deg - 1] + n.acc + 12 * n.oct;
+    const next = only(indices, (n) => ({ ...shiftLeadNote(n, { steps, semis }, section, register), start: n.start + dt }))(list);
+    return indices.every((i) => { const p = pitchOf(next[i]); return p >= 0 && p <= 127 && next[i].oct >= -4 && next[i].oct <= 4; }) ? next : list;
+  };
+}
+
+/** Lengthen or shorten notes by the same amount, each kept between `min` and the end of the section. */
+export const stretchOp = (indices, dLen, min, len) =>
+  only(indices, (n) => ({ ...n, len: Math.max(Math.min(min, len - n.start), Math.min(len - n.start, n.len + dLen)) }));
+
+/** Play the chosen notes backwards: each one's end becomes its start, mirrored inside their span. */
+export function reverseOp(indices) {
+  return (list) => {
+    if (indices.length < 2) return list;
+    const [a, b] = leadSpan(list, indices);
+    return only(indices, (n) => ({ ...n, start: a + b - (n.start + n.len) }))(list);
+  };
+}
+
+/** Snap the chosen notes' starts to a grid. */
+export const quantizeOp = (indices, grid, len) =>
+  only(indices, (n) => { const start = Math.min(Math.round(n.start / grid) * grid, len - 1); return { ...n, start, len: Math.min(n.len, len - start) }; });
+
+export const velocityOp = (indices, vel) => only(indices, (n) => ({ ...n, vel: Math.max(1, Math.min(127, Math.round(vel))) }));
+
+export const deleteOp = (indices) => (list) => { const set = new Set(indices); return list.filter((_, i) => !set.has(i)); };
+
+/** The chosen notes as a clip: starts measured from the first one, passes left behind. */
+export function copyLead(list, indices) {
+  const chosen = indices.map((i) => list[i]).filter(Boolean).sort((x, y) => x.start - y.start);
+  if (!chosen.length) return [];
+  const t0 = chosen[0].start;
+  return chosen.map(({ start, len, deg, acc, oct, vel }) => ({ dt: start - t0, len, deg, acc, oct, vel }));
+}
+
+/**
+ * Paste a clip with its first note at `at`. Notes that would start past the end are dropped and
+ * the last one is cut to fit. Pasted notes join the newest pass and come last in the list.
+ */
+export function pasteOp(clip, at, len) {
+  return (list) => {
+    const pass = list.reduce((m, n) => Math.max(m, n.pass), 0) || 1;
+    const fresh = clip.filter((c) => at + c.dt < len)
+      .map(({ dt, ...n }) => ({ start: at + dt, ...n, len: Math.min(n.len, len - at - dt), pass }));
+    return fresh.length ? [...list, ...fresh] : list;
+  };
+}

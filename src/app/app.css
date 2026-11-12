@@ -305,3 +305,15 @@ button.chip { font-weight: 400; cursor: pointer; text-align: left; }
 .rows .tag { font-style: normal; }
 .storage { margin: 14px 0; }
 @media (max-width: 760px) { .lock { margin-left: 12px; margin-right: 12px; } }
+
+/* ---- lead roll: selection tools */
+.editor.focused { border-color: #B8B4A9; }
+.lead-grid.tool-select { cursor: default; }
+.marquee { position: absolute; border: 1px dashed var(--ink); background: rgba(47, 75, 138, .12); pointer-events: none; }
+.lead-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; }
+.lead-tools .count { font: 12px var(--mono); color: var(--muted); min-width: 118px; }
+.lead-tools button { padding: 3px 10px; font-size: 13px; }
+.lead-tools label { display: flex; align-items: center; gap: 6px; margin-left: 8px; color: var(--muted); }
+.lead-tools label.off { opacity: .45; }
+.lead-tools input[type=range] { width: 110px; }
+.lead-tools .mono { color: var(--ink); min-width: 26px; }

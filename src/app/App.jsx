@@ -658,7 +658,7 @@ export default function App() {
           liveNotes={liveNotes} recording={recording} lead={lead} quant={live.quant} setQuant={(q) => setLive({ quant: q })}
           muted={new Set(muted[muteKey] || [])}
           onMute={(p) => setMuted((m) => { const cur = m[muteKey] || []; return { ...m, [muteKey]: cur.includes(p) ? cur.filter((x) => x !== p) : [...cur, p] }; })}
-          onSong={(s) => api.replace(s)} />
+          onSong={(s, group) => api.replace(s, undefined, group)} />
       )}
 
       {!picked && <div className="row2">
