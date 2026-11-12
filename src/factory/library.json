@@ -1,0 +1,3122 @@
+{
+ "library_version": 1,
+ "patterns": [
+  {
+   "id": "pt_rock16",
+   "tag": "straight · rock",
+   "swing": "straight",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Rock 16",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 15,
+      "pad": 2,
+      "lv": "g"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 4,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_four",
+   "tag": "straight · house",
+   "swing": "straight",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Four on the floor",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 4,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 2,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 5,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 5,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_boombap",
+   "tag": "light swing · hip-hop",
+   "swing": "light",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Boom-bap",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 7,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 12,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 3,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_halftime",
+   "tag": "straight · ballad",
+   "swing": "straight",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Half-time",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 6,
+      "pad": 1,
+      "lv": "g"
+     },
+     {
+      "step": 10,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 3,
+      "lv": "g"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_shuffle",
+   "tag": "shuffle · blues",
+   "swing": "shuffle",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Shuffle",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 3,
+      "pad": 1,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 7,
+      "pad": 1,
+      "lv": "g"
+     },
+     {
+      "step": 2,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 1,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 3,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 5,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 7,
+      "pad": 3,
+      "lv": "g"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_fill1",
+   "tag": "fill",
+   "fill": true,
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Fill 1",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 11,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 14,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 15,
+      "pad": 8,
+      "lv": "a"
+     },
+     {
+      "step": 12,
+      "pad": 9,
+      "lv": "n"
+     },
+     {
+      "step": 13,
+      "pad": 9,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass_long",
+   "tag": "whole notes",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Long roots",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/4",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 4,
+      "vel": 96
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass_drive",
+   "tag": "steady 8ths",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Driving 8ths",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 100
+     },
+     {
+      "step": 1,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 82
+     },
+     {
+      "step": 2,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 100
+     },
+     {
+      "step": 3,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 82
+     },
+     {
+      "step": 4,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 100
+     },
+     {
+      "step": 5,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 82
+     },
+     {
+      "step": 6,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 100
+     },
+     {
+      "step": 7,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 82
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass8",
+   "tag": "root, fifth, third",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Walking 8ths",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 100
+     },
+     {
+      "step": 2,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 80
+     },
+     {
+      "step": 3,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 80
+     },
+     {
+      "step": 4,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 100
+     },
+     {
+      "step": 6,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 80
+     },
+     {
+      "step": 7,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 80
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass_r5o",
+   "tag": "root, fifth, octave",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Root-fifth-octave",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 100
+     },
+     {
+      "step": 2,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 84
+     },
+     {
+      "step": 3,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 84,
+      "oct": 1
+     },
+     {
+      "step": 4,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 100
+     },
+     {
+      "step": 6,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 84
+     },
+     {
+      "step": 7,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 84,
+      "oct": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_pad1",
+   "tag": "held chords",
+   "pattern": {
+    "kind": "pitched",
+    "role": "pad",
+    "name": "Whole-note triads",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/4",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "len": 4,
+      "vel": 70
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_pad_pulse",
+   "tag": "two per bar",
+   "pattern": {
+    "kind": "pitched",
+    "role": "pad",
+    "name": "Half-note pulse",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/4",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "len": 2,
+      "vel": 76
+     },
+     {
+      "step": 2,
+      "tones": [
+       1,
+       2,
+       3,
+       4
+      ],
+      "len": 2,
+      "vel": 66
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_pad_arp",
+   "tag": "up and back",
+   "pattern": {
+    "kind": "pitched",
+    "role": "pad",
+    "name": "8th arpeggio",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 82
+     },
+     {
+      "step": 1,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 68
+     },
+     {
+      "step": 2,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 68
+     },
+     {
+      "step": 3,
+      "tones": [
+       4
+      ],
+      "len": 2,
+      "vel": 68
+     },
+     {
+      "step": 4,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 82
+     },
+     {
+      "step": 5,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 68
+     },
+     {
+      "step": 6,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 68
+     },
+     {
+      "step": 7,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 68
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_disco",
+   "tag": "straight · disco",
+   "swing": "straight",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Disco 16",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 4,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 12,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 1,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 3,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 5,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 7,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 9,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 11,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 13,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 15,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 2,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 4,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 4,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bossa",
+   "tag": "straight · bossa",
+   "swing": "straight",
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Bossa",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 3,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 11,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 8,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 0,
+      "pad": 7,
+      "lv": "n"
+     },
+     {
+      "step": 3,
+      "pad": 7,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 7,
+      "lv": "n"
+     },
+     {
+      "step": 10,
+      "pad": 7,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 7,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_fill2",
+   "tag": "fill · snare build",
+   "fill": true,
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Fill 2",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 2,
+      "lv": "g"
+     },
+     {
+      "step": 10,
+      "pad": 2,
+      "lv": "g"
+     },
+     {
+      "step": 12,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 13,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 2,
+      "lv": "n"
+     },
+     {
+      "step": 15,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 0,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 2,
+      "pad": 3,
+      "lv": "g"
+     },
+     {
+      "step": 4,
+      "pad": 3,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 3,
+      "lv": "g"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_fill3",
+   "tag": "fill · toms",
+   "fill": true,
+   "pattern": {
+    "kind": "drum",
+    "role": "kit",
+    "name": "Fill 3",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "hits": [
+     {
+      "step": 0,
+      "pad": 1,
+      "lv": "a"
+     },
+     {
+      "step": 4,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 8,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 1,
+      "lv": "n"
+     },
+     {
+      "step": 4,
+      "pad": 2,
+      "lv": "a"
+     },
+     {
+      "step": 8,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 9,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 11,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 12,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 14,
+      "pad": 8,
+      "lv": "n"
+     },
+     {
+      "step": 15,
+      "pad": 8,
+      "lv": "a"
+     },
+     {
+      "step": 2,
+      "pad": 9,
+      "lv": "n"
+     },
+     {
+      "step": 3,
+      "pad": 9,
+      "lv": "n"
+     },
+     {
+      "step": 6,
+      "pad": 9,
+      "lv": "n"
+     },
+     {
+      "step": 7,
+      "pad": 9,
+      "lv": "n"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass_off",
+   "tag": "offbeat octaves",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Offbeat octaves",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 1,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 96
+     },
+     {
+      "step": 3,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 88,
+      "oct": 1
+     },
+     {
+      "step": 5,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 96
+     },
+     {
+      "step": 7,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 88,
+      "oct": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_bass_sync",
+   "tag": "pushed 16ths",
+   "pattern": {
+    "kind": "pitched",
+    "role": "bass",
+    "name": "Syncopated",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 3,
+      "vel": 104
+     },
+     {
+      "step": 3,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 84
+     },
+     {
+      "step": 6,
+      "tones": [
+       1
+      ],
+      "len": 3,
+      "vel": 96
+     },
+     {
+      "step": 10,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 88
+     },
+     {
+      "step": 12,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 92
+     },
+     {
+      "step": 14,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 84
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_pad_off",
+   "tag": "offbeat stabs",
+   "pattern": {
+    "kind": "pitched",
+    "role": "pad",
+    "name": "Offbeat stabs",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 1,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 74
+     },
+     {
+      "step": 3,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 74
+     },
+     {
+      "step": 5,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 74
+     },
+     {
+      "step": 7,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 74
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_arp_up16",
+   "tag": "rising 16ths",
+   "pattern": {
+    "kind": "pitched",
+    "role": "arp",
+    "name": "Up 16ths",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 1,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 2,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 3,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 4,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 5,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 6,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 7,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 8,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 9,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 10,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 11,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 12,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 13,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 14,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 62
+     },
+     {
+      "step": 15,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 62
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_arp_updown",
+   "tag": "8ths, up and back",
+   "pattern": {
+    "kind": "pitched",
+    "role": "arp",
+    "name": "Up and down",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 1,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 64
+     },
+     {
+      "step": 2,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 3,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 64
+     },
+     {
+      "step": 4,
+      "tones": [
+       5
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 5,
+      "tones": [
+       4
+      ],
+      "len": 1,
+      "vel": 64
+     },
+     {
+      "step": 6,
+      "tones": [
+       3
+      ],
+      "len": 1,
+      "vel": 78
+     },
+     {
+      "step": 7,
+      "tones": [
+       2
+      ],
+      "len": 1,
+      "vel": 64
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_arp_trip",
+   "tag": "8th triplets",
+   "pattern": {
+    "kind": "pitched",
+    "role": "arp",
+    "name": "Rolling triplets",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/16t",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 78
+     },
+     {
+      "step": 2,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 4,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 6,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 78
+     },
+     {
+      "step": 8,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 10,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 12,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 78
+     },
+     {
+      "step": 14,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 16,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 18,
+      "tones": [
+       1
+      ],
+      "len": 2,
+      "vel": 78
+     },
+     {
+      "step": 20,
+      "tones": [
+       2
+      ],
+      "len": 2,
+      "vel": 62
+     },
+     {
+      "step": 22,
+      "tones": [
+       3
+      ],
+      "len": 2,
+      "vel": 62
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_comp_back",
+   "tag": "chords on 2 and 4",
+   "pattern": {
+    "kind": "pitched",
+    "role": "comp",
+    "name": "Backbeat stabs",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 2,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 88
+     },
+     {
+      "step": 6,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 88
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_comp_charleston",
+   "tag": "long, short",
+   "pattern": {
+    "kind": "pitched",
+    "role": "comp",
+    "name": "Charleston",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/8",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 3,
+      "vel": 86
+     },
+     {
+      "step": 3,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 76
+     }
+    ]
+   }
+  },
+  {
+   "id": "pt_comp_four",
+   "tag": "one chord a beat",
+   "pattern": {
+    "kind": "pitched",
+    "role": "comp",
+    "name": "Four to the bar",
+    "meter": "4/4",
+    "bars": 1,
+    "grid": "1/4",
+    "loop": "bar",
+    "steps": [
+     {
+      "step": 0,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 82
+     },
+     {
+      "step": 1,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 70
+     },
+     {
+      "step": 2,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 82
+     },
+     {
+      "step": 3,
+      "tones": [
+       1,
+       2,
+       3
+      ],
+      "len": 1,
+      "vel": 70
+     }
+    ]
+   }
+  }
+ ],
+ "progressions": [
+  {
+   "id": "pg_axis",
+   "name": "I V vi IV",
+   "tag": "the four chords",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "V"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "VI"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "IV"
+    }
+   ]
+  },
+  {
+   "id": "pg_fifties",
+   "name": "I vi IV V",
+   "tag": "doo-wop",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "VI"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "IV"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "V"
+    }
+   ]
+  },
+  {
+   "id": "pg_sad",
+   "name": "vi IV I V",
+   "tag": "starts on the minor",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "VI"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "IV"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "V"
+    }
+   ]
+  },
+  {
+   "id": "pg_canon",
+   "name": "I V vi iii IV I IV V",
+   "tag": "a bar each",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 1920,
+     "chord": "I"
+    },
+    {
+     "start": 1920,
+     "len": 1920,
+     "chord": "V"
+    },
+    {
+     "start": 3840,
+     "len": 1920,
+     "chord": "VI"
+    },
+    {
+     "start": 5760,
+     "len": 1920,
+     "chord": "III"
+    },
+    {
+     "start": 7680,
+     "len": 1920,
+     "chord": "IV"
+    },
+    {
+     "start": 9600,
+     "len": 1920,
+     "chord": "I"
+    },
+    {
+     "start": 11520,
+     "len": 1920,
+     "chord": "IV"
+    },
+    {
+     "start": 13440,
+     "len": 1920,
+     "chord": "V"
+    }
+   ]
+  },
+  {
+   "id": "pg_251",
+   "name": "ii7 V7 I7",
+   "tag": "turnaround, with sevenths",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "II",
+     "ext": 7
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "V",
+     "ext": 7
+    },
+    {
+     "start": 7680,
+     "len": 7680,
+     "chord": "I",
+     "ext": 7
+    }
+   ]
+  },
+  {
+   "id": "pg_vamp",
+   "name": "I IV",
+   "tag": "two-chord vamp",
+   "bars": 2,
+   "chords": [
+    {
+     "start": 0,
+     "len": 1920,
+     "chord": "I"
+    },
+    {
+     "start": 1920,
+     "len": 1920,
+     "chord": "IV"
+    }
+   ]
+  },
+  {
+   "id": "pg_mixo",
+   "name": "I ♭VII IV I",
+   "tag": "borrowed ♭VII",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "bVII"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "IV"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "I"
+    }
+   ]
+  },
+  {
+   "id": "pg_andalusian",
+   "name": "i VII VI V",
+   "tag": "for Aeolian, falling",
+   "bars": 8,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "VII"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "VI"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "V"
+    }
+   ]
+  },
+  {
+   "id": "pg_blues",
+   "name": "twelve-bar blues",
+   "tag": "12 bars, with sevenths",
+   "bars": 12,
+   "chords": [
+    {
+     "start": 0,
+     "len": 7680,
+     "chord": "I",
+     "ext": 7
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "IV",
+     "ext": 7
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "I",
+     "ext": 7
+    },
+    {
+     "start": 15360,
+     "len": 1920,
+     "chord": "V",
+     "ext": 7
+    },
+    {
+     "start": 17280,
+     "len": 1920,
+     "chord": "IV",
+     "ext": 7
+    },
+    {
+     "start": 19200,
+     "len": 1920,
+     "chord": "I",
+     "ext": 7
+    },
+    {
+     "start": 21120,
+     "len": 1920,
+     "chord": "V",
+     "ext": 7
+    }
+   ]
+  }
+ ],
+ "sections": [
+  {
+   "id": "sec_intro",
+   "name": "Intro",
+   "tag": "I V · pad and arpeggio only",
+   "section": {
+    "name": "Intro",
+    "bars": 4,
+    "meter": "4/4",
+    "tonic": "C",
+    "mode": "ionian",
+    "bpm": 108,
+    "ramp_to_next": false,
+    "chords": [
+     {
+      "start": 0,
+      "len": 3840,
+      "chord": "I"
+     },
+     {
+      "start": 3840,
+      "len": 3840,
+      "chord": "V"
+     }
+    ],
+    "clips": {
+     "l_pad": [
+      {
+       "pattern": "pt_pad1",
+       "start": 0,
+       "len": 7680
+      }
+     ],
+     "l_arp1": [
+      {
+       "pattern": "pt_arp_updown",
+       "start": 0,
+       "len": 7680
+      }
+     ]
+    }
+   },
+   "patterns": {
+    "pt_pad1": {
+     "kind": "pitched",
+     "role": "pad",
+     "name": "Whole-note triads",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/4",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "len": 4,
+       "vel": 70
+      }
+     ]
+    },
+    "pt_arp_updown": {
+     "kind": "pitched",
+     "role": "arp",
+     "name": "Up and down",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/8",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 1,
+       "tones": [
+        2
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 2,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 3,
+       "tones": [
+        4
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 4,
+       "tones": [
+        5
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 5,
+       "tones": [
+        4
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 6,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 7,
+       "tones": [
+        2
+       ],
+       "len": 1,
+       "vel": 64
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sec_verse",
+   "name": "Verse",
+   "tag": "I V vi IV · rock groove, walking bass",
+   "section": {
+    "name": "Verse",
+    "bars": 8,
+    "meter": "4/4",
+    "tonic": "C",
+    "mode": "ionian",
+    "bpm": 108,
+    "ramp_to_next": false,
+    "chords": [
+     {
+      "start": 0,
+      "len": 3840,
+      "chord": "I"
+     },
+     {
+      "start": 3840,
+      "len": 3840,
+      "chord": "V"
+     },
+     {
+      "start": 7680,
+      "len": 3840,
+      "chord": "VI"
+     },
+     {
+      "start": 11520,
+      "len": 3840,
+      "chord": "IV"
+     }
+    ],
+    "clips": {
+     "l_kit": [
+      {
+       "pattern": "pt_rock16",
+       "start": 0,
+       "len": 13440
+      },
+      {
+       "pattern": "pt_fill1",
+       "start": 13440,
+       "len": 1920
+      }
+     ],
+     "l_bass": [
+      {
+       "pattern": "pt_bass8",
+       "start": 0,
+       "len": 15360
+      }
+     ],
+     "l_pad": [
+      {
+       "pattern": "pt_pad1",
+       "start": 0,
+       "len": 15360
+      }
+     ]
+    }
+   },
+   "patterns": {
+    "pt_rock16": {
+     "kind": "drum",
+     "role": "kit",
+     "name": "Rock 16",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/16",
+     "loop": "bar",
+     "hits": [
+      {
+       "step": 0,
+       "pad": 1,
+       "lv": "a"
+      },
+      {
+       "step": 8,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 10,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 4,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 12,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 15,
+       "pad": 2,
+       "lv": "g"
+      },
+      {
+       "step": 0,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 2,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 4,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 6,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 8,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 10,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 12,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 14,
+       "pad": 4,
+       "lv": "n"
+      }
+     ]
+    },
+    "pt_fill1": {
+     "kind": "drum",
+     "role": "kit",
+     "name": "Fill 1",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/16",
+     "loop": "bar",
+     "hits": [
+      {
+       "step": 0,
+       "pad": 1,
+       "lv": "a"
+      },
+      {
+       "step": 8,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 4,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 10,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 11,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 0,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 2,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 4,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 6,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 14,
+       "pad": 8,
+       "lv": "n"
+      },
+      {
+       "step": 15,
+       "pad": 8,
+       "lv": "a"
+      },
+      {
+       "step": 12,
+       "pad": 9,
+       "lv": "n"
+      },
+      {
+       "step": 13,
+       "pad": 9,
+       "lv": "n"
+      }
+     ]
+    },
+    "pt_bass8": {
+     "kind": "pitched",
+     "role": "bass",
+     "name": "Walking 8ths",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/8",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1
+       ],
+       "len": 2,
+       "vel": 100
+      },
+      {
+       "step": 2,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 80
+      },
+      {
+       "step": 3,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 80
+      },
+      {
+       "step": 4,
+       "tones": [
+        1
+       ],
+       "len": 2,
+       "vel": 100
+      },
+      {
+       "step": 6,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 80
+      },
+      {
+       "step": 7,
+       "tones": [
+        2
+       ],
+       "len": 1,
+       "vel": 80
+      }
+     ]
+    },
+    "pt_pad1": {
+     "kind": "pitched",
+     "role": "pad",
+     "name": "Whole-note triads",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/4",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "len": 4,
+       "vel": 70
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sec_chorus",
+   "name": "Chorus",
+   "tag": "IV I V vi · driving bass, arpeggio",
+   "section": {
+    "name": "Chorus",
+    "bars": 8,
+    "meter": "4/4",
+    "tonic": "C",
+    "mode": "ionian",
+    "bpm": 108,
+    "ramp_to_next": false,
+    "chords": [
+     {
+      "start": 0,
+      "len": 3840,
+      "chord": "IV"
+     },
+     {
+      "start": 3840,
+      "len": 3840,
+      "chord": "I"
+     },
+     {
+      "start": 7680,
+      "len": 3840,
+      "chord": "V"
+     },
+     {
+      "start": 11520,
+      "len": 3840,
+      "chord": "VI"
+     }
+    ],
+    "clips": {
+     "l_kit": [
+      {
+       "pattern": "pt_rock16",
+       "start": 0,
+       "len": 13440
+      },
+      {
+       "pattern": "pt_fill2",
+       "start": 13440,
+       "len": 1920
+      }
+     ],
+     "l_bass": [
+      {
+       "pattern": "pt_bass_drive",
+       "start": 0,
+       "len": 15360
+      }
+     ],
+     "l_pad": [
+      {
+       "pattern": "pt_pad_pulse",
+       "start": 0,
+       "len": 15360
+      }
+     ],
+     "l_arp1": [
+      {
+       "pattern": "pt_arp_updown",
+       "start": 0,
+       "len": 15360
+      }
+     ]
+    }
+   },
+   "patterns": {
+    "pt_rock16": {
+     "kind": "drum",
+     "role": "kit",
+     "name": "Rock 16",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/16",
+     "loop": "bar",
+     "hits": [
+      {
+       "step": 0,
+       "pad": 1,
+       "lv": "a"
+      },
+      {
+       "step": 8,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 10,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 4,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 12,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 15,
+       "pad": 2,
+       "lv": "g"
+      },
+      {
+       "step": 0,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 2,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 4,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 6,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 8,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 10,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 12,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 14,
+       "pad": 4,
+       "lv": "n"
+      }
+     ]
+    },
+    "pt_fill2": {
+     "kind": "drum",
+     "role": "kit",
+     "name": "Fill 2",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/16",
+     "loop": "bar",
+     "hits": [
+      {
+       "step": 0,
+       "pad": 1,
+       "lv": "a"
+      },
+      {
+       "step": 8,
+       "pad": 1,
+       "lv": "n"
+      },
+      {
+       "step": 4,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 8,
+       "pad": 2,
+       "lv": "g"
+      },
+      {
+       "step": 10,
+       "pad": 2,
+       "lv": "g"
+      },
+      {
+       "step": 12,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 13,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 14,
+       "pad": 2,
+       "lv": "n"
+      },
+      {
+       "step": 15,
+       "pad": 2,
+       "lv": "a"
+      },
+      {
+       "step": 0,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 2,
+       "pad": 3,
+       "lv": "g"
+      },
+      {
+       "step": 4,
+       "pad": 3,
+       "lv": "n"
+      },
+      {
+       "step": 6,
+       "pad": 3,
+       "lv": "g"
+      }
+     ]
+    },
+    "pt_bass_drive": {
+     "kind": "pitched",
+     "role": "bass",
+     "name": "Driving 8ths",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/8",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 100
+      },
+      {
+       "step": 1,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 82
+      },
+      {
+       "step": 2,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 100
+      },
+      {
+       "step": 3,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 82
+      },
+      {
+       "step": 4,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 100
+      },
+      {
+       "step": 5,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 82
+      },
+      {
+       "step": 6,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 100
+      },
+      {
+       "step": 7,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 82
+      }
+     ]
+    },
+    "pt_pad_pulse": {
+     "kind": "pitched",
+     "role": "pad",
+     "name": "Half-note pulse",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/4",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "len": 2,
+       "vel": 76
+      },
+      {
+       "step": 2,
+       "tones": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "len": 2,
+       "vel": 66
+      }
+     ]
+    },
+    "pt_arp_updown": {
+     "kind": "pitched",
+     "role": "arp",
+     "name": "Up and down",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/8",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 1,
+       "tones": [
+        2
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 2,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 3,
+       "tones": [
+        4
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 4,
+       "tones": [
+        5
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 5,
+       "tones": [
+        4
+       ],
+       "len": 1,
+       "vel": 64
+      },
+      {
+       "step": 6,
+       "tones": [
+        3
+       ],
+       "len": 1,
+       "vel": 78
+      },
+      {
+       "step": 7,
+       "tones": [
+        2
+       ],
+       "len": 1,
+       "vel": 64
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "sec_outro",
+   "name": "Outro",
+   "tag": "one held chord · no drums",
+   "section": {
+    "name": "Outro",
+    "bars": 4,
+    "meter": "4/4",
+    "tonic": "D",
+    "mode": "ionian",
+    "bpm": 108,
+    "ramp_to_next": false,
+    "chords": [
+     {
+      "start": 0,
+      "len": 7680,
+      "chord": "I",
+      "add9": true
+     }
+    ],
+    "clips": {
+     "l_bass": [
+      {
+       "pattern": "pt_bass_long",
+       "start": 0,
+       "len": 7680
+      }
+     ],
+     "l_pad": [
+      {
+       "pattern": "pt_pad1",
+       "start": 0,
+       "len": 7680
+      }
+     ]
+    }
+   },
+   "patterns": {
+    "pt_bass_long": {
+     "kind": "pitched",
+     "role": "bass",
+     "name": "Long roots",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/4",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1
+       ],
+       "len": 4,
+       "vel": 96
+      }
+     ]
+    },
+    "pt_pad1": {
+     "kind": "pitched",
+     "role": "pad",
+     "name": "Whole-note triads",
+     "meter": "4/4",
+     "bars": 1,
+     "grid": "1/4",
+     "loop": "bar",
+     "steps": [
+      {
+       "step": 0,
+       "tones": [
+        1,
+        2,
+        3,
+        4
+       ],
+       "len": 4,
+       "vel": 70
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

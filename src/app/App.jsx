@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
 import { TONICS, METERS, BORROWED, DEGREES, resolveChord, resolveSong, loadSong, exportMidi } from "../core/index.js";
 import { enter, remove, split, moveBoundary, climb, invert, setOptions, defaultLength, sectionLength, visibleCount } from "../editor/chordOps.js";
-import { newProject } from "../editor/template.js";
+import { newProject, starterProject } from "../editor/template.js";
+import { FACTORY_SECTIONS } from "../factory/patterns.js";
+import { progressionFrom, patternEntry, sectionEntry, addLibrarySection } from "../editor/libraryOps.js";
+import { loadUserLibrary, saveLibraryEntry, deleteLibraryEntry } from "../storage/library.js";
+import { Progressions, LibraryDialog } from "./Library.jsx";
 import { setBars, setLane, applyEntry } from "../editor/patternOps.js";
 import { addSection, copyLinked, moveInstance, bake, removeInstance, describeArrangement, bakeName } from "../editor/arrangeOps.js";
 import { saveProject, loadLastProject, getProject, takeSnapshot, getSnapshot, markBackup, backupStatus, requestPersistence } from "../storage/db.js";
@@ -41,6 +45,12 @@ export default function App() {
   const [newer, setNewer] = useState(false);         // the file uses options from a newer version
   const [songsOpen, setSongsOpen] = useState(false);
   const [persisted, setPersisted] = useState(null);
+  const [userLib, setUserLib] = useState({ patterns: [], progressions: [], sections: [] });
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [welcome, setWelcome] = useState(false);   // first visit: the starter song is on screen, unplayed
+  const refreshLib = () => loadUserLibrary().then(setUserLib, () => {});
+  const saveLib = (kind, entry) => saveLibraryEntry(kind, entry).then(refreshLib).then(() => setFileNote(`Saved to your library`));
+  useEffect(() => { refreshLib(); }, []);
   const locked = tabLock || newer;
   const lockRef = useRef(false);
   lockRef.current = locked;
@@ -75,7 +85,13 @@ export default function App() {
   // Open the last project, or start a new one. Stored songs from older builds are migrated here.
   useEffect(() => {
     loadLastProject()
-      .then((p) => { const r = p && loadSong(p); rawDispatch({ type: "load", song: r?.ok ? r.song : newProject() }); })
+      .then((p) => {
+        const r = p && loadSong(p);
+        if (r?.ok) return rawDispatch({ type: "load", song: r.song });
+        // Nothing stored: a first visit. Give them something to play rather than a blank page.
+        setWelcome(true);
+        rawDispatch({ type: "load", song: starterProject() });
+      })
       .catch(() => rawDispatch({ type: "load", song: newProject() }));
   }, []);
 
@@ -147,6 +163,8 @@ export default function App() {
   const viewSong = useMemo(() => (base ? loopSong(base, inst, audition) : null), [base, inst, audition]);
   const resolved = useMemo(() => (viewSong ? resolveSong(viewSong) : null), [viewSong]);
   const full = useMemo(() => (song && (view === "overview" || bouncing) ? resolveSong(song) : null), [song, view, bouncing]);
+  // A hover preview belongs to the section it was made for.
+  useEffect(() => { setPreview(null); setPatPreview(null); }, [inst, song?.id]);
   // What the engine plays: that loop, or the song from where "Play song" was pressed.
   const songMode = transport.mode === "song" && engine.playing;
   const engineSong = useMemo(
@@ -222,6 +240,7 @@ export default function App() {
     copy: (from, at) => api.replace(copyLinked(api.cur().song, from, at), at),
     duplicate: () => { const { song, inst } = api.cur(); api.replace(copyLinked(song, inst), inst + 1); },
     add: (template) => { const { song, inst } = api.cur(); api.replace(addSection(song, inst, template), inst + 1); },
+    addEntry: (entry) => { const { song, inst } = api.cur(); api.replace(addLibrarySection(song, inst, entry), inst + 1); },
     bake: () => { const { song, inst } = api.cur(); api.replace(bake(song, inst), inst); },
     remove: () => { const { song, inst } = api.cur(); api.replace(removeInstance(song, inst), Math.min(inst, song.arrangement.length - 2)); },
   }), [api]);
@@ -296,14 +315,16 @@ export default function App() {
     },
     loop() {
       if (engine.playing) return engine.stop();
+      setWelcome(false);
       setTransport({ mode: "loop", start: 0 });
       engine.setSong(viewSong);
       engine.play({ loop: true });
     },
-    song() {
+    song(start = inst) {
       if (recording) { liveCtl.end(); setRecording(false); }
-      setTransport({ mode: "song", start: inst });
-      engine.setSong(songFrom(base, inst, inst, audition));
+      setWelcome(false);
+      setTransport({ mode: "song", start });
+      engine.setSong(songFrom(base, start, inst, audition));
       engine.play({ loop: false });
     },
   };
@@ -453,6 +474,7 @@ export default function App() {
 
   // ---- derived view
   const infos = describeArrangement(song);
+  const sectionLib = [...FACTORY_SECTIONS, ...userLib.sections];
   const backup = backupStatus(song.id);
   const touched = edited || song.updated_at !== song.created_at;
   const info = infos[inst];
@@ -519,12 +541,21 @@ export default function App() {
         <button onClick={exportMid}>Export .mid</button>
         <button onClick={() => { engine.start(); setBouncing(true); }} data-testid="bounce-open">Bounce .wav</button>
         <button onClick={() => setSongsOpen(true)} data-testid="songs-open">Songs</button>
+        <button onClick={() => setLibraryOpen(true)} data-testid="library-open">Library</button>
         <div className="seg" role="group" aria-label="View">
           <button className={view === "section" ? "on" : ""} onClick={() => setView("section")}>Section</button>
           <button className={view === "overview" ? "on" : ""} onClick={() => setView("overview")}>Overview</button>
         </div>
       </header>
 
+      {welcome && (
+        <div className="welcome" data-testid="welcome">
+          <button className="primary" onClick={() => act.current.song(0)} data-testid="welcome-play">▶ Play the starter song</button>
+          <span>A short finished song to play, pull apart and change. Everything in it is editable.</span>
+          <button onClick={() => { setWelcome(false); newSong(); }}>Start empty instead</button>
+          <button className="link" onClick={() => setWelcome(false)}>Dismiss</button>
+        </div>
+      )}
       {locked && (
         <div className="lock" role="status" data-testid="lock">
           {tabLock
@@ -542,10 +573,10 @@ export default function App() {
       )}
 
       {view === "overview" ? (
-        <Overview song={song} resolved={full ?? resolveSong(song)} infos={infos} active={inst} playing={playing} ops={ops}
+        <Overview song={song} resolved={full ?? resolveSong(song)} infos={infos} active={inst} playing={playing} ops={ops} library={sectionLib}
           onOpen={(i) => { ops.select(i); setView("section"); }} />
       ) : <>
-      <ArrangementStrip infos={infos} active={inst} playing={playing} ops={ops} />
+      <ArrangementStrip infos={infos} active={inst} playing={playing} ops={ops} library={sectionLib} />
 
       <div className="section-head">
         <input className="name" aria-label="Section name" value={stored.name} onChange={(e) => api.section({ name: e.target.value })} />
@@ -582,6 +613,7 @@ export default function App() {
           Major V in minor modes
         </label>
         <span className="spacer" />
+        <button onClick={() => saveLib("sections", sectionEntry(song, sid))} title="Keep this section, with its patterns, for other songs">Save section</button>
         {info.count > 1 && (
           <button className="bake" onClick={ops.bake} title="Copy this section into a new one, for this instance only" data-testid="bake">
             Bake → {bakeName(song, sid)}
@@ -642,13 +674,13 @@ export default function App() {
             <option value="">Add lane…</option>
             {addableRoles(song).map((r) => <option key={r} value={r}>{cap(r)}</option>)}
           </select>
-          <span className="hint">One kit and up to two leads. Arp and comp lanes play the pad patterns for now.</span>
+          <span className="hint">One kit and up to two leads.</span>
         </div>
       </div>
 
       {picked && <SoundPanel song={song} lane={picked} onSong={(s, group) => api.replace(s, undefined, group)} />}
-      {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
-      {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} />}
+      {picked && picked.role === "kit" && <DrumEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} saved={userLib.patterns} onSave={(id) => saveLib("patterns", patternEntry(song, id))} />}
+      {picked && picked.role !== "kit" && picked.role !== "lead" && <StepEditor song={song} sectionId={sid} lane={picked} onSong={(s) => api.replace(s)} onPreview={setPatPreview} saved={userLib.patterns} onSave={(id) => saveLib("patterns", patternEntry(song, id))} />}
       {live.playMode && (
         <KeyboardOverlay song={song} section={stored} at={{ chordIndex: chordIdx, ...lead }} onSong={(s) => api.replace(s)}
           contextLabel={live.context === "follow" && engine.playing ? "Bass and pad keys follow the chord under the playhead." : `Bass and pad keys are resolved against ${pinned ? `${pinned.numeral} (${pinned.name})` : "the chord before the cursor"}.`} />
@@ -661,6 +693,12 @@ export default function App() {
           onSong={(s, group) => api.replace(s, undefined, group)} />
       )}
 
+      {!picked && (
+        <Progressions section={stored} saved={userLib.progressions}
+          onPreview={(chords) => setPreview(chords && { chords, sticky })}
+          onApply={(chords) => dispatch({ type: "edit", song: withSection(song, inst, { chords }), caret: Infinity })}
+          onSave={() => saveLib("progressions", progressionFrom(stored, `${stored.name} chords`))} />
+      )}
       {!picked && <div className="row2">
         <div className="card">
           <div className="card-title"><b>Selected block</b></div>
@@ -719,6 +757,7 @@ export default function App() {
           onDeletedCurrent={async () => { const next = await loadLastProject().catch(() => null); const r = next && loadSong(next); setSongsOpen(false); setTabLock(false); setNewer(false); rawDispatch({ type: "load", song: r?.ok ? r.song : newProject() }); }}
           onClose={() => setSongsOpen(false)} />
       )}
+      {libraryOpen && <LibraryDialog user={userLib} onDelete={(kind, id) => deleteLibraryEntry(kind, id).then(refreshLib)} onClose={() => setLibraryOpen(false)} />}
       {bouncing && <BounceDialog song={song} seconds={(full ?? resolveSong(song)).totalSec} onClose={() => setBouncing(false)} />}
       <BottomBar live={live} set={setLive} pinnedLabel={pinned ? `${pinned.numeral} (${pinned.name})` : "no chord"}
         onUndo={() => dispatch({ type: "undo" })} canUndo={state.past.length > 0} onMidi={connectMidi} midiNote={midiNote} />

@@ -41,12 +41,24 @@ function useReorder({ onMove, onCopy }) {
   return { row, start, dropClass };
 }
 
-function Tools({ infos, active, ops }) {
+function Tools({ infos, active, ops, library = [] }) {
+  const pick = (value) => {
+    if (!value) return;
+    const entry = library.find((e) => e.id === value);
+    if (entry) ops.addEntry(entry); else ops.add(SECTION_TEMPLATES.find((t) => t.name === value));
+  };
+  const mine = library.filter((e) => e.tag === "your library"), factory = library.filter((e) => e.tag !== "your library");
   return (
     <div className="arr-tools">
-      <select aria-label="Add section" value="" onChange={(e) => { if (e.target.value) ops.add(SECTION_TEMPLATES.find((t) => t.name === e.target.value)); }}>
+      <select aria-label="Add section" value="" onChange={(e) => pick(e.target.value)}>
         <option value="">Add section…</option>
-        {SECTION_TEMPLATES.map((t) => <option key={t.name} value={t.name}>{t.name} · {plural(t.bars, "bar")}</option>)}
+        <optgroup label="Empty, in this key">
+          {SECTION_TEMPLATES.map((t) => <option key={t.name} value={t.name}>{t.name} · {plural(t.bars, "bar")}</option>)}
+        </optgroup>
+        <optgroup label="Ready-made">
+          {factory.map((e) => <option key={e.id} value={e.id}>{e.name} · {e.tag}</option>)}
+        </optgroup>
+        {mine.length > 0 && <optgroup label="Your library">{mine.map((e) => <option key={e.id} value={e.id}>{e.name} · {plural(e.section.bars, "bar")}</option>)}</optgroup>}
       </select>
       <button onClick={ops.duplicate} title="Add another linked instance of this section (or Alt-drag a card)">Duplicate (linked)</button>
       <button aria-label="Move earlier" disabled={active === 0} onClick={() => ops.move(active, active - 1)}>◀</button>
@@ -57,7 +69,7 @@ function Tools({ infos, active, ops }) {
 }
 
 /** The arrangement strip above the section view. */
-export function ArrangementStrip({ infos, active, playing, ops }) {
+export function ArrangementStrip({ infos, active, playing, ops, library }) {
   const { row, start, dropClass } = useReorder({ onMove: ops.move, onCopy: ops.copy });
   const bars = infos.reduce((n, x) => n + x.bars, 0), cur = infos[active];
   return (
@@ -65,7 +77,7 @@ export function ArrangementStrip({ infos, active, playing, ops }) {
       <div className="arr-head">
         <b>Arrangement</b>
         <span className="hint">{plural(bars, "bar")} · {plural(infos.length, "section")} · click selects, drag moves, Alt-drag copies a linked instance</span>
-        <Tools infos={infos} active={active} ops={ops} />
+        <Tools infos={infos} active={active} ops={ops} library={library} />
       </div>
       <div className="arr-row" ref={row}>
         {infos.map((x, i) => (
@@ -86,7 +98,7 @@ export function ArrangementStrip({ infos, active, playing, ops }) {
 }
 
 /** The song at a glance: one card per instance, as wide as it is long. */
-export function Overview({ song, resolved, infos, active, playing, ops, onOpen }) {
+export function Overview({ song, resolved, infos, active, playing, ops, onOpen, library }) {
   const { row, start, dropClass } = useReorder({ onMove: ops.move, onCopy: ops.copy });
   const bars = infos.reduce((n, x) => n + x.bars, 0), cur = infos[active];
   const oneTempo = infos.every((x) => x.bpm === infos[0].bpm);
@@ -98,7 +110,7 @@ export function Overview({ song, resolved, infos, active, playing, ops, onOpen }
       </div>
       <div className="arr-head">
         <span className="mono">{plural(infos.length, "section")} · {plural(bars, "bar")} · {clock(resolved.totalSec)}{oneTempo ? ` at ${infos[0].bpm}` : ""}</span>
-        <Tools infos={infos} active={active} ops={ops} />
+        <Tools infos={infos} active={active} ops={ops} library={library} />
       </div>
       <div className="ov-row" ref={row}>
         {infos.map((x, i) => {

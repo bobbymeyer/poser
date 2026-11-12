@@ -12,6 +12,8 @@ const newId = (song) => {
   return id;
 };
 const touch = (song) => ({ ...song, updated_at: new Date().toISOString() });
+/** Factory and user-library IDs are frozen: a song may hold a copy, never an altered one. */
+const frozen = (id) => !!FACTORY_BY_ID[id] || id.startsWith("lib_");
 
 /** How many clips, in any section, play this pattern. */
 export const linkCount = (song, id) =>
@@ -41,7 +43,7 @@ function withClips(song, sectionId, laneId, main, fill) {
 /** Drop untouched factory copies that no clip uses any more. Edited patterns are kept. */
 export function prune(song) {
   const patterns = { ...song.patterns };
-  for (const id of Object.keys(patterns)) if (FACTORY_BY_ID[id] && !linkCount(song, id)) delete patterns[id];
+  for (const id of Object.keys(patterns)) if (frozen(id) && !linkCount(song, id)) delete patterns[id];
   return { ...song, patterns };
 }
 
@@ -72,13 +74,13 @@ export function setBars(song, sectionId, bars) {
 
 /**
  * Edit a pattern with `fn`. Every clip that uses it changes. A factory pattern is first
- * moved to a new ID, so a song never holds an altered pattern under a factory ID.
+ * moved to a new ID, so a song never holds an altered pattern under a factory or library ID.
  * @returns `{ song, id }` with the pattern's (possibly new) ID.
  */
 export function editPattern(song, id, fn) {
   const edited = fn(song.patterns[id]);
   if (edited === song.patterns[id]) return { song, id };
-  if (!FACTORY_BY_ID[id]) return { song: touch({ ...song, patterns: { ...song.patterns, [id]: edited } }), id };
+  if (!frozen(id)) return { song: touch({ ...song, patterns: { ...song.patterns, [id]: edited } }), id };
   const fresh = newId(song);
   const { [id]: _, ...rest } = song.patterns;
   const sections = Object.fromEntries(Object.entries(song.sections).map(([sid, s]) => [sid, {
@@ -209,12 +211,14 @@ export function applyEntry(song, sectionId, lane, entry, slot = "main") {
 }
 
 /** Library entries a lane can play: factory first, then patterns already edited in this song. */
-export function libraryFor(song, lane, slot = "main") {
+export function libraryFor(song, lane, slot = "main", saved = []) {
   const kit = lane.role === "kit";
   const roles = kit ? ["kit"] : lane.role === "bass" ? ["bass"] : ["pad", "arp", "comp"];
   const fits = (p) => (p.kind === "drum") === kit && (!p.role || roles.includes(p.role));
   const factory = Object.values(FACTORY_BY_ID).filter((f) => fits(f.pattern) && !!f.fill === (slot === "fill"));
-  const mine = Object.entries(song.patterns).filter(([id, p]) => !FACTORY_BY_ID[id] && fits(p))
+  // A lane's own role first, then the others it can play.
+  factory.sort((a, b) => (b.pattern.role === lane.role) - (a.pattern.role === lane.role));
+  const mine = Object.entries(song.patterns).filter(([id, p]) => !frozen(id) && fits(p))
     .map(([id, pattern]) => ({ id, pattern, tag: "in this song" }));
-  return { factory, mine };
+  return { factory, saved: saved.filter((e) => fits(e.pattern) && slot === "main"), mine };
 }

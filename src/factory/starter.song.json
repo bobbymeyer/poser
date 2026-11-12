@@ -1,0 +1,1386 @@
+{
+ "format": "song",
+ "format_version": 2,
+ "rails_version": 1,
+ "id": "prj_starter",
+ "title": "Starter song",
+ "created_at": "2026-11-12T00:00:00Z",
+ "updated_at": "2026-11-12T00:00:00Z",
+ "settings": {
+  "minor_dominant": true,
+  "master_volume": 100
+ },
+ "soundfonts": [
+  {
+   "hash": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+   "name": "GeneralUser GS"
+  }
+ ],
+ "lanes": [
+  {
+   "id": "l_kit",
+   "role": "kit",
+   "instrument": {
+    "backend": "soundfont",
+    "sf": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+    "program": 0,
+    "drums": true
+   },
+   "volume": 100,
+   "pan": 64,
+   "mute": false,
+   "solo": false,
+   "latency_ms": 0,
+   "name": "Kit",
+   "zones": [
+    "zxc",
+    "vbn",
+    "m,."
+   ],
+   "swing": "straight",
+   "pads": [
+    36,
+    38,
+    42,
+    46,
+    39,
+    49,
+    37,
+    45,
+    50,
+    51
+   ],
+   "choke": [
+    [
+     3,
+     4
+    ]
+   ]
+  },
+  {
+   "id": "l_bass",
+   "role": "bass",
+   "instrument": {
+    "backend": "soundfont",
+    "sf": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+    "program": 33
+   },
+   "volume": 100,
+   "pan": 64,
+   "mute": false,
+   "solo": false,
+   "latency_ms": 0,
+   "name": "Bass",
+   "zones": [
+    "asd"
+   ],
+   "mono": {
+    "on": true,
+    "priority": "lowest",
+    "legato": false
+   },
+   "register": [
+    28,
+    52
+   ],
+   "swing_follow": true
+  },
+  {
+   "id": "l_pad",
+   "role": "pad",
+   "instrument": {
+    "backend": "soundfont",
+    "sf": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+    "program": 89
+   },
+   "volume": 76,
+   "pan": 64,
+   "mute": false,
+   "solo": false,
+   "latency_ms": 0,
+   "name": "Pad",
+   "zones": [
+    "qwe"
+   ],
+   "mono": {
+    "on": false,
+    "priority": "last",
+    "legato": false
+   },
+   "register": [
+    50,
+    76
+   ],
+   "swing_follow": true
+  },
+  {
+   "id": "l_lead1",
+   "role": "lead",
+   "instrument": {
+    "backend": "soundfont",
+    "sf": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+    "program": 11
+   },
+   "volume": 112,
+   "pan": 64,
+   "mute": false,
+   "solo": false,
+   "latency_ms": 0,
+   "name": "Lead",
+   "zones": [
+    "fgh",
+    "jkl"
+   ],
+   "mono": {
+    "on": true,
+    "priority": "last",
+    "legato": false
+   },
+   "register": [
+    60,
+    84
+   ]
+  },
+  {
+   "id": "l_arp1",
+   "role": "arp",
+   "name": "Arp",
+   "instrument": {
+    "backend": "soundfont",
+    "sf": "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
+    "program": 46
+   },
+   "zones": [
+    "rty"
+   ],
+   "volume": 72,
+   "pan": 84,
+   "mute": false,
+   "solo": false,
+   "latency_ms": 0,
+   "mono": {
+    "on": false,
+    "priority": "last",
+    "legato": false
+   },
+   "register": [
+    55,
+    84
+   ],
+   "swing_follow": true
+  }
+ ],
+ "patterns": {
+  "pt_rock16": {
+   "kind": "drum",
+   "role": "kit",
+   "name": "Rock 16",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/16",
+   "loop": "bar",
+   "hits": [
+    {
+     "step": 0,
+     "pad": 1,
+     "lv": "a"
+    },
+    {
+     "step": 8,
+     "pad": 1,
+     "lv": "n"
+    },
+    {
+     "step": 10,
+     "pad": 1,
+     "lv": "n"
+    },
+    {
+     "step": 4,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 12,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 15,
+     "pad": 2,
+     "lv": "g"
+    },
+    {
+     "step": 0,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 2,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 4,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 6,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 8,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 10,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 12,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 14,
+     "pad": 4,
+     "lv": "n"
+    }
+   ]
+  },
+  "pt_fill1": {
+   "kind": "drum",
+   "role": "kit",
+   "name": "Fill 1",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/16",
+   "loop": "bar",
+   "hits": [
+    {
+     "step": 0,
+     "pad": 1,
+     "lv": "a"
+    },
+    {
+     "step": 8,
+     "pad": 1,
+     "lv": "n"
+    },
+    {
+     "step": 4,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 10,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 11,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 0,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 2,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 4,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 6,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 14,
+     "pad": 8,
+     "lv": "n"
+    },
+    {
+     "step": 15,
+     "pad": 8,
+     "lv": "a"
+    },
+    {
+     "step": 12,
+     "pad": 9,
+     "lv": "n"
+    },
+    {
+     "step": 13,
+     "pad": 9,
+     "lv": "n"
+    }
+   ]
+  },
+  "pt_bass8": {
+   "kind": "pitched",
+   "role": "bass",
+   "name": "Walking 8ths",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/8",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1
+     ],
+     "len": 2,
+     "vel": 100
+    },
+    {
+     "step": 2,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 80
+    },
+    {
+     "step": 3,
+     "tones": [
+      3
+     ],
+     "len": 1,
+     "vel": 80
+    },
+    {
+     "step": 4,
+     "tones": [
+      1
+     ],
+     "len": 2,
+     "vel": 100
+    },
+    {
+     "step": 6,
+     "tones": [
+      3
+     ],
+     "len": 1,
+     "vel": 80
+    },
+    {
+     "step": 7,
+     "tones": [
+      2
+     ],
+     "len": 1,
+     "vel": 80
+    }
+   ]
+  },
+  "pt_pad1": {
+   "kind": "pitched",
+   "role": "pad",
+   "name": "Whole-note triads",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/4",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "len": 4,
+     "vel": 70
+    }
+   ]
+  },
+  "pt_bass_drive": {
+   "kind": "pitched",
+   "role": "bass",
+   "name": "Driving 8ths",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/8",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 100
+    },
+    {
+     "step": 1,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 82
+    },
+    {
+     "step": 2,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 100
+    },
+    {
+     "step": 3,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 82
+    },
+    {
+     "step": 4,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 100
+    },
+    {
+     "step": 5,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 82
+    },
+    {
+     "step": 6,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 100
+    },
+    {
+     "step": 7,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 82
+    }
+   ]
+  },
+  "pt_pad_pulse": {
+   "kind": "pitched",
+   "role": "pad",
+   "name": "Half-note pulse",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/4",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "len": 2,
+     "vel": 76
+    },
+    {
+     "step": 2,
+     "tones": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "len": 2,
+     "vel": 66
+    }
+   ]
+  },
+  "pt_arp_updown": {
+   "kind": "pitched",
+   "role": "arp",
+   "name": "Up and down",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/8",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1
+     ],
+     "len": 1,
+     "vel": 78
+    },
+    {
+     "step": 1,
+     "tones": [
+      2
+     ],
+     "len": 1,
+     "vel": 64
+    },
+    {
+     "step": 2,
+     "tones": [
+      3
+     ],
+     "len": 1,
+     "vel": 78
+    },
+    {
+     "step": 3,
+     "tones": [
+      4
+     ],
+     "len": 1,
+     "vel": 64
+    },
+    {
+     "step": 4,
+     "tones": [
+      5
+     ],
+     "len": 1,
+     "vel": 78
+    },
+    {
+     "step": 5,
+     "tones": [
+      4
+     ],
+     "len": 1,
+     "vel": 64
+    },
+    {
+     "step": 6,
+     "tones": [
+      3
+     ],
+     "len": 1,
+     "vel": 78
+    },
+    {
+     "step": 7,
+     "tones": [
+      2
+     ],
+     "len": 1,
+     "vel": 64
+    }
+   ]
+  },
+  "pt_fill2": {
+   "kind": "drum",
+   "role": "kit",
+   "name": "Fill 2",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/16",
+   "loop": "bar",
+   "hits": [
+    {
+     "step": 0,
+     "pad": 1,
+     "lv": "a"
+    },
+    {
+     "step": 8,
+     "pad": 1,
+     "lv": "n"
+    },
+    {
+     "step": 4,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 8,
+     "pad": 2,
+     "lv": "g"
+    },
+    {
+     "step": 10,
+     "pad": 2,
+     "lv": "g"
+    },
+    {
+     "step": 12,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 13,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 14,
+     "pad": 2,
+     "lv": "n"
+    },
+    {
+     "step": 15,
+     "pad": 2,
+     "lv": "a"
+    },
+    {
+     "step": 0,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 2,
+     "pad": 3,
+     "lv": "g"
+    },
+    {
+     "step": 4,
+     "pad": 3,
+     "lv": "n"
+    },
+    {
+     "step": 6,
+     "pad": 3,
+     "lv": "g"
+    }
+   ]
+  },
+  "pt_bass_long": {
+   "kind": "pitched",
+   "role": "bass",
+   "name": "Long roots",
+   "meter": "4/4",
+   "bars": 1,
+   "grid": "1/4",
+   "loop": "bar",
+   "steps": [
+    {
+     "step": 0,
+     "tones": [
+      1
+     ],
+     "len": 4,
+     "vel": 96
+    }
+   ]
+  }
+ },
+ "sections": {
+  "s_1": {
+   "name": "Verse",
+   "bars": 8,
+   "meter": "4/4",
+   "tonic": "C",
+   "mode": "ionian",
+   "bpm": 108,
+   "ramp_to_next": false,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "V"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "VI"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "IV"
+    }
+   ],
+   "clips": {
+    "l_kit": [
+     {
+      "pattern": "pt_rock16",
+      "start": 0,
+      "len": 13440
+     },
+     {
+      "pattern": "pt_fill1",
+      "start": 13440,
+      "len": 1920
+     }
+    ],
+    "l_bass": [
+     {
+      "pattern": "pt_bass8",
+      "start": 0,
+      "len": 15360
+     }
+    ],
+    "l_pad": [
+     {
+      "pattern": "pt_pad1",
+      "start": 0,
+      "len": 15360
+     }
+    ]
+   }
+  },
+  "s_jwn8fs": {
+   "name": "Chorus",
+   "bars": 8,
+   "meter": "4/4",
+   "tonic": "C",
+   "mode": "ionian",
+   "bpm": 108,
+   "ramp_to_next": false,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "IV"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "V"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "VI"
+    }
+   ],
+   "clips": {
+    "l_kit": [
+     {
+      "pattern": "pt_rock16",
+      "start": 0,
+      "len": 13440
+     },
+     {
+      "pattern": "pt_fill2",
+      "start": 13440,
+      "len": 1920
+     }
+    ],
+    "l_bass": [
+     {
+      "pattern": "pt_bass_drive",
+      "start": 0,
+      "len": 15360
+     }
+    ],
+    "l_pad": [
+     {
+      "pattern": "pt_pad_pulse",
+      "start": 0,
+      "len": 15360
+     }
+    ],
+    "l_arp1": [
+     {
+      "pattern": "pt_arp_updown",
+      "start": 0,
+      "len": 15360
+     }
+    ]
+   }
+  },
+  "s_52kbfo": {
+   "name": "Chorus 2",
+   "bars": 8,
+   "meter": "4/4",
+   "tonic": "D",
+   "mode": "ionian",
+   "bpm": 108,
+   "ramp_to_next": false,
+   "chords": [
+    {
+     "start": 0,
+     "len": 3840,
+     "chord": "IV"
+    },
+    {
+     "start": 3840,
+     "len": 3840,
+     "chord": "I"
+    },
+    {
+     "start": 7680,
+     "len": 3840,
+     "chord": "V"
+    },
+    {
+     "start": 11520,
+     "len": 3840,
+     "chord": "VI"
+    }
+   ],
+   "clips": {
+    "l_kit": [
+     {
+      "pattern": "pt_rock16",
+      "start": 0,
+      "len": 13440
+     },
+     {
+      "pattern": "pt_fill2",
+      "start": 13440,
+      "len": 1920
+     }
+    ],
+    "l_bass": [
+     {
+      "pattern": "pt_bass_drive",
+      "start": 0,
+      "len": 15360
+     }
+    ],
+    "l_pad": [
+     {
+      "pattern": "pt_pad_pulse",
+      "start": 0,
+      "len": 15360
+     }
+    ],
+    "l_arp1": [
+     {
+      "pattern": "pt_arp_updown",
+      "start": 0,
+      "len": 15360
+     }
+    ]
+   }
+  },
+  "s_uzo97c": {
+   "name": "Outro",
+   "bars": 4,
+   "meter": "4/4",
+   "tonic": "D",
+   "mode": "ionian",
+   "bpm": 108,
+   "ramp_to_next": false,
+   "chords": [
+    {
+     "start": 0,
+     "len": 7680,
+     "chord": "I",
+     "add9": true
+    }
+   ],
+   "clips": {
+    "l_bass": [
+     {
+      "pattern": "pt_bass_long",
+      "start": 0,
+      "len": 7680
+     }
+    ],
+    "l_pad": [
+     {
+      "pattern": "pt_pad1",
+      "start": 0,
+      "len": 7680
+     }
+    ]
+   }
+  }
+ },
+ "arrangement": [
+  {
+   "id": "i_1",
+   "section": "s_1",
+   "leads": {}
+  },
+  {
+   "id": "i_dhuqco",
+   "section": "s_jwn8fs",
+   "leads": {
+    "l_lead1": {
+     "notes": [
+      {
+       "start": 0,
+       "len": 690,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 720,
+       "len": 210,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 960,
+       "len": 930,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 1920,
+       "len": 450,
+       "deg": 1,
+       "acc": 0,
+       "oct": 1,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 2400,
+       "len": 450,
+       "deg": 7,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 2880,
+       "len": 930,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 3840,
+       "len": 690,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 4560,
+       "len": 210,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 4800,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 5760,
+       "len": 450,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 6240,
+       "len": 450,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 6720,
+       "len": 930,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 7680,
+       "len": 690,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 8400,
+       "len": 210,
+       "deg": 4,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 8640,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 9600,
+       "len": 450,
+       "deg": 7,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 10080,
+       "len": 450,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 10560,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 11520,
+       "len": 690,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 12240,
+       "len": 210,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 12480,
+       "len": 930,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 13440,
+       "len": 450,
+       "deg": 2,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 13920,
+       "len": 450,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 14400,
+       "len": 930,
+       "deg": 1,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "i_s6alud",
+   "section": "s_1",
+   "leads": {}
+  },
+  {
+   "id": "i_1ut1ko",
+   "section": "s_52kbfo",
+   "leads": {
+    "l_lead1": {
+     "notes": [
+      {
+       "start": 0,
+       "len": 690,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 720,
+       "len": 210,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 960,
+       "len": 930,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 1920,
+       "len": 450,
+       "deg": 1,
+       "acc": 0,
+       "oct": 1,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 2400,
+       "len": 450,
+       "deg": 7,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 2880,
+       "len": 930,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 3840,
+       "len": 690,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 4560,
+       "len": 210,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 4800,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 5760,
+       "len": 450,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 6240,
+       "len": 450,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 6720,
+       "len": 930,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 7680,
+       "len": 690,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 8400,
+       "len": 210,
+       "deg": 4,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 8640,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 9600,
+       "len": 450,
+       "deg": 7,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 10080,
+       "len": 450,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 10560,
+       "len": 930,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 11520,
+       "len": 690,
+       "deg": 6,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 12240,
+       "len": 210,
+       "deg": 5,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 12480,
+       "len": 930,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 13440,
+       "len": 450,
+       "deg": 2,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 13920,
+       "len": 450,
+       "deg": 3,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      },
+      {
+       "start": 14400,
+       "len": 930,
+       "deg": 1,
+       "acc": 0,
+       "oct": 0,
+       "vel": 100,
+       "pass": 1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "i_ffzi0m",
+   "section": "s_uzo97c",
+   "leads": {}
+  }
+ ]
+}

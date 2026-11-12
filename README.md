@@ -8,7 +8,7 @@ A browser-based, layer-oriented composition app. Static site, no accounts, no se
 
 ## Status
 
-Phases 0-7 are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, live play with recording, sound sources with a mixer and WAV bounce, and storage hardening with migrations. Phase 8 (starter content) is not started.
+All nine phases of the handoff are built: the timing spike, the core (theory, resolver, MIDI export, validation), the chord lane app, pattern lanes, sections with an arrangement, live play with recording, sound sources with a mixer and WAV bounce, storage hardening with migrations, and starter content with a library.
 
 ## Run
 
@@ -41,7 +41,7 @@ A new project has kit, bass and pad lanes already playing factory patterns, so t
 
 | Part | Where | Notes |
 | --- | --- | --- |
-| Factory library | `src/factory/patterns.js` | 13 patterns in 4/4: five grooves and a fill, four bass, three pad. Drum patterns are written as one character per step |
+| Factory library | `src/factory/patterns.js` | Reads `library.json` (see phase 8). It began as 13 patterns in 4/4: five grooves and a fill, four bass, three pad |
 | Pattern editing | `src/editor/patternOps.js` | Pure functions: lane layout (one pattern per lane, plus a kit fill on the last bar), drum cell cycling, step notes, grid and length changes, make unique |
 | Drum grid | `src/app/PatternEditors.jsx` | Pads by steps. Click cycles off, normal, accent, ghost; right-click clears. Grid, swing and fill controls |
 | Step editor | same file | Chord tones by steps for bass and pad. Click adds, drag holds, click removes |
@@ -108,7 +108,7 @@ How it works:
 - **A MIDI port this machine does not have.** The lane is flagged "device not found" and is silent, as the spec says.
 - **Mixer.** Master in the top bar; volume on each lane header; pan and latency offset in the sound panel. Dragging a slider is one undo step.
 - **Bounce.** The dialog lists the audible MIDI-out lanes it will skip, renders the whole song with a 2.5 s tail, honours mute and solo, and applies the master volume.
-- **Lanes.** One kit, up to two leads, any number of bass, pad, arp and comp. Arp and comp lanes use the pad patterns for now.
+- **Lanes.** One kit, up to two leads, any number of bass, pad, arp and comp.
 
 ## Phase 7 hardening
 
@@ -128,7 +128,24 @@ How it behaves:
 - **Persistent storage** is requested after the first edit. The Songs dialog shows the answer.
 - **Read-only** means edits and undo are ignored and nothing is autosaved; playback and selection still work.
 
-Limits so far: recording only over "Loop section", meter fixed at 4/4, one pattern per lane per section (plus the kit fill), and pass mute lasts for the session.
+## Phase 8 starter content and library
+
+| Part | Where | Notes |
+| --- | --- | --- |
+| Factory library | `src/factory/library.json` | 26 patterns (grooves, three fills, bass, pad, arp, comp), 9 chord progressions, 4 ready-made sections. Read by `src/factory/patterns.js` |
+| Starter song | `src/factory/starter.song.json` | Verse, Chorus, Verse, a Chorus lifted a tone, Outro: 36 bars, 80 seconds, with a melody in the choruses. A first visit opens it with a "Play the starter song" button |
+| Library logic | `src/editor/libraryOps.js` | Tile a progression across a section, save chords, patterns and sections as entries, add a library section to a song, export |
+| User library | `src/storage/library.js`, `src/app/Library.jsx` | Saved entries live in the `library_*` IndexedDB stores and are offered in every song |
+
+How it works:
+
+- **Progressions** sit under the chord lane. Hovering one plays it against the loop; clicking replaces the section's chords, repeating the progression to fill the section.
+- **Ready-made sections** are in the "Add section" menu, beside the empty templates. They bring their chords, key, tempo and patterns; clips for lanes the song lacks are left out.
+- **Saving:** "Save to library" on a pattern editor, "Save these chords" under the chord lane, "Save section" in the section header.
+- **Library entries are frozen**, like factory ones: a song holds a copy, and editing that copy moves it to a new ID, so the library always hands out what was saved.
+- **Authoring the factory content:** the Library dialog's "Export library.json" writes the factory library plus everything saved, in the format of `src/factory/library.json`. Replacing that file with the export makes the saved entries factory content. The starter song is an ordinary song file: open it, change it, "Save file", and replace `src/factory/starter.song.json`.
+
+Limits so far: recording only over "Loop section", meter fixed at 4/4 (every factory pattern is 4/4), one pattern per lane per section (plus the kit fill), and pass mute lasts for the session.
 
 ## Deploy
 

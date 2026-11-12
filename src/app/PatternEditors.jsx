@@ -46,8 +46,8 @@ function headLabels(pattern) {
   return Array.from({ length: n }, (_, i) => (i % perBeat === 0 ? String(Math.floor(i / perBeat) % 4 + 1) : sub ? sub[i % perBeat] : "·"));
 }
 
-function Library({ song, lane, slot, currentId, onPick, onPreview }) {
-  const { factory, mine } = libraryFor(song, lane, slot);
+function Library({ song, lane, slot, currentId, saved, onPick, onPreview }) {
+  const { factory, saved: mineSaved, mine } = libraryFor(song, lane, slot, saved);
   const item = (e) => (
     <button key={e.id} className={`lib${e.id === currentId ? " on" : ""}`}
       onPointerEnter={(ev) => { if (ev.pointerType === "mouse" && e.id !== currentId) onPreview(e); }}
@@ -61,6 +61,7 @@ function Library({ song, lane, slot, currentId, onPick, onPreview }) {
       <div className="card-title"><b>{lane.role === "kit" ? (slot === "fill" ? "Fills" : "Grooves for 4/4") : "Patterns"}</b> Hover to audition against the running loop. Click to use.</div>
       <div className="lib-list">
         {factory.map(item)}
+        {mineSaved.map(item)}
         {mine.map(item)}
         <button className="lib new" onClick={() => onPick(blankPattern(song, lane))}><b>New empty pattern</b><span>start from nothing</span></button>
       </div>
@@ -75,7 +76,7 @@ function Links({ song, id, onUnique }) {
 }
 
 /** Drum grid: pads by steps, plus grid, swing, fill and the groove library. */
-export function DrumEditor({ song, sectionId, lane, onSong, onPreview }) {
+export function DrumEditor({ song, sectionId, lane, onSong, onPreview, saved = [], onSave }) {
   const [slot, setSlot] = useState("main");
   const section = song.sections[sectionId];
   const ids = lanePatterns(section, lane.id);
@@ -98,6 +99,7 @@ export function DrumEditor({ song, sectionId, lane, onSong, onPreview }) {
         <span className="hint">Swing</span>
         <Seg label="Swing" value={lane.swing || "straight"} options={Object.keys(SWINGS).map((s) => [s, cap(s)])} onPick={(s) => onSong(setLane(song, lane.id, { swing: s }))} />
         {id && <Links song={song} id={id} onUnique={() => onSong(makeUnique(song, sectionId, lane.id, active))} />}
+        {id && onSave && <button onClick={() => onSave(id)} title="Keep this pattern for other songs">Save to library</button>}
         <label className="check">
           <input type="checkbox" checked={!!ids.fill} disabled={!ids.main || section.bars < 2}
             onChange={(e) => { setSlot("main"); onSong(setFill(song, sectionId, lane.id, e.target.checked ? FACTORY_BY_ID.pt_fill1 : null)); }} />
@@ -128,7 +130,7 @@ export function DrumEditor({ song, sectionId, lane, onSong, onPreview }) {
         </div>
       ) : <p className="hint">This lane has no pattern. Pick a groove below.</p>}
       <p className="hint legend">Click a cell to cycle: off, <i className="sw lv-n" /> normal, <i className="sw lv-a" /> accent, <i className="sw lv-g" /> ghost. Right-click clears. Hats choke each other.</p>
-      <Library song={song} lane={lane} slot={active} currentId={id}
+      <Library song={song} lane={lane} slot={active} currentId={id} saved={saved}
         onPick={(e) => onSong(applyEntry(song, sectionId, lane, e, active))}
         onPreview={(e) => onPreview(e && { laneId: lane.id, slot: active, entry: e })} />
     </div>
@@ -136,7 +138,7 @@ export function DrumEditor({ song, sectionId, lane, onSong, onPreview }) {
 }
 
 /** Step editor for bass and pad patterns: chord tones by steps. */
-export function StepEditor({ song, sectionId, lane, onSong, onPreview }) {
+export function StepEditor({ song, sectionId, lane, onSong, onPreview, saved = [], onSave }) {
   const section = song.sections[sectionId];
   const id = lanePatterns(section, lane.id).main, stored = id ? song.patterns[id] : null;
   const [draft, setDraft] = useState(null); // pattern being stretched by a drag
@@ -177,6 +179,7 @@ export function StepEditor({ song, sectionId, lane, onSong, onPreview }) {
           <span className="hint">Length</span>
           <Seg label="Length" value={pattern.bars} options={[[1, "1 bar"], [2, "2 bars"]]} onPick={(b) => edit((p) => setPatternBars(p, b))} />
           <Links song={song} id={id} onUnique={() => onSong(makeUnique(song, sectionId, lane.id))} />
+          {onSave && <button onClick={() => onSave(id)} title="Keep this pattern for other songs">Save to library</button>}
         </>}
       </div>
       {pattern ? (
@@ -205,7 +208,7 @@ export function StepEditor({ song, sectionId, lane, onSong, onPreview }) {
         </div>
       ) : <p className="hint">This lane has no pattern. Pick one below.</p>}
       <p className="hint legend">Rows are chord tones counted up from the bottom of the voicing; rows past the top of the chord wrap up an octave. Click to add a note and drag right to hold it. Click a note to remove it. ⇧ click is louder, ⌥ click is softer. ↑ marks a note played an octave up.{lane.mono?.on ? ` This lane is mono (${lane.mono.priority} note wins), so notes stacked on the same step are filtered at playback.` : ""}</p>
-      <Library song={song} lane={lane} slot="main" currentId={id}
+      <Library song={song} lane={lane} slot="main" currentId={id} saved={saved}
         onPick={(e) => onSong(applyEntry(song, sectionId, lane, e))}
         onPreview={(e) => onPreview(e && { laneId: lane.id, slot: "main", entry: e })} />
     </div>

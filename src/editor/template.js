@@ -3,6 +3,7 @@
 
 import { FORMAT_VERSION, RAILS_VERSION, METERS } from "../core/rails.js";
 import { FACTORY_BY_ID, DEFAULT_PADS } from "../factory/patterns.js";
+import starter from "../factory/starter.song.json";
 
 export const FACTORY_SOUNDFONT = {
   hash: "sha256:e2ed326ff44d15f78f2fdc72403b6fa6b77ee7266d3aad0d2198bc95797bc66c",
@@ -53,4 +54,10 @@ export function newProject() {
     },
     arrangement: [{ id: "i_1", section: "s_1", leads: {} }],
   };
+}
+
+/** The song a first-time visitor is given: a short finished piece to play, pull apart and change. */
+export function starterProject() {
+  const now = new Date().toISOString();
+  return { ...structuredClone(starter), id: newId("prj"), created_at: now, updated_at: now };
 }
